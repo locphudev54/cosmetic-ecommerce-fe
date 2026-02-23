@@ -4,13 +4,7 @@ import { COOKIES_TOKEN_KEYS } from '@/constants/cookies.constant'
 import { ROUTES } from '@/constants/route.constant'
 import { RefreshTokenServerResponse } from '@/features/auth/types/auth.types'
 import serverFetchClient from '@/lib/server-fetch'
-import {
-  getAccessToken,
-  getRefreshToken,
-  setAccessTokenCookie,
-  setAuthCookies,
-  setRefreshTokenCookie
-} from '@/utilts/cookies.utils'
+import { getAccessToken, getRefreshToken } from '@/utilts/cookies.utils'
 import { decodeToken } from '@/utilts/server.utils'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
@@ -25,7 +19,7 @@ const authRoutes = [
   ROUTES.AUTH.OAUTH_CALLBACK
 ]
 
-const protectedRoutesPrefixes = [ROUTES.PROTECTED.HOME, ROUTES.DASHBOARD.HOME]
+const protectedRoutesPrefixes = [ROUTES.PROTECTED.HOME, ROUTES.ADMIN.HOME]
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl

@@ -4,12 +4,12 @@ import { PaginationType, SortOrder } from '@/enums'
  * Standard API response wrapper
  * All API endpoints should return this format
  */
-export class ApiResponse<T = any> {
+export class ApiResponse<T = any, M = Record<string, any>> {
   success: boolean = true
   statusCode: number = 200
   message: string = ''
-  data: T = {} as T
-  meta?: Record<string, any>
+  data: T = [] as any
+  meta?: M
   timestamp: string
 
   constructor(init?: Partial<ApiResponse<T>>) {
@@ -37,17 +37,14 @@ export class ApiError {
   }
 }
 
-export interface OffsetPaginationResponse<T = any> {
-  items: T[]
-  meta: {
-    page: number
-    limit: number
-    total: number
-    totalPages: number
-    hasPreviousPage: boolean
-    hasNextPage: boolean
-    filters?: Record<string, any> // Optional filters applied - e.g., search terms, date ranges.
-  }
+export interface OffsetPaginationMeta {
+  page: number
+  limit: number
+  total: number
+  totalPages: number
+  hasPreviousPage: boolean
+  hasNextPage: boolean
+  filters?: Record<string, any> // Optional filters applied - e.g., search terms, date ranges.
 }
 
 export interface CursorPaginationResponse<T = any> {

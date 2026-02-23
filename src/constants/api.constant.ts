@@ -33,6 +33,16 @@ export const API_ENDPOINTS = {
     IMPORT: '/users/import'
   },
 
+  // Products
+  PRODUCTS: {
+    LIST: '/products',
+    DETAIL: (id: string) => `/products/${id}`,
+    CREATE: '/products',
+    UPDATE: (id: string) => `/products/${id}`,
+    DELETE: (id: string) => `/products/${id}`,
+    BULK_DELETE: '/products/bulk-delete'
+  },
+
   // Health check
   HEALTH: '/health'
 } as const

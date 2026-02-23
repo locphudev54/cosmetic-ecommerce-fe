@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { ROUTES } from '@/constants/route.constant'
-import { useLogin } from '@/features/auth/hooks/useAuth'
+import { useLogin } from '@/features/auth/hooks/use-auth'
 import { LoginFormValues, loginSchema } from '@/features/auth/schemas'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
@@ -13,7 +13,7 @@ import { ApiError } from '@/types/api.types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CanceledError } from 'axios'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
@@ -31,7 +31,7 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
   const [error, setError] = useState<string | null>(null)
   const loginMutation = useLogin()
   const searchParams = useSearchParams()
-  const returnUrl = searchParams.get('returnUrl') || ROUTES.HOME
+  const returnUrl = searchParams.get('returnUrl') || ROUTES.ADMIN.PRODUCT.NEW
 
   const onSubmit = async (data: LoginFormValues) => {
     try {

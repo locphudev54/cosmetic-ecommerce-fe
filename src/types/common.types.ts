@@ -1,4 +1,4 @@
-export interface BaseEntity  {
+export interface BaseEntity {
   id: string
   isDeleted?: boolean
   deletedAt?: string

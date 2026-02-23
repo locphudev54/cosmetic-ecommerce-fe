@@ -256,7 +256,7 @@ class ApiClient {
   /**
    * Typed GET request
    */
-  get<T = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  get<T = any, M = any>(url: string, config?: AxiosRequestConfig): Promise<ApiResponse<T, M>> {
     return this.instance.get(url, config)
   }
 
