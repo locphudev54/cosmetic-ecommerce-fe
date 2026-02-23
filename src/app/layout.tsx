@@ -4,7 +4,8 @@ import './globals.css'
 import { Providers } from '@/providers/providers'
 import { cookies } from 'next/headers'
 import { getAccessToken } from '@/utilts/cookies.utils'
-import { AuthInitializer } from '@/components/auth/auth-initializer'
+import { AuthInitializer } from '@/features/auth/components/auth-initializer'
+import { TooltipProvider } from '@/components/ui/tooltip'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -29,11 +30,12 @@ export default async function RootLayout({
   const cookieStore = await cookies()
   const accessToken = getAccessToken(cookieStore)
 
-  console.log('LOOOOOOC::::>>>>>', accessToken)
   return (
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <TooltipProvider>{children}</TooltipProvider>
+        </Providers>
         <AuthInitializer accessToken={accessToken} />
       </body>
     </html>

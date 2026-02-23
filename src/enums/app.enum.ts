@@ -4,7 +4,7 @@
 export enum UserRole {
   CUSTOMER = 'customer',
   ADMIN = 'admin',
-  STAFF = 'staff',
+  STAFF = 'staff'
 }
 
 /**
@@ -12,5 +12,14 @@ export enum UserRole {
  */
 export enum OAuthProvider {
   GOOGLE = 'google',
-  GITHUB = 'github',
+  GITHUB = 'github'
+}
+
+/**
+ * Product status enum
+ */
+export enum ProductStatus {
+  PUBLISHED = 'PUBLISHED',
+  DRAFT = 'DRAFT',
+  ARCHIVED = 'ARCHIVED'
 }

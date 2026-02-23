@@ -21,11 +21,16 @@ export const ROUTES = {
   },
 
   // Dashboard
-  DASHBOARD: {
-    HOME: '/dashboard',
-    PROFILE: '/dashboard/profile',
-    SETTINGS: '/dashboard/settings',
-    ANALYTICS: '/dashboard/analytics',
-    USERS: '/dashboard/users'
+  ADMIN: {
+    HOME: '/admin',
+    PRODUCT: {
+      HOME: '/admin/products',
+      NEW: '/admin/products/new',
+      EDIT: (id: string) => `/admin/products/${id}/edit`
+    },
+    PROFILE: '/admin/profile',
+    SETTINGS: '/admin/settings',
+    ANALYTICS: '/admin/analytics',
+    USERS: '/admin/users'
   }
 }

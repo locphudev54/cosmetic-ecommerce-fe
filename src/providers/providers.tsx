@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react'
 
-import { NuqsAdapter } from 'nuqs/adapters/next'
+import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import QueryProvider from '@/providers/query-provider'
 
 interface ProvidersProps {
