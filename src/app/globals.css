@@ -1,6 +1,6 @@
-@import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'shadcn/tailwind.css';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -122,5 +122,148 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+
+  .ql-editor {
+    min-height: 280px;
+  }
+
+  .ql-container {
+    border-radius: 0 0 8px 8px;
+  }
+
+  .ql-toolbar {
+    border-bottom: none;
+    border-radius: 8px 8px 0 0;
+  }
+
+  .ql-snow .ql-editor.ql-blank::before {
+    color: #999;
+    font-size: 16px;
+    font-style: normal !important;
+  }
+
+  .ql-editor {
+    font-size: 18px; /* same as your "large" */
+  }
+
+  /* Custom scrollbar */
+  .custom-scrollbar {
+    overflow: auto;
+
+    /* Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(100, 116, 139, 0.5) transparent; /* slate-500 */
+  }
+
+  /* WebKit */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.9), rgba(71, 85, 105, 0.9));
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:active {
+    background: rgba(71, 85, 105, 1);
+  }
+}
+
+@theme {
+  /* Colors */
+  /* --color-primary: #ff6b6b; */
+  --color-admin-background: #f5f5f0;
+
+  /* Font size */
+  --text-tiny: 0.8125rem; /* 13px */
+  --text-big: 1.625rem; /* 26px */
+  --text-huge: 2.5rem; /* 40px */
+  --text-mega: 3.5rem; /* 56px */
+
+  /* BLUE */
+  --gradient-blue: linear-gradient(to right, #5a8ff3, #2b6eee, #1f4fcc);
+  --gradient-blue-hover: linear-gradient(to right, #4a7fef, #193fb0);
+
+  /* YELLOW */
+  --gradient-yellow: linear-gradient(to right, #ffe27a, #facc15, #ca8a04);
+  --gradient-yellow-hover: linear-gradient(to right, #ffd84d, #a16207);
+
+  /* ORANGE */
+  --gradient-orange: linear-gradient(to right, #fdba74, #f97316, #c2410c);
+  --gradient-orange-hover: linear-gradient(to right, #fb923c, #9a3412);
+
+  /* GREEN */
+  --gradient-green: linear-gradient(to right, #86efac, #22c55e, #15803d);
+  --gradient-green-hover: linear-gradient(to right, #4ade80, #166534);
+
+  /* RED */
+  --gradient-red: linear-gradient(to right, #fca5a5, #ef4444, #b91c1c);
+  --gradient-red-hover: linear-gradient(to right, #f87171, #991b1b);
+
+  /* PURPLE */
+  --gradient-purple: linear-gradient(to right, #c4b5fd, #8b5cf6, #5b21b6);
+  --gradient-purple-hover: linear-gradient(to right, #a78bfa, #4c1d95);
+
+  /* PINK */
+  --gradient-pink: linear-gradient(to right, #f9a8d4, #ec4899, #9d174d);
+  --gradient-pink-hover: linear-gradient(to right, #f472b6, #831843);
+
+  /* CYAN */
+  --gradient-cyan: linear-gradient(to right, #67e8f9, #06b6d4, #0e7490);
+  --gradient-cyan-hover: linear-gradient(to right, #22d3ee, #155e75);
+
+  /* TEAL */
+  --gradient-teal: linear-gradient(to right, #5eead4, #14b8a6, #0f766e);
+  --gradient-teal-hover: linear-gradient(to right, #2dd4bf, #134e4a);
+
+  /* GRAY */
+  --gradient-gray: linear-gradient(to right, #e5e7eb, #9ca3af, #4b5563);
+  --gradient-gray-hover: linear-gradient(to right, #d1d5db, #374151);
+
+  /* DARK */
+  --gradient-dark: linear-gradient(to right, #4b5563, #1f2937, #020617);
+  --gradient-dark-hover: linear-gradient(to right, #374151, #000000);
+}
+
+@layer utilities {
+  .container-custom {
+    margin-inline: auto;
+    padding-inline: 1rem;
+    width: 100%;
+    max-width: 80rem; /* 1280px */
+  }
+
+  @media (min-width: 40rem) {
+    /* 640px */
+    .container-custom {
+      max-width: 40rem;
+    }
+  }
+
+  @media (min-width: 48rem) {
+    /* 768px */
+    .container-custom {
+      max-width: 48rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    /* 1024px */
+    .container-custom {
+      max-width: 64rem;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    /* 1280px */
+    .container-custom {
+      max-width: 80rem;
+    }
   }
 }

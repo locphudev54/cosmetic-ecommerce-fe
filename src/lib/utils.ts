@@ -11,3 +11,7 @@ export const isServer = typeof window === 'undefined'
  * Checks if code is running on the client
  */
 export const isClient = !isServer
+
+export function formatNumberWithCommas(number: number): string {
+  return number.toLocaleString('en-US')
+}

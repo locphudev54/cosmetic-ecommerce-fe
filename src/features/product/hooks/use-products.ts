@@ -1,16 +1,21 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productService } from '@/features/product/services/product.service'
-import { ProductListParams, CreateProductDto, UpdateProductDto } from '@/features/product/types'
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  FindAllProductsQueryParams,
+  FindAllAttributesQueryParams
+} from '@/features/product/types'
 
 export const PRODUCT_QUERY_KEYS = {
   all: ['products'] as const,
   lists: () => [...PRODUCT_QUERY_KEYS.all, 'list'] as const,
-  list: (params?: ProductListParams) => [...PRODUCT_QUERY_KEYS.lists(), params] as const,
+  list: (params?: FindAllProductsQueryParams) => [...PRODUCT_QUERY_KEYS.lists(), params] as const,
   details: () => [...PRODUCT_QUERY_KEYS.all, 'detail'] as const,
   detail: (id: string) => [...PRODUCT_QUERY_KEYS.details(), id] as const
 }
 
-export const useProducts = (params?: ProductListParams) => {
+export const useProducts = (params?: FindAllProductsQueryParams) => {
   return useQuery({
     queryKey: PRODUCT_QUERY_KEYS.list(params),
     queryFn: () => productService.getProducts(params)
@@ -68,5 +73,12 @@ export const useBulkDeleteProducts = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PRODUCT_QUERY_KEYS.lists() })
     }
+  })
+}
+
+export const useAttributes = (params?: FindAllAttributesQueryParams) => {
+  return useQuery({
+    queryKey: ['attributes'],
+    queryFn: () => productService.getAttributes(params)
   })
 }
