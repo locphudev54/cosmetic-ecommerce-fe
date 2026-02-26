@@ -1,4 +1,5 @@
-import { ProductStatus } from '@/enums'
+import { AttributeType, ProductStatus } from '@/enums'
+import { PaginationQueryParams } from '@/types/api.types'
 
 export interface Product {
   id: string
@@ -92,15 +93,15 @@ export interface ProductImage {
   updatedAt: string | Date | null
 }
 
-export interface ProductListParams {
-  page?: number
-  limit?: number
+export interface FindAllProductsQueryParams extends PaginationQueryParams {
   search?: string
   status?: ProductStatus
   brandId?: string
   categoryId?: string
-  sortBy?: string
-  sortOrder?: 'asc' | 'desc'
+}
+
+export interface FindAllAttributesQueryParams extends PaginationQueryParams {
+  getAll?: boolean
 }
 
 export interface CreateProductDto {
@@ -115,3 +116,81 @@ export interface CreateProductDto {
 }
 
 export interface UpdateProductDto extends Partial<CreateProductDto> {}
+
+/**
+ * The real ProductVariant object:
+ *  {
+      "sku": "TSHIRT-001-RED-S",
+      "name": "Red - Small",
+      "barcode": "8901234567890",
+      "costPrice": 15.00,
+      "sellingPrice": 29.99,
+      "stockOnHand": 50,
+      "imageUrl": "https://cdn.example.com/variants/tshirt-red-s.jpg",
+      "lowStockThreshold": 10,
+      "maxStockThreshold": 200,
+      "isActive": true,
+      "attributeValues": [
+        {
+          "attributeValueId": "03723340-c328-476a-a1c8-31d5825b9f0f"
+        },
+        {
+          "attributeValueId": "4a94db09-5d94-4351-bbfa-b776b2a84042"
+        },
+        {
+          "attributeValueId": "d119e0cd-82b5-4655-bb9b-1aea27891b27"
+        }
+      ],
+        "images": [
+            {
+            "url": "https://cdn.example.com/variants/tshirt-red-s-front.jpg",
+            "altText": "Red Small T-Shirt - Front"
+            },
+            {
+            "url": "https://cdn.example.com/variants/tshirt-red-s-worn.jpg",
+            "altText": "Red Small T-Shirt - Model Wearing"
+        }
+      ]
+    }
+ */
+
+export type ProductVariantType = {
+  sku?: string
+  name?: string
+  barcode?: string
+  costPrice: number
+  sellingPrice: number
+  stockOnHand: number
+  imageUrl?: string
+  lowStockThreshold?: number
+  maxStockThreshold?: number
+  isActive?: boolean
+  attributeValues: string[]
+  // attributeValues: { attributeValueId: string }[]
+  images?: {
+    url: string
+    altText?: string
+  }[]
+}
+
+export interface ProductAttributeType {
+  name: string
+  values: string[]
+}
+
+export interface Attribute {
+  id: string
+  name: string
+  slug: string
+  type: AttributeType
+  values: AttributeValue[]
+  isGlobalFilter: boolean
+  filterGroup?: string
+  unit?: string
+}
+
+export interface AttributeValue {
+  id: string
+  attributeId: string
+  value: string
+}

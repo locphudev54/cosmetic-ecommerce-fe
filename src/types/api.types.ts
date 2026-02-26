@@ -10,11 +10,10 @@ export class ApiResponse<T = any, M = Record<string, any>> {
   message: string = ''
   data: T = [] as any
   meta?: M
-  timestamp: string
+  timestamp: string = ''
 
   constructor(init?: Partial<ApiResponse<T>>) {
     Object.assign(this, init)
-    this.timestamp = new Date().toISOString()
   }
 }
 
@@ -63,7 +62,7 @@ export interface PaginationQueryParams {
   paginationType?: PaginationType
   page?: number
   limit?: number
-  sortBy?: 'createdAt'
+  sortBy?: string
   sortOrder?: SortOrder
   cursor: string
 }

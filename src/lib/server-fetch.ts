@@ -43,7 +43,7 @@ import { redirect } from 'next/navigation'
 class ServerFetchClient {
   private baseUrl = envServer.BACKEND_API_URL
 
-  private async fetch<T = any>(
+  private async fetch<T = any, M = any>(
     endpoint: string,
     options: RequestInit & {
       next?: {
@@ -53,7 +53,7 @@ class ServerFetchClient {
       timeout?: number // Timeout in milliseconds (default: 30000)
       signal?: AbortSignal // Custom abort signal for manual cancellation
     } = {}
-  ): Promise<ApiResponse<T>> {
+  ): Promise<ApiResponse<T, M>> {
     const url = `${this.baseUrl}${endpoint}`
 
     // Default timeout: 30 seconds
@@ -111,7 +111,7 @@ class ServerFetchClient {
 
         // Check whether erorr is Unauthorized (401) - Invalidated / Invalid / Missing ATs
         // Expired ATs will not be occurred here because proxy.ts middleware will handle it before forwarding request to API routes
-        // So here we just log out the user on client side by redirecting to logout page
+        // So here we just logout the user on client side by redirecting to logout page
         if (
           isApiError(errorData) &&
           errorData.statusCode === 401 &&
@@ -136,7 +136,7 @@ class ServerFetchClient {
       }
 
       // Parse successful response
-      const data: ApiResponse<T> = await response.json()
+      const data: ApiResponse<T, M> = await response.json()
 
       // Optional: Log successful requests in development
       if (envServer.NODE_ENV === 'development') {
@@ -166,7 +166,7 @@ class ServerFetchClient {
   /**
    * GET request
    */
-  async get<T = any>(
+  async get<T = any, M = any>(
     endpoint: string,
     options: Omit<RequestInit, 'method' | 'body'> & {
       next?: {
@@ -176,8 +176,8 @@ class ServerFetchClient {
       timeout?: number
       signal?: AbortSignal
     } = {}
-  ): Promise<ApiResponse<T>> {
-    return this.fetch<T>(endpoint, { ...options, method: 'GET' })
+  ): Promise<ApiResponse<T, M>> {
+    return this.fetch<T, M>(endpoint, { ...options, method: 'GET' })
   }
 
   /**

@@ -100,9 +100,10 @@ export async function proxy(request: NextRequest) {
   if (isAuthRoute && isAuthenticated) {
     return NextResponse.redirect(new URL(ROUTES.HOME, request.url))
   }
-  if (isProtectedRoute && !isAuthenticated) {
-    return NextResponse.redirect(new URL(ROUTES.AUTH.LOGIN, request.url))
-  }
+
+  // if (isProtectedRoute && !isAuthenticated) {
+  //   return NextResponse.redirect(new URL(ROUTES.AUTH.LOGIN, request.url))
+  // }
 
   return response
 }

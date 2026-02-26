@@ -23,3 +23,11 @@ export enum ProductStatus {
   DRAFT = 'DRAFT',
   ARCHIVED = 'ARCHIVED'
 }
+
+export enum AttributeType {
+  COLOR = 'COLOR',
+  SIZE = 'SIZE',
+  TEXT = 'TEXT',
+  NUMBER = 'NUMBER',
+  BOOLEAN = 'BOOLEAN'
+}

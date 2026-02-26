@@ -1,2 +1,4 @@
 export { columns } from './columns'
-export { DataTable } from './data-table'
+export { default as UploadProductImages } from './upload-product-images'
+export { default as ProductVariantsForm } from './product-variants-form'
+export { default as ProductImageThumbnail } from './product-image-thumbnail'

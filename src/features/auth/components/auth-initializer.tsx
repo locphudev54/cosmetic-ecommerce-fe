@@ -28,14 +28,12 @@ export function AuthInitializer({ accessToken }: AuthInitializerProps) {
       // If already have access token received from server-side rendering, no need to refresh
       // Set this access token to auth store
       if (accessToken) {
-        debugger
         setAccessToken(accessToken)
         return
       }
 
       if (isAuthenticated || isAuthenticationPath) return
 
-      debugger
       try {
         const response = await internalApiClient.post<RefreshTokenClientResponse>(
           API_ENDPOINTS.AUTH.REFRESH
@@ -51,7 +49,7 @@ export function AuthInitializer({ accessToken }: AuthInitializerProps) {
       }
     }
 
-    refreshToken()
+    // refreshToken()
   }, [])
 
   return null

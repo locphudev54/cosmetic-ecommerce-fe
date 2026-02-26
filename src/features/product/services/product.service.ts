@@ -3,20 +3,18 @@ import apiClient from '@/lib/api-client'
 import { ApiResponse, OffsetPaginationMeta } from '@/types/api.types'
 import {
   Product,
-  ProductListParams,
   CreateProductDto,
-  UpdateProductDto
+  UpdateProductDto,
+  Attribute,
+  FindAllProductsQueryParams,
+  FindAllAttributesQueryParams
 } from '@/features/product/types'
 
 export const productService = {
-  async getProducts(
-    params?: ProductListParams
+  getProducts(
+    params?: FindAllProductsQueryParams
   ): Promise<ApiResponse<Product[], OffsetPaginationMeta>> {
-    const response = await apiClient.get<Product[], OffsetPaginationMeta>(
-      API_ENDPOINTS.PRODUCTS.LIST,
-      { params }
-    )
-    return response
+    return apiClient.get<Product[], OffsetPaginationMeta>(API_ENDPOINTS.PRODUCTS.LIST, { params })
   },
 
   async getProductById(id: string): Promise<Product> {
@@ -40,5 +38,11 @@ export const productService = {
 
   async bulkDeleteProducts(ids: string[]): Promise<void> {
     await apiClient.post(API_ENDPOINTS.PRODUCTS.BULK_DELETE, { ids })
+  },
+
+  async getAttributes(
+    params?: FindAllAttributesQueryParams
+  ): Promise<ApiResponse<Attribute[], OffsetPaginationMeta>> {
+    return apiClient.get<Attribute[], OffsetPaginationMeta>('/attributes', { params })
   }
 }

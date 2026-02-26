@@ -1,5 +1,3 @@
-'use client'
-
 // Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
 import { isServer, QueryClient } from '@tanstack/react-query'
 import { cache } from 'react'
@@ -9,12 +7,10 @@ function makeQueryClient() {
     defaultOptions: {
       queries: {
         // Data is considered fresh for 1 minute
-        // staleTime: 1000 * 60,
-        staleTime: 1000 * 5,
+        staleTime: 1000 * 60,
 
         // Cached data is garbage collected after 5 minutes
-        // gcTime: 1000 * 60 * 5,
-        gcTime: 1000 * 10,
+        gcTime: 1000 * 60 * 5,
 
         // Retry failed queries up to 3 times
         retry: 0,
@@ -46,6 +42,10 @@ function makeQueryClient() {
 }
 
 let browserQueryClient: QueryClient | undefined = undefined
+
+// The below function is usually used in client components,
+// but it can also be used in server components if you want to create a new query client for each request
+// (not recommended for performance reasons) -> in that case, you can use getServerQueryClient (below) instead which is cached per request
 
 export function getQueryClient() {
   if (isServer) {
