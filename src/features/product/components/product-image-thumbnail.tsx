@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { useSortable } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { Eye, ScanSearch, ZoomIn } from 'lucide-react'
+import Image from 'next/image'
 
 interface ThumbnailProps {
   image: UploadedImage
@@ -42,7 +43,14 @@ export default function ProductImageThumbnail({
         }
       )}
     >
-      <img src={image.preview} alt='Thumbnail' className='h-full w-full object-cover' />
+      <Image
+        sizes='100vw'
+        width={0}
+        height={0}
+        src={image.preview}
+        alt='Thumbnail'
+        className='h-full w-full object-cover'
+      />
 
       {/* Drag Handle */}
       <div

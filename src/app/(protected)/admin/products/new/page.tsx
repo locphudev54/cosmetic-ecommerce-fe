@@ -11,7 +11,7 @@ export default async function Page() {
   const accessToken = cookieStore.get('accessToken')?.value
   const queryClient = getServerQueryClient()
 
-  const res = await queryClient.fetchQuery({
+  await queryClient.fetchQuery({
     queryKey: ['attributes'],
     queryFn: () =>
       serverFetchClient.get<Attribute[], OffsetPaginationMeta>('/attributes?getAll=true', {

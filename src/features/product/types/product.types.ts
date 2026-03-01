@@ -154,10 +154,12 @@ export interface UpdateProductDto extends Partial<CreateProductDto> {}
     }
  */
 
+// This is the type for the form state when creating/updating a product
+
 export type ProductVariantType = {
-  sku?: string
-  name?: string
-  barcode?: string
+  sku?: string // remove
+  name: string
+  barcode: string
   costPrice: number
   sellingPrice: number
   stockOnHand: number
@@ -165,18 +167,21 @@ export type ProductVariantType = {
   lowStockThreshold?: number
   maxStockThreshold?: number
   isActive?: boolean
-  attributeValues: string[]
-  // attributeValues: { attributeValueId: string }[]
-  images?: {
-    url: string
-    altText?: string
-  }[]
+  attributeValues: ProductAttributeValueType[]
 }
 
 export interface ProductAttributeType {
+  id: string
   name: string
-  values: string[]
+  values: ProductAttributeValueType[]
 }
+
+export interface ProductAttributeValueType {
+  attributeValueId: string
+  value: string
+}
+
+// Received Types from BE
 
 export interface Attribute {
   id: string

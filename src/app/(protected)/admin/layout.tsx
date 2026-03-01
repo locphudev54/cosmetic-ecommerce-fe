@@ -32,7 +32,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </Breadcrumb>
           </div>
         </header>
-        <div className='flex flex-1 flex-col gap-4 p-4 pt-0 bg-admin-background '>
+        <div className='bg-admin-background flex flex-1 flex-col pt-0'>
           <div className='container-custom'>{children}</div>
         </div>
       </SidebarInset>

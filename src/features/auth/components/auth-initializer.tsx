@@ -49,7 +49,7 @@ export function AuthInitializer({ accessToken }: AuthInitializerProps) {
       }
     }
 
-    // refreshToken()
+    refreshToken()
   }, [])
 
   return null

@@ -260,7 +260,7 @@
     }
   }
 
-  @media (min-width: 80rem) {
+  @media (min-width: 90rem) {
     /* 1280px */
     .container-custom {
       max-width: 80rem;

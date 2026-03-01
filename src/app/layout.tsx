@@ -39,7 +39,7 @@ export default async function RootLayout({
         </Providers>
         {/* TODO: Wrap this below component into another Server Component and then get cookies in this Server Comp instead of getting in this root layout  */}
         <AuthInitializer accessToken={accessToken} />
-        <Toaster position='bottom-right' />
+        <Toaster position='bottom-right' richColors />
       </body>
     </html>
   )

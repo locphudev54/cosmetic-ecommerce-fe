@@ -14,18 +14,22 @@ import { TypographyTable } from './typography-table'
 
 export function TypographyRtl() {
   return (
-    <div dir="rtl" className="space-y-6">
+    <div dir='rtl' className='space-y-6'>
       <TypographyH1>Taxing Laughter: The Joke Tax Chronicles</TypographyH1>
       <TypographyP>
-        Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging on his throne. One day, his advisors came to him with a problem: the kingdom was running out of money.
+        Once upon a time, in a far-off land, there was a very lazy king who spent all day lounging
+        on his throne. One day, his advisors came to him with a problem: the kingdom was running out
+        of money.
       </TypographyP>
       <TypographyH2>The King's Plan</TypographyH2>
       <TypographyP>
-        The king thought long and hard, and finally came up with{" "}
-        <TypographyInlineCode>a brilliant plan</TypographyInlineCode>: he would tax the jokes in the kingdom.
+        The king thought long and hard, and finally came up with{' '}
+        <TypographyInlineCode>a brilliant plan</TypographyInlineCode>: he would tax the jokes in the
+        kingdom.
       </TypographyP>
       <TypographyBlockquote>
-        "After all," he said, "everyone enjoys a good joke, so it's only fair that they should pay for the privilege."
+        "After all," he said, "everyone enjoys a good joke, so it's only fair that they should pay
+        for the privilege."
       </TypographyBlockquote>
       <TypographyH3>The Joke Tax</TypographyH3>
       <TypographyP>
@@ -37,7 +41,8 @@ export function TypographyRtl() {
         <li>3rd level of puns: 20 gold coins</li>
       </TypographyList>
       <TypographyP>
-        As a result, people stopped telling jokes, and the kingdom fell into a gloom. But there is a twist in the story...
+        As a result, people stopped telling jokes, and the kingdom fell into a gloom. But there is a
+        twist in the story...
       </TypographyP>
       <TypographyTable>
         <thead>
@@ -54,8 +59,7 @@ export function TypographyRtl() {
         </tbody>
       </TypographyTable>
       <TypographyP>
-        And they lived{" "}
-        <TypographyInlineCode>happily</TypographyInlineCode> ever after. The end.
+        And they lived <TypographyInlineCode>happily</TypographyInlineCode> ever after. The end.
       </TypographyP>
     </div>
   )
