@@ -114,8 +114,6 @@ class ApiClient {
       (config: InternalAxiosRequestConfig) => {
         const { accessToken } = useAuthStore.getState()
 
-        console.log('PHULOC:::::', accessToken)
-
         if (accessToken && config.headers) {
           config.headers.Authorization = `Bearer ${accessToken}`
         }

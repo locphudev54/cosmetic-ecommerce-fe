@@ -1,4 +1,5 @@
 import { AttributeType, ProductStatus } from '@/enums'
+import { Category } from '@/features/categories/types/category.types'
 import { PaginationQueryParams } from '@/types/api.types'
 
 export interface Product {
@@ -49,19 +50,6 @@ export interface ProductCategory {
   category?: Category
   createdAt: string | Date
 }
-
-export interface Category {
-  id: string
-  code: string
-  name: string
-  slug: string
-  description?: string | null
-  parentId?: string | null
-  level: number
-  createdAt: string | Date
-  updatedAt: string | Date | null
-}
-
 export interface ProductVariant {
   id: string
   productId: string
@@ -95,7 +83,7 @@ export interface ProductImage {
 
 export interface FindAllProductsQueryParams extends PaginationQueryParams {
   search?: string
-  status?: ProductStatus
+  status?: ProductStatus[]
   brandId?: string
   categoryId?: string
 }

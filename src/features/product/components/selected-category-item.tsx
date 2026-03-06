@@ -18,7 +18,7 @@ export default function SelectedCategoryItem({
     <div
       onClick={onClick}
       className={cn(
-        'flex w-full cursor-pointer items-center justify-between rounded-sm bg-blue-50 px-1.5 py-2 pl-2 text-sm transition-colors select-none'
+        'flex w-full cursor-pointer items-center justify-between rounded-sm bg-blue-50 px-1.5 py-2 pl-2 text-sm shadow transition-colors select-none'
       )}
     >
       <div className='flex items-center gap-x-2'>

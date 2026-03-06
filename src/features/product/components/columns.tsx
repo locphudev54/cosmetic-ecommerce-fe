@@ -1,22 +1,8 @@
 'use client'
 
-import { ColumnDef } from '@tanstack/react-table'
-import { Product } from '@/features/product/types'
-import { ProductStatus } from '@/enums'
+import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import {
-  MoreHorizontal,
-  Hash,
-  Tag,
-  Package,
-  MapPin,
-  DollarSign,
-  Activity,
-  Calendar,
-  Eye
-} from 'lucide-react'
-import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,6 +11,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { ProductStatus } from '@/enums'
+import { Product } from '@/features/product/types'
+import { ColumnDef } from '@tanstack/react-table'
+import {
+  Activity,
+  Calendar,
+  DollarSign,
+  Edit2,
+  Eye,
+  MapPin,
+  MoreHorizontal,
+  Package,
+  Tag
+} from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 
 const getStatusVariant = (status: ProductStatus | null) => {
   switch (status) {
@@ -58,20 +59,41 @@ const formatDate = (date: string | Date | null) => {
 
 export const columns: ColumnDef<Product>[] = [
   {
-    id: 'code',
-    accessorKey: 'code',
-    header: ({ column }) => <DataTableColumnHeader label='Code' column={column} />,
-    cell: ({ row }) => <div className='font-medium'>{row.getValue('code')}</div>,
-    meta: {
-      label: 'Code',
-      placeholder: 'Search code...',
-      variant: 'text',
-      icon: Hash
-    },
-    enableColumnFilter: true
-    // enableSorting: false
-    // enableHiding: true
+    id: 'select',
+    header: ({ table }) => (
+      <Checkbox
+        checked={
+          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
+        }
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        aria-label='Select all'
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox
+        checked={row.getIsSelected()}
+        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        aria-label='Select row'
+      />
+    ),
+    enableSorting: false,
+    enableHiding: false
   },
+  // {
+  //   id: 'code',
+  //   accessorKey: 'code',
+  //   header: ({ column }) => <DataTableColumnHeader label='Mã Sản Phẩm' column={column} />,
+  //   cell: ({ row }) => <div className='font-medium'>{row.getValue('code')}</div>,
+  //   meta: {
+  //     label: 'Code',
+  //     placeholder: 'Lọc theo mã..',
+  //     variant: 'text',
+  //     icon: Hash
+  //   },
+  //   enableColumnFilter: true,
+  //   enableSorting: false,
+  //   enableHiding: true
+  // },
   {
     id: 'name',
     accessorKey: 'name',
@@ -79,7 +101,7 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => <div className='max-w-75 truncate'>{row.getValue('name')}</div>,
     meta: {
       label: 'Name',
-      placeholder: 'Search name...',
+      placeholder: 'Tìm sản phẩm theo mã / tên / mô tả...',
       variant: 'text',
       icon: Tag
     },
@@ -102,8 +124,8 @@ export const columns: ColumnDef<Product>[] = [
       placeholder: 'Search brand...',
       variant: 'text',
       icon: Package
-    },
-    enableColumnFilter: true
+    }
+    // enableColumnFilter: true
   },
   {
     id: 'countryOfOrigin',
@@ -118,8 +140,8 @@ export const columns: ColumnDef<Product>[] = [
       placeholder: 'Search country...',
       variant: 'text',
       icon: MapPin
-    },
-    enableColumnFilter: true
+    }
+    // enableColumnFilter: true
   },
   {
     id: 'basePrice',
@@ -131,20 +153,20 @@ export const columns: ColumnDef<Product>[] = [
       placeholder: 'Filter price...',
       variant: 'number',
       icon: DollarSign
-    },
-    enableColumnFilter: true
+    }
+    // enableColumnFilter: true
   },
   {
     id: 'status',
     accessorKey: 'status',
-    header: ({ column }) => <DataTableColumnHeader label='Status' column={column} />,
+    header: ({ column }) => <DataTableColumnHeader label='Trạng thái' column={column} />,
     cell: ({ row }) => {
       const status = row.getValue('status') as ProductStatus | null
       return <Badge variant={getStatusVariant(status)}>{status || 'UNKNOWN'}</Badge>
     },
     meta: {
-      label: 'Status',
-      variant: 'select',
+      label: 'Tình trạng',
+      variant: 'multiSelect',
       options: [
         { label: 'Published', value: ProductStatus.PUBLISHED },
         { label: 'Draft', value: ProductStatus.DRAFT },
@@ -166,8 +188,8 @@ export const columns: ColumnDef<Product>[] = [
       label: 'Views',
       variant: 'number',
       icon: Eye
-    },
-    enableColumnFilter: true
+    }
+    // enableColumnFilter: true
   },
   {
     id: 'createdAt',
@@ -178,8 +200,8 @@ export const columns: ColumnDef<Product>[] = [
       label: 'Created At',
       variant: 'date',
       icon: Calendar
-    },
-    enableColumnFilter: true
+    }
+    // enableColumnFilter: true
   },
   {
     id: 'actions',
@@ -188,24 +210,29 @@ export const columns: ColumnDef<Product>[] = [
       const product = row.original
 
       return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant='ghost' className='h-8 w-8 p-0'>
-              <span className='sr-only'>Open menu</span>
-              <MoreHorizontal className='h-4 w-4' />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align='end'>
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(product.id)}>
-              Copy product ID
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>View details</DropdownMenuItem>
-            <DropdownMenuItem>Edit product</DropdownMenuItem>
-            <DropdownMenuItem className='text-destructive'>Delete product</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className='flex items-center justify-end'>
+          <Button variant='ghost' size={'icon-sm'}>
+            <Edit2 className='h-4 w-4' />
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant='ghost' className='h-8 w-8 p-0'>
+                <span className='sr-only'>Open menu</span>
+                <MoreHorizontal className='h-4 w-4' />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align='end'>
+              <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(product.id)}>
+                Copy product ID
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>View details</DropdownMenuItem>
+              <DropdownMenuItem>Edit product</DropdownMenuItem>
+              <DropdownMenuItem className='text-destructive'>Delete product</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )
     }
   }

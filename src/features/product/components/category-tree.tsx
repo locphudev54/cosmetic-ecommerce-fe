@@ -2,45 +2,18 @@
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { CategoryTreeNodeType } from '@/features/categories/types/category.types'
 import CategoryTreeNode from '@/features/product/components/category-tree-node'
 import { useCategoryTreeStore } from '@/features/product/store/category-tree-store'
 import { Search, X } from 'lucide-react'
-import React, { useEffect } from 'react'
+import React from 'react'
 
-interface CategoryTreeProps {
-  categories: CategoryTreeNodeType[]
-  multiSelect?: boolean
-  showProductCount?: boolean
-}
-
-export function CategoryTree({
-  categories,
-  multiSelect = false,
-  showProductCount = false
-}: CategoryTreeProps) {
+export function CategoryTree() {
   const searchQuery = useCategoryTreeStore((s) => s.searchQuery)
   const selectedCategories = useCategoryTreeStore((s) => s.selectedCategories)
   const filteredCategories = useCategoryTreeStore((s) => s.filteredCategories)
   const setSearchQuery = useCategoryTreeStore((s) => s.setSearchQuery)
   const clearSearch = useCategoryTreeStore((s) => s.clearSearch)
   const clearSelection = useCategoryTreeStore((s) => s.clearSelection)
-  const setCategories = useCategoryTreeStore((s) => s.setCategories)
-  const setMultiSelect = useCategoryTreeStore((s) => s.setMultiSelect)
-  const setShowProductCount = useCategoryTreeStore((s) => s.setShowProductCount)
-
-  // Sync props into the store
-  useEffect(() => {
-    setCategories(categories)
-  }, [categories, setCategories])
-
-  useEffect(() => {
-    setMultiSelect(multiSelect)
-  }, [multiSelect, setMultiSelect])
-
-  useEffect(() => {
-    setShowProductCount(showProductCount)
-  }, [showProductCount, setShowProductCount])
 
   return (
     <div className='w-full space-y-4'>
@@ -83,8 +56,12 @@ export function CategoryTree({
                   {selectedCategories.length === 1 ? 'category' : 'categories'} selected
                 </span>
                 <Button variant='outline' size='sm' onClick={clearSelection}>
-                  Clear Selection
+                  <span>Clear selection ({selectedCategories.length})</span>
                 </Button>
+
+                {/* <Button variant='blue_gradient' size='sm'>
+                  <span>Chọn ({selectedCategories.length})</span>
+                </Button> */}
               </div>
             )}
           </React.Fragment>

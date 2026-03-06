@@ -9,7 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { ProductVariantsForm, UploadProductImages } from '@/features/product/components'
 import CategorySelection from '@/features/product/components/category-selection'
 import {
-  CreateProductFormValues,
+  UpsertProductFormValues,
   createProductSchema
 } from '@/features/product/schemas/product.schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -22,8 +22,8 @@ const RichTextEditor = dynamic(() => import('@/components/common/rich-text-edito
   loading: () => <Skeleton className='h-70 w-full' />
 })
 
-export default function CreateProductForm() {
-  const form = useForm<CreateProductFormValues>({
+export default function UpsertProductForm() {
+  const form = useForm<UpsertProductFormValues>({
     resolver: zodResolver(createProductSchema),
     defaultValues: {
       name: '',
@@ -31,7 +31,7 @@ export default function CreateProductForm() {
     }
   })
 
-  const onSubmit = (data: CreateProductFormValues) => {
+  const onSubmit = (data: UpsertProductFormValues) => {
     console.log({ data })
   }
 
@@ -117,7 +117,7 @@ export default function CreateProductForm() {
                     <TypographyMuted>Danh mục</TypographyMuted>
                   </FieldLabel>
 
-                  <CategorySelection />
+                  <CategorySelection multiSelect />
                 </Field>
               </CardContent>
             </Card>

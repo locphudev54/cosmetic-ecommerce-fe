@@ -232,7 +232,7 @@
 }
 
 @layer utilities {
-  .container-custom {
+  .custom-container {
     margin-inline: auto;
     padding-inline: 1rem;
     width: 100%;
@@ -241,28 +241,28 @@
 
   @media (min-width: 40rem) {
     /* 640px */
-    .container-custom {
+    .custom-container {
       max-width: 40rem;
     }
   }
 
   @media (min-width: 48rem) {
     /* 768px */
-    .container-custom {
+    .custom-container {
       max-width: 48rem;
     }
   }
 
   @media (min-width: 64rem) {
     /* 1024px */
-    .container-custom {
+    .custom-container {
       max-width: 64rem;
     }
   }
 
   @media (min-width: 90rem) {
     /* 1280px */
-    .container-custom {
+    .custom-container {
       max-width: 80rem;
     }
   }

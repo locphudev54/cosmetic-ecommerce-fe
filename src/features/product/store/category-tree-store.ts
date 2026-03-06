@@ -124,7 +124,10 @@ function recomputeDerived(state: {
 }
 
 // Recursively find category in the tree to check if it exists (defensive programming)
-function findCategory(nodes: CategoryTreeNodeType[], id: string): CategoryTreeNodeType | null {
+export function findCategory(
+  nodes: CategoryTreeNodeType[],
+  id: string
+): CategoryTreeNodeType | null {
   for (const node of nodes) {
     if (node.id === id) return node
     if (node.children) {
@@ -143,7 +146,7 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
       searchQuery: '',
       expanded: new Set<string>(),
       selectedCategories: [],
-      multiSelect: true,
+      multiSelect: false,
       showProductCount: false,
       onSelectionChange: undefined,
 
@@ -155,6 +158,11 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
       // Actions
       setCategories: (categories) =>
         set((state) => {
+          // Prevent unnecessary recomputation if categories reference doesn't change
+          if (state.categories === categories) {
+            return state
+          }
+
           const derived = recomputeDerived({ ...state, categories })
           return { categories, ...derived }
         }),
@@ -188,17 +196,21 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
           const next = state.selectedCategories
           const isExisting = next.some((cat) => cat.id === id)
 
-          if (isExisting) {
-            const filtered = next.filter((cat) => cat.id !== id)
-            return { selectedCategories: filtered }
-          }
+          if (state.multiSelect) {
+            if (isExisting) {
+              const filtered = next.filter((cat) => cat.id !== id)
+              return { selectedCategories: filtered }
+            }
 
-          const categoryToAdd = findCategory(state.categories, id)
-          if (categoryToAdd) {
-            return { selectedCategories: [...next, categoryToAdd] }
-          }
+            const categoryToAdd = findCategory(state.categories, id)
+            if (categoryToAdd) {
+              return { selectedCategories: [...next, categoryToAdd] }
+            }
 
-          return { selectedCategories: next }
+            return { selectedCategories: next }
+          } else {
+            return { selectedCategories: isExisting ? [] : [findCategory(state.categories, id)!] }
+          }
 
           // if (state.multiSelect) {
           //   if (next.has(id)) {

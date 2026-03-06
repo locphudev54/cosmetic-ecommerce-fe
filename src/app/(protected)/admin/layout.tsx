@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
+import { Suspense } from 'react'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -22,18 +23,20 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <Breadcrumb>
               <BreadcrumbList>
                 <BreadcrumbItem className='hidden md:block'>
-                  <BreadcrumbLink href='#'>Build Your Application</BreadcrumbLink>
+                  <BreadcrumbLink href='#'>Products</BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator className='hidden md:block' />
                 <BreadcrumbItem>
-                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                  <BreadcrumbPage>Create new</BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
           </div>
         </header>
         <div className='bg-admin-background flex flex-1 flex-col pt-0'>
-          <div className='container-custom'>{children}</div>
+          <Suspense fallback={<div>Loading...</div>}>
+            <div className='custom-container'>{children}</div>
+          </Suspense>
         </div>
       </SidebarInset>
     </SidebarProvider>

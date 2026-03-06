@@ -185,4 +185,4 @@ export const createProductSchema = z.object({
   //   })
 })
 
-export type CreateProductFormValues = z.infer<typeof createProductSchema>
+export type UpsertProductFormValues = z.infer<typeof createProductSchema>

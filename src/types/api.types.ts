@@ -64,5 +64,11 @@ export interface PaginationQueryParams {
   limit?: number
   sortBy?: string
   sortOrder?: SortOrder
-  cursor: string
+  cursor?: string
+}
+
+export interface DateRangeQueryParams {
+  startDate?: string
+  endDate?: string
+  timezone?: string
 }

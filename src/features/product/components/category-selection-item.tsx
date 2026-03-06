@@ -23,6 +23,7 @@ export default function CategorySelectionItem({ node }: CategorySelectionItemPro
     <div
       onClick={(e) => {
         if (!isActive) return
+
         e.stopPropagation()
         toggleSelect(node.id)
       }}
@@ -67,7 +68,7 @@ export default function CategorySelectionItem({ node }: CategorySelectionItemPro
         <div className='mr-2 inline-block rounded-sm bg-gray-200 p-1'>
           <Package size={20} strokeWidth={2} className={cn('inline-block')} />
         </div>
-        <span className='line-clamp-2 font-medium'>{node.name}</span>
+        <span className='max-w-fix line-clamp-2 font-medium'>{node.name}</span>
       </div>
     </div>
   )

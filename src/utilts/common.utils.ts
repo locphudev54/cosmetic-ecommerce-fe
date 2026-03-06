@@ -1,5 +1,7 @@
 import { ApiError } from '@/types/api.types'
 
+// The util function in this file can be used across between client and server
+
 export const isApiError = (error: unknown): error is ApiError => {
   return (
     error instanceof ApiError ||

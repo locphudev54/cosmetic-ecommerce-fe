@@ -43,6 +43,17 @@ export const API_ENDPOINTS = {
     BULK_DELETE: '/products/bulk-delete'
   },
 
+  // Categories
+  CATEGORIES: {
+    LIST: '/categories',
+    TREE: '/categories/tree',
+    DETAIL: (id: string) => `/categories/${id}`,
+    CREATE: '/categories',
+    UPDATE: (id: string) => `/categories/${id}`,
+    DELETE: (id: string) => `/categories/${id}`,
+    BULK_DELETE: '/categories/bulk-delete'
+  },
+
   // Health check
   HEALTH: '/health'
 } as const
