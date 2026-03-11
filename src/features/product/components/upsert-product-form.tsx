@@ -1,18 +1,19 @@
 'use client'
 import ReturnBack from '@/components/common/return-back'
-import { TypographyH3, TypographyMuted, TypographyP } from '@/components/common/typography'
+import { TypographyH3, TypographyMuted } from '@/components/common/typography'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ProductVariantsForm, UploadProductImages } from '@/features/product/components'
+import CategorySelection from '@/features/product/components/category-selection'
 import {
-  CreateProductFormValues,
+  UpsertProductFormValues,
   createProductSchema
 } from '@/features/product/schemas/product.schemas'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye } from 'lucide-react'
+import { Eye, Plus } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { Controller, useForm } from 'react-hook-form'
 
@@ -21,8 +22,8 @@ const RichTextEditor = dynamic(() => import('@/components/common/rich-text-edito
   loading: () => <Skeleton className='h-70 w-full' />
 })
 
-export default function CreateProductForm() {
-  const form = useForm<CreateProductFormValues>({
+export default function UpsertProductForm() {
+  const form = useForm<UpsertProductFormValues>({
     resolver: zodResolver(createProductSchema),
     defaultValues: {
       name: '',
@@ -30,12 +31,15 @@ export default function CreateProductForm() {
     }
   })
 
-  const onSubmit = (data: CreateProductFormValues) => {
+  const onSubmit = (data: UpsertProductFormValues) => {
     console.log({ data })
   }
 
   return (
-    <form onSubmit={form.handleSubmit(onSubmit, (error) => console.log({ error }))}>
+    <form
+      onSubmit={form.handleSubmit(onSubmit, (error) => console.log({ error }))}
+      className='pb-10'
+    >
       <ReturnBack />
       <div className='grid grid-cols-12 gap-x-4'>
         <div className='col-span-9'>
@@ -54,6 +58,7 @@ export default function CreateProductForm() {
                     <Input
                       id='product_title'
                       type='text'
+                      autoFocus
                       placeholder='Nhập tiêu đề...'
                       {...field}
                     />
@@ -87,16 +92,14 @@ export default function CreateProductForm() {
               </Field>
 
               {/* Product Variants   */}
-              <Field>
-                <ProductVariantsForm />
-              </Field>
+              <ProductVariantsForm />
             </CardContent>
           </Card>
         </div>
         <div className='col-span-3'>
           <div className='sticky top-3'>
             {/* Action buttons */}
-            <div className='inline-flex items-center justify-center gap-x-2'>
+            <div className='inline-flex flex-col items-center justify-center gap-x-2 md:flex-row'>
               <Button type='button' variant={'outline'}>
                 <Eye />
                 View
@@ -108,7 +111,14 @@ export default function CreateProductForm() {
 
             <Card className='mt-3'>
               <CardContent>
-                <TypographyP>Loc 02 23</TypographyP>
+                {/* Category Selection */}
+                <Field>
+                  <FieldLabel htmlFor='category'>
+                    <TypographyMuted>Danh mục</TypographyMuted>
+                  </FieldLabel>
+
+                  <CategorySelection multiSelect />
+                </Field>
               </CardContent>
             </Card>
           </div>

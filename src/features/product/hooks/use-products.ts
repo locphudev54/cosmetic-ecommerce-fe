@@ -6,6 +6,7 @@ import {
   FindAllProductsQueryParams,
   FindAllAttributesQueryParams
 } from '@/features/product/types'
+import { DateRangeQueryParams } from '@/types'
 
 export const PRODUCT_QUERY_KEYS = {
   all: ['products'] as const,
@@ -15,7 +16,7 @@ export const PRODUCT_QUERY_KEYS = {
   detail: (id: string) => [...PRODUCT_QUERY_KEYS.details(), id] as const
 }
 
-export const useProducts = (params?: FindAllProductsQueryParams) => {
+export const useProducts = (params?: FindAllProductsQueryParams & DateRangeQueryParams) => {
   return useQuery({
     queryKey: PRODUCT_QUERY_KEYS.list(params),
     queryFn: () => productService.getProducts(params)

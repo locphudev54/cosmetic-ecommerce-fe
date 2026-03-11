@@ -28,6 +28,11 @@ export const ROUTES = {
       NEW: '/admin/products/new',
       EDIT: (id: string) => `/admin/products/${id}/edit`
     },
+    CATEGORY: {
+      HOME: '/admin/categories',
+      NEW: '/admin/categories/new',
+      EDIT: (id: string) => `/admin/categories/${id}/edit`
+    },
     PROFILE: '/admin/profile',
     SETTINGS: '/admin/settings',
     ANALYTICS: '/admin/analytics',

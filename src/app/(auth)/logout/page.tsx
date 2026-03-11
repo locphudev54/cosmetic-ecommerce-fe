@@ -27,7 +27,6 @@ export default function LogoutPage() {
 
     const logout = async () => {
       try {
-        debugger
         // Call logout API
         await internalApiClient.post(API_ENDPOINTS.AUTH.LOGOUT)
       } catch (error) {

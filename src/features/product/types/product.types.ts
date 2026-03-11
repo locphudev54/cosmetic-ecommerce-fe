@@ -1,4 +1,5 @@
 import { AttributeType, ProductStatus } from '@/enums'
+import { Category } from '@/features/categories/types/category.types'
 import { PaginationQueryParams } from '@/types/api.types'
 
 export interface Product {
@@ -49,19 +50,6 @@ export interface ProductCategory {
   category?: Category
   createdAt: string | Date
 }
-
-export interface Category {
-  id: string
-  code: string
-  name: string
-  slug: string
-  description?: string | null
-  parentId?: string | null
-  level: number
-  createdAt: string | Date
-  updatedAt: string | Date | null
-}
-
 export interface ProductVariant {
   id: string
   productId: string
@@ -95,7 +83,7 @@ export interface ProductImage {
 
 export interface FindAllProductsQueryParams extends PaginationQueryParams {
   search?: string
-  status?: ProductStatus
+  status?: ProductStatus[]
   brandId?: string
   categoryId?: string
 }
@@ -154,10 +142,12 @@ export interface UpdateProductDto extends Partial<CreateProductDto> {}
     }
  */
 
+// This is the type for the form state when creating/updating a product
+
 export type ProductVariantType = {
-  sku?: string
-  name?: string
-  barcode?: string
+  sku?: string // remove
+  name: string
+  barcode: string
   costPrice: number
   sellingPrice: number
   stockOnHand: number
@@ -165,18 +155,21 @@ export type ProductVariantType = {
   lowStockThreshold?: number
   maxStockThreshold?: number
   isActive?: boolean
-  attributeValues: string[]
-  // attributeValues: { attributeValueId: string }[]
-  images?: {
-    url: string
-    altText?: string
-  }[]
+  attributeValues: ProductAttributeValueType[]
 }
 
 export interface ProductAttributeType {
+  id: string
   name: string
-  values: string[]
+  values: ProductAttributeValueType[]
 }
+
+export interface ProductAttributeValueType {
+  attributeValueId: string
+  value: string
+}
+
+// Received Types from BE
 
 export interface Attribute {
   id: string

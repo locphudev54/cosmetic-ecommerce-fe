@@ -11,7 +11,7 @@ export const loginSchema = z.object({
     .max(255, 'Email phải ít hơn 255 ký tự'),
   password: z
     .string()
-    .min(1, 'Password không được để trống')
+    .min(8, 'Password phải ít nhất 8 ký tự')
     .max(50, `Password phải ít hơn 50 ký tự`)
 })
 

@@ -28,6 +28,9 @@ import 'yet-another-react-lightbox/styles.css'
 import { Checkbox } from '@/components/ui/checkbox'
 import { FieldLabel } from '@/components/ui/field'
 import { TypographyMuted } from '@/components/common/typography'
+import { ImageUploadButton } from '@/components/common/image-upload-button'
+import { useUploadMultipleImages, useUploadSingleImage } from '@/features/upload/hooks/use-upload'
+import { toast } from 'sonner'
 
 // ── Dynamically import the heavy lightbox so it's excluded from initial bundle
 const Lightbox = dynamic(() => import('yet-another-react-lightbox'), {
@@ -52,7 +55,10 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
   const [showAllImages, setShowAllImages] = useState<boolean>(false)
   const [lightboxIndex, setLightboxIndex] = useState<number>(-1) // -1 = closed
   const [selectImageIds, setSelectImageIds] = useState<string[]>([])
-  const inputRef = useRef<HTMLInputElement>(null)
+  // const inputRef = useRef<HTMLInputElement>(null)
+
+  // const uploadSingleImageMutation = useUploadSingleImage()
+  const uploadMultipleImagesMutation = useUploadMultipleImages()
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -62,31 +68,31 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
     })
   )
 
-  const handleFileSelect = (files: FileList | null) => {
-    if (!files) return
+  // const handleFileSelect = (files: File[] | null) => {
+  //   if (!files) return
 
-    let uploadedImagesCount = 0
+  //   let uploadedImagesCount = 0
 
-    Array.from(files).forEach((file) => {
-      if (file.type.startsWith('image/') && images.length + uploadedImagesCount < maxImages) {
-        const reader = new FileReader()
-        reader.onload = (e) => {
-          const preview = e.target?.result as string // preview URL of the image
-          const uploadedImage: UploadedImage = {
-            id: `${Date.now()}-${Math.random()}`,
-            file,
-            preview
-          }
-          setImages((prev) => {
-            const updated = [...prev, uploadedImage]
-            return updated
-          })
-        }
-        reader.readAsDataURL(file)
-        uploadedImagesCount++
-      }
-    })
-  }
+  //   Array.from(files).forEach((file) => {
+  //     if (file.type.startsWith('image/') && images.length + uploadedImagesCount < maxImages) {
+  //       const reader = new FileReader()
+  //       reader.onload = (e) => {
+  //         const preview = e.target?.result as string // preview URL of the image
+  //         const uploadedImage: UploadedImage = {
+  //           id: `${Date.now()}-${Math.random()}`,
+  //           file,
+  //           preview
+  //         }
+  //         setImages((prev) => {
+  //           const updated = [...prev, uploadedImage]
+  //           return updated
+  //         })
+  //       }
+  //       reader.readAsDataURL(file)
+  //       uploadedImagesCount++
+  //     }
+  //   })
+  // }
 
   const handleRemoveImage = (ids: string[]) => {
     setImages((prev) => prev.filter((img) => !ids.includes(img.id)))
@@ -115,18 +121,31 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
     )
   }
 
-  const handleDragImages = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-  }
+  const handleImmediateUpload = async (files: File[]) => {
+    if (!files || files.length === 0) return
 
-  const handleDropImgaes = (e: React.DragEvent<HTMLDivElement>) => {
-    e.preventDefault()
-    e.stopPropagation()
-    const files = e.dataTransfer.files
-    if (files && files.length > 0) {
-      handleFileSelect(files)
+    if (images.length + files.length > maxImages) {
+      toast.error(`You can only upload up to ${maxImages} images.`)
+      return
     }
+
+    // const uploadPromises = files.map((file) =>
+    //   uploadSingleImageMutation.mutateAsync({ file, params: { folder: 'product-images' } })
+    // )
+    // const results = await Promise.all(uploadPromises)
+
+    const results = await uploadMultipleImagesMutation.mutateAsync({
+      files,
+      params: { folder: 'product-images' }
+    })
+
+    // Map results to UploadedImage format and add to state
+    const newUploadedImages: UploadedImage[] = results.map((result, index) => ({
+      id: `${Date.now()}-${index}`,
+      file: files[index],
+      preview: result.url // Assuming the upload result contains the URL of the uploaded image
+    }))
+    setImages((prev) => [...prev, ...newUploadedImages])
   }
 
   const hasMaxImages = images.length >= maxImages
@@ -145,18 +164,18 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
 
   return (
     <div>
-      <input
+      {/* <input
         id='product_images'
         ref={inputRef}
         type='file'
         multiple
         accept='image/*'
         onChange={(e) => {
-          handleFileSelect(e.target.files)
+          handleFileSelect(e.target.files ? Array.from(e.target.files) : null)
           e.target.value = '' // Reset the input so the same file can be uploaded again if needed
         }}
         className='hidden'
-      />
+      /> */}
 
       <div className='mb-3 h-5'>
         {selectImageIds.length === 0 ? (
@@ -266,7 +285,7 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
                             Upload New Images
                           </span>
                         </button> */}
-                        <div
+                        {/* <div
                           onClick={() => inputRef.current?.click()}
                           onDragOver={handleDragImages}
                           onDrop={handleDropImgaes}
@@ -276,7 +295,13 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
                           <span className='text-muted-foreground/80 text-center text-sm font-medium'>
                             Upload New Images
                           </span>
-                        </div>
+                        </div> */}
+                        <ImageUploadButton
+                          multiple
+                          label='Upload Images'
+                          mode='immediate'
+                          onUpload={handleImmediateUpload}
+                        />
                       </div>
                     )}
                   </div>
@@ -292,7 +317,6 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
                         image={image}
                         isSelected={selectImageIds.includes(image.id)}
                         onZoomIn={() => {
-                          debugger
                           setLightboxIndex(idx + FIRST_ROW_IMAGE_QUANTITY)
                         }}
                         onSelect={() => toggleSelectImage(image.id)}
@@ -306,18 +330,16 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
                       onClick={() => {
                         setShowAllImages(false)
                       }}
-                      className='border-muted-foreground/40 bg-muted/5 hover:bg-muted/10 hover:border-muted-foreground/80 flex aspect-square h-full w-full flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors'
+                      className='border-muted-foreground/30 bg-muted/5 hover:bg-muted/10 hover:border-muted-foreground/60 flex aspect-square h-full w-full flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors'
                     >
-                      <span className='text-muted-foreground/80 text-center text-sm font-medium'>
-                        Show less
-                      </span>
+                      <TypographyMuted>Show less</TypographyMuted>
                     </button>
                   </div>
 
                   {/* Upload New Button */}
                   {!hasMaxImages && (
                     <div className='col-span-1'>
-                      <div
+                      {/* <div
                         onClick={() => inputRef.current?.click()}
                         onDragOver={handleDragImages}
                         onDrop={handleDropImgaes}
@@ -327,7 +349,13 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
                         <span className='text-muted-foreground/80 text-center text-sm font-medium'>
                           Upload New Images
                         </span>
-                      </div>
+                      </div> */}
+                      <ImageUploadButton
+                        label='Upload Images'
+                        multiple
+                        mode='default'
+                        onChange={handleImmediateUpload}
+                      />
                     </div>
                   )}
                 </div>
@@ -367,24 +395,31 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
         </React.Fragment>
       ) : (
         /* Empty State */
-        <div
-          onClick={() => inputRef.current?.click()}
-          onDragOver={handleDragImages}
-          onDrop={handleDropImgaes}
-          className='border-muted-foreground/25 bg-muted/5 hover:bg-muted/10 hover:border-muted-foreground/40 cursor-pointer rounded-lg border-2 border-dashed py-4 transition-colors'
-        >
-          <div className='flex flex-col items-center justify-center gap-2'>
-            <div className='bg-primary/10 rounded-full p-3'>
-              <Upload className='text-primary h-6 w-6' />
-            </div>
-            <div className='text-center'>
-              <p className='text-foreground font-normal'>Upload Images</p>
-            </div>
-            <Button type='button' variant='outline' size='sm' className='mt-2'>
-              Choose Images
-            </Button>
-          </div>
-        </div>
+        <ImageUploadButton
+          label='Upload Images'
+          multiple
+          className='h-36'
+          mode='immediate'
+          onUpload={handleImmediateUpload}
+        />
+        // <div
+        //   onClick={() => inputRef.current?.click()}
+        //   onDragOver={handleDragImages}
+        //   onDrop={handleDropImgaes}
+        //   className='border-muted-foreground/25 bg-muted/5 hover:bg-muted/10 hover:border-muted-foreground/40 cursor-pointer rounded-lg border-2 border-dashed py-4 transition-colors'
+        // >
+        //   <div className='flex flex-col items-center justify-center gap-2'>
+        //     <div className='bg-primary/10 rounded-full p-3'>
+        //       <Upload className='text-primary h-6 w-6' />
+        //     </div>
+        //     <div className='text-center'>
+        //       <p className='text-foreground font-normal'>Upload Images</p>
+        //     </div>
+        //     <Button type='button' variant='outline' size='sm' className='mt-2'>
+        //       Choose Images
+        //     </Button>
+        //   </div>
+        // </div>
       )}
     </div>
   )

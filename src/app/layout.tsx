@@ -7,6 +7,7 @@ import { getAccessToken } from '@/utilts/cookies.utils'
 import { AuthInitializer } from '@/features/auth/components/auth-initializer'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
+import ServerWrapper from '@/features/auth/components/server-wrapper'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -28,17 +29,13 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode
 }>) {
-  const cookieStore = await cookies()
-  const accessToken = getAccessToken(cookieStore)
-
   return (
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
           <TooltipProvider>{children}</TooltipProvider>
         </Providers>
-        {/* TODO: Wrap this below component into another Server Component and then get cookies in this Server Comp instead of getting in this root layout  */}
-        <AuthInitializer accessToken={accessToken} />
+        <ServerWrapper />
         <Toaster position='bottom-right' />
       </body>
     </html>
