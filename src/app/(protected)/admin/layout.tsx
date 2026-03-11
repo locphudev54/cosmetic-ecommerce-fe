@@ -34,7 +34,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </header>
         <div className='bg-admin-background flex flex-1 flex-col pt-0'>
-          <Suspense fallback={<div>Loading...</div>}>
+          <Suspense fallback={<div>Loading - Phu Loc 123...</div>}>
             <div className='custom-container'>{children}</div>
           </Suspense>
         </div>

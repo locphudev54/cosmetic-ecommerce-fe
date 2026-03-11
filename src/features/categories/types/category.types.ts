@@ -1,3 +1,4 @@
+import { Attribute } from '@/features/attributes'
 import { PaginationQueryParams } from '@/types/api.types'
 
 export interface CategoryTreeNodeType {
@@ -8,7 +9,7 @@ export interface CategoryTreeNodeType {
   depth: number
   isActive: boolean
   productCount?: number
-  children?: CategoryTreeNodeType[]
+  children?: CategoryTreeNodeType[] // In FLAT mode, this will be undefined, and in TREE mode, this will be an array of child nodes (may be empty array if no children)
 }
 
 export interface Category {
@@ -20,6 +21,7 @@ export interface Category {
   path: string
   depth: number
   isActive: boolean
+  categoryAttributes?: CategoryAttribute[]
   metaTitle?: string
   metaDescription?: string
   createdAt: Date
@@ -31,19 +33,20 @@ export interface Category {
 
 export interface CreateCategoryDto {
   name: string
-  slug: string
+  slug?: string
   description?: string
-  parentId?: string
+  parentId?: string | null
   isActive?: boolean
   metaTitle?: string
   metaDescription?: string
+  attributeIds?: string[]
 }
 
 export interface UpdateCategoryDto {
   name?: string
   slug?: string
   description?: string
-  parentId?: string
+  parentId?: string | null // Allow setting parentId to null to remove parent category
   isActive?: boolean
   metaTitle?: string
   metaDescription?: string
@@ -52,8 +55,17 @@ export interface UpdateCategoryDto {
 export interface FindAllCategoriesQueryParams extends PaginationQueryParams {
   search?: string
   isActive?: boolean
+  isDeleted?: boolean
   parentId?: string
   includeProductCount?: boolean
   includeChildren?: boolean
   includeParent?: boolean
+}
+
+export interface CategoryAttribute {
+  attributeId: string
+  attribute: Attribute
+  categoryId: string
+  // isFilterable: boolean
+  // isRequired: boolean
 }

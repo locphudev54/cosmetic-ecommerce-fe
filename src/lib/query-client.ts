@@ -8,6 +8,7 @@ function makeQueryClient() {
       queries: {
         // Data is considered fresh for 1 minute
         staleTime: 1000 * 60,
+        // staleTime: 1000 * 10,
 
         // Cached data is garbage collected after 5 minutes
         gcTime: 1000 * 60 * 5,
@@ -21,11 +22,11 @@ function makeQueryClient() {
         // Refetch on window focus (good for keeping data fresh)
         refetchOnWindowFocus: false,
 
-        // Don't refetch on mount if data is fresh
-        refetchOnMount: false,
+        // Don't refetch on mount if data is fresh, just refresh if data is stale and the component mounts
+        refetchOnMount: true,
 
         // Refetch on reconnect
-        refetchOnReconnect: false,
+        refetchOnReconnect: true,
 
         // Keep previous data while fetching new data
         placeholderData: (previousData: unknown) => previousData

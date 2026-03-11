@@ -1,6 +1,13 @@
 'use client'
 
-import { BookOpen, Bot, GalleryVerticalEnd, Settings2, SquareTerminal } from 'lucide-react'
+import {
+  BookOpen,
+  Bot,
+  GalleryVerticalEnd,
+  Package2,
+  Settings2,
+  SquareTerminal
+} from 'lucide-react'
 import * as React from 'react'
 
 import { NavMain } from '@/components/common/nav-main'
@@ -53,7 +60,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               title: 'Sản phẩm',
               url: ROUTES.ADMIN.PRODUCT.HOME,
-              icon: SquareTerminal,
+              icon: Package2,
               isActive: true,
               items: [
                 {
@@ -65,12 +72,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                   url: ROUTES.ADMIN.PRODUCT.NEW
                 },
                 {
-                  title: 'Danh mục',
+                  title: 'Thuộc tính',
+                  url: ROUTES.ADMIN.ATTRIBUTE.HOME
+                }
+              ]
+            },
+            {
+              title: 'Danh mục',
+              url: ROUTES.ADMIN.CATEGORY.HOME,
+              icon: BookOpen,
+              isActive: true,
+              items: [
+                {
+                  title: 'Danh sách',
                   url: ROUTES.ADMIN.CATEGORY.HOME
                 },
                 {
-                  title: 'Thuộc tính',
-                  url: '#'
+                  title: 'Tạo mới',
+                  url: ROUTES.ADMIN.CATEGORY.NEW
                 }
               ]
             },

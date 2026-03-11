@@ -24,17 +24,17 @@ export const useCategories = (params?: FindAllCategoriesQueryParams & DateRangeQ
   })
 }
 
-export const useCategoryTree = () => {
+export const useCategoryTree = ({ isDeleted }: { isDeleted?: boolean }) => {
   return useQuery({
     queryKey: CATEGORY_QUERY_KEYS.tree(),
-    queryFn: () => categoryService.getCategoryTree()
+    queryFn: () => categoryService.getCategoryTree({ isDeleted })
   })
 }
 
-export const useCategory = (id: string) => {
+export const useCategory = (id?: string) => {
   return useQuery({
-    queryKey: CATEGORY_QUERY_KEYS.detail(id),
-    queryFn: () => categoryService.getCategoryById(id),
+    queryKey: CATEGORY_QUERY_KEYS.detail(id!),
+    queryFn: () => categoryService.getCategoryById(id!),
     enabled: !!id
   })
 }
@@ -51,15 +51,15 @@ export const useCreateCategory = () => {
   })
 }
 
-export const useUpdateCategory = () => {
+export const useUpdateCategory = (id: string) => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryDto }) =>
-      categoryService.updateCategory(id, data),
+    mutationFn: (data: UpdateCategoryDto) => categoryService.updateCategory(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.lists() })
       queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.tree() })
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.detail(id) })
     }
   })
 }

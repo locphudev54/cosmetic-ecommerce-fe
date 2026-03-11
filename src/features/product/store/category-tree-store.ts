@@ -4,6 +4,7 @@ import { devtools } from 'zustand/middleware'
 
 interface CategoryTreeState {
   // Data
+  primaryCategoryId: string | null // always one primary category for the product, must be one of the selected categories or may be undefined
   categories: CategoryTreeNodeType[]
   searchQuery: string
   expanded: Set<string>
@@ -11,27 +12,36 @@ interface CategoryTreeState {
   multiSelect: boolean
   showProductCount: boolean
 
-  // Callbacks
-  // onSelectionChange?: (selected: string[]) => void
-
   // Computed
   matchingNodes: Set<string>
   autoExpandedNodes: Set<string>
   filteredCategories: CategoryTreeNodeType[]
+  visibleNodeIds: string[]
+
+  // Keyboard navigation
+  focusedCategoryId: string | null
 
   // Actions
+  setPrimaryCategoryId: (id: string | null) => void
+  clearPrimaryCategoryId: () => void
   setCategories: (categories: CategoryTreeNodeType[]) => void
   setSearchQuery: (query: string) => void
   setMultiSelect: (multiSelect: boolean) => void
   setShowProductCount: (showProductCount: boolean) => void
   // setOnSelectionChange: (callback?: (selected: string[]) => void) => void
   toggleExpand: (id: string) => void
+  expandNodes: (ids: string[]) => void
   toggleSelect: (id: string) => void
+  unSelectNodes: (ids: string[]) => void
+
   clearSearch: () => void
   clearSelection: () => void
+  setFocusedCategoryId: (id: string | null) => void
+  moveFocusedCategory: (direction: 'up' | 'down') => void
   isExpanded: (id: string) => boolean
   isSelected: (id: string) => boolean
   isNodeMatching: (id: string) => boolean
+  isFocused: (id: string) => boolean
 }
 
 function findMatchingNodes(nodes: CategoryTreeNodeType[], query: string): Set<string> {
@@ -102,6 +112,21 @@ function filterCategories(
   return filterNodes(categories)
 }
 
+function computeVisibleNodeIds(
+  filteredCategories: CategoryTreeNodeType[],
+  autoExpandedNodes: Set<string>
+): string[] {
+  const result: string[] = []
+  const traverse = (node: CategoryTreeNodeType) => {
+    result.push(node.id)
+    if (node.children && node.children.length > 0 && autoExpandedNodes.has(node.id)) {
+      node.children.forEach(traverse)
+    }
+  }
+  filteredCategories.forEach(traverse)
+  return result
+}
+
 function recomputeDerived(state: {
   categories: CategoryTreeNodeType[]
   searchQuery: string
@@ -119,8 +144,9 @@ function recomputeDerived(state: {
   )
 
   const filteredCategories = filterCategories(state.categories, matchingNodes, state.searchQuery)
+  const visibleNodeIds = computeVisibleNodeIds(filteredCategories, autoExpandedNodes)
 
-  return { matchingNodes, autoExpandedNodes, filteredCategories }
+  return { matchingNodes, autoExpandedNodes, filteredCategories, visibleNodeIds }
 }
 
 // Recursively find category in the tree to check if it exists (defensive programming)
@@ -136,6 +162,26 @@ export function findCategory(
     }
   }
   return null
+}
+
+// Returns the IDs of all ancestors (parents) of the target node, from root down to direct parent.
+export function findAncestorIds(nodes: CategoryTreeNodeType[], targetId: string): string[] {
+  const dfs = (current: CategoryTreeNodeType, path: string[]): string[] | null => {
+    if (current.id === targetId) return path
+    if (current.children) {
+      for (const child of current.children) {
+        const result = dfs(child, [...path, current.id])
+        if (result) return result
+      }
+    }
+    return null
+  }
+
+  for (const node of nodes) {
+    const result = dfs(node, [])
+    if (result) return result
+  }
+  return []
 }
 
 export const useCategoryTreeStore = create<CategoryTreeState>()(
@@ -154,8 +200,28 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
       matchingNodes: new Set<string>(),
       autoExpandedNodes: new Set<string>(),
       filteredCategories: [],
+      visibleNodeIds: [],
+
+      // Keyboard navigation (initial)
+      focusedCategoryId: null,
 
       // Actions
+      clearPrimaryCategoryId: () =>
+        set((state) => {
+          return { ...state, primaryCategoryId: null }
+        }),
+
+      setPrimaryCategoryId: (id) =>
+        set((state) => {
+          if (id === null) {
+            // Get the leaf Category and set it as a primary category if the current primary category is removed
+            const leafCategory = state.selectedCategories[state.selectedCategories.length - 1]
+            return { ...state, primaryCategoryId: leafCategory?.id || null }
+          }
+
+          return { ...state, primaryCategoryId: id }
+        }),
+
       setCategories: (categories) =>
         set((state) => {
           // Prevent unnecessary recomputation if categories reference doesn't change
@@ -170,7 +236,7 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
       setSearchQuery: (searchQuery) =>
         set((state) => {
           const derived = recomputeDerived({ ...state, searchQuery })
-          return { searchQuery, ...derived }
+          return { searchQuery, focusedCategoryId: null, ...derived }
         }),
 
       setMultiSelect: (multiSelect) => set({ multiSelect }),
@@ -188,6 +254,20 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
             next.add(id)
           }
           const derived = recomputeDerived({ ...state, expanded: next })
+          // Reset focus if the focused node is no longer visible after collapsing
+          const focusedCategoryId =
+            state.focusedCategoryId && derived.visibleNodeIds.includes(state.focusedCategoryId)
+              ? state.focusedCategoryId
+              : null
+          return { expanded: next, focusedCategoryId, ...derived }
+        }),
+
+      expandNodes: (ids) =>
+        set((state) => {
+          if (ids.length === 0) return state
+          const next = new Set(state.expanded)
+          ids.forEach((id) => next.add(id))
+          const derived = recomputeDerived({ ...state, expanded: next })
           return { expanded: next, ...derived }
         }),
 
@@ -202,8 +282,9 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
               return { selectedCategories: filtered }
             }
 
-            const categoryToAdd = findCategory(state.categories, id)
+            const categoryToAdd = { ...findCategory(state.categories, id)! } // Avoid mutating the original category object
             if (categoryToAdd) {
+              categoryToAdd.children = [] // Reduce the size of the category object to store only necessary info in selectedCategories
               return { selectedCategories: [...next, categoryToAdd] }
             }
 
@@ -211,38 +292,54 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
           } else {
             return { selectedCategories: isExisting ? [] : [findCategory(state.categories, id)!] }
           }
+        }),
 
-          // if (state.multiSelect) {
-          //   if (next.has(id)) {
-          //     next.delete(id)
-          //   } else {
-          //     next.add(id)
-          //   }
-          // } else {
-          //   next.clear()
-          //   next.add(id)
-          // }
+      unSelectNodes: (ids) =>
+        set((state) => {
+          if (ids.length === 0) return state
 
-          // // state.onSelectionChange?.(Array.from(next))
-          // return { selected: next }
+          const next = state.selectedCategories.filter((cat) => !ids.includes(cat.id))
+          return { selectedCategories: next }
         }),
 
       clearSearch: () =>
         set((state) => {
           const derived = recomputeDerived({ ...state, searchQuery: '' })
-          return { searchQuery: '', ...derived }
+          return { searchQuery: '', focusedCategoryId: null, ...derived }
         }),
 
       clearSelection: () =>
-        set((state) => {
+        set(() => {
           // state.onSelectionChange?.([])
           return { selectedCategories: [] }
           // return { selected: new Set<string>() }
         }),
 
+      setFocusedCategoryId: (id) => set({ focusedCategoryId: id }),
+
+      moveFocusedCategory: (direction) =>
+        set((state) => {
+          const { visibleNodeIds, focusedCategoryId } = state
+          if (visibleNodeIds.length === 0) return state
+
+          const currentIndex = focusedCategoryId ? visibleNodeIds.indexOf(focusedCategoryId) : -1
+
+          let nextIndex: number
+          if (direction === 'down') {
+            nextIndex =
+              currentIndex === -1 ? 0 : Math.min(currentIndex + 1, visibleNodeIds.length - 1)
+          } else {
+            nextIndex =
+              currentIndex === -1 ? visibleNodeIds.length - 1 : Math.max(currentIndex - 1, 0)
+          }
+
+          return { focusedCategoryId: visibleNodeIds[nextIndex] }
+        }),
+
       isExpanded: (id) => get().autoExpandedNodes.has(id),
       isSelected: (id) => get().selectedCategories.some((cat) => cat.id === id),
-      isNodeMatching: (id) => get().matchingNodes.has(id)
+      isNodeMatching: (id) => get().matchingNodes.has(id),
+      isFocused: (id) => get().focusedCategoryId === id
     }),
     {
       name: 'category-tree-store'

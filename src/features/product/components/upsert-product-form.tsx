@@ -12,9 +12,11 @@ import {
   UpsertProductFormValues,
   createProductSchema
 } from '@/features/product/schemas/product.schemas'
+import { useCategoryTreeStore } from '@/features/product/store/category-tree-store'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Eye, Plus } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import dynamic from 'next/dynamic'
+import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 const RichTextEditor = dynamic(() => import('@/components/common/rich-text-editor'), {
@@ -23,6 +25,8 @@ const RichTextEditor = dynamic(() => import('@/components/common/rich-text-edito
 })
 
 export default function UpsertProductForm() {
+  const clearPrimaryCategoryId = useCategoryTreeStore((state) => state.clearPrimaryCategoryId)
+
   const form = useForm<UpsertProductFormValues>({
     resolver: zodResolver(createProductSchema),
     defaultValues: {
@@ -30,6 +34,38 @@ export default function UpsertProductForm() {
       description: ''
     }
   })
+
+  // Bug liên quan đến khái niệm closure trong JavaScript.
+  // Khi useEffect được gọi, nó sẽ capture giá trị của primaryCategoryId tại thời điểm đó.
+  // Nếu primaryCategoryId thay đổi sau đó, callback trong useEffect sẽ không nhận được giá trị
+  // mới mà vẫn sử dụng giá trị cũ đã bị capture.
+  // React.useEffect(() => {
+  //   return () => {
+  //
+  //     // Correct way: get the latest state value inside the callback function
+  //     // if (useCategoryTreeStore.getState().primaryCategoryId) {
+  //     // Ở đây primaryCategoryId bị capture trong closure, nên sau khi store state update
+  //     // thì callback vẫn dùng giá trị cũ.
+  //     if (primaryCategoryId) {
+  //
+  //       setPrimaryCategoryId(null)
+  //     }
+  //     // }
+  //   }
+  // }, [primaryCategoryId, setPrimaryCategoryId])
+
+  // Cleanup function sẽ chạy khi component unmount hoặc trước khi effect chạy lại.
+  // Ví dụ: khi primaryCategoryId thay đổi, cleanup function sẽ chạy trước khi effect chính chạy với giá trị primaryCategoryId mới
+  //   React.useEffect(() => {
+  //   return () => {
+  //   }
+  // }, [primaryCategoryId])
+
+  React.useEffect(() => {
+    return () => {
+      clearPrimaryCategoryId()
+    }
+  }, [clearPrimaryCategoryId])
 
   const onSubmit = (data: UpsertProductFormValues) => {
     console.log({ data })
@@ -44,7 +80,7 @@ export default function UpsertProductForm() {
       <div className='grid grid-cols-12 gap-x-4'>
         <div className='col-span-9'>
           <TypographyH3>Sản phẩm</TypographyH3>
-          <Card className='mt-4'>
+          <Card className='mt-4 min-h-[75vh]'>
             <CardContent className='flex flex-col gap-y-4'>
               {/* Product name */}
               <Controller
@@ -91,6 +127,13 @@ export default function UpsertProductForm() {
                 <UploadProductImages maxImages={10} />
               </Field>
 
+              <Field>
+                <FieldLabel htmlFor='category' className='flex justify-between'>
+                  <TypographyMuted>Danh mục</TypographyMuted>
+                </FieldLabel>
+                <CategorySelection multiSelect />
+              </Field>
+
               {/* Product Variants   */}
               <ProductVariantsForm />
             </CardContent>
@@ -109,16 +152,10 @@ export default function UpsertProductForm() {
               </Button>
             </div>
 
-            <Card className='mt-3'>
+            <Card className='mt-3 min-h-[75vh]'>
               <CardContent>
                 {/* Category Selection */}
-                <Field>
-                  <FieldLabel htmlFor='category'>
-                    <TypographyMuted>Danh mục</TypographyMuted>
-                  </FieldLabel>
-
-                  <CategorySelection multiSelect />
-                </Field>
+                kdkdkdk
               </CardContent>
             </Card>
           </div>

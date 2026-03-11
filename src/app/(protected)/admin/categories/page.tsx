@@ -8,32 +8,47 @@ import { TypographyH3 } from '@/components/common/typography'
 import { DataTable } from '@/components/data-table/data-table'
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
 import { Button } from '@/components/ui/button'
-import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger
-} from '@/components/ui/drawer'
 import { Skeleton } from '@/components/ui/skeleton'
+import { ROUTES } from '@/constants/route.constant'
 import { getColumns } from '@/features/categories/components/columns'
-import { UpsertCategoryForm } from '@/features/categories/components/upsert-category-form'
-import { useCategories } from '@/features/categories/hooks/use-categories'
+import {
+  useBulkDeleteCategories,
+  useCategories,
+  useDeleteCategory
+} from '@/features/categories/hooks/use-categories'
 import { useCategoryQueryParams } from '@/features/categories/hooks/use-category-query-params'
 import { Category } from '@/features/categories/types'
 import { useDataTable } from '@/hooks/use-data-table'
+import { useDialog } from '@/hooks/use-dialog'
 import { Plus, Trash2 } from 'lucide-react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function Page() {
-  const [openDrawer, setOpenDrawer] = React.useState(false)
-  const [selectedCategory, setSelectedCategory] = React.useState<Category | null>(null)
+  const dialog = useDialog()
 
-  const handleOpenDrawer = (category: Category | null) => {
-    setSelectedCategory(category)
-    setOpenDrawer(true)
+  const deleteCategoryMutation = useDeleteCategory()
+  const bulkDeleteCategoriesMutation = useBulkDeleteCategories()
+
+  const router = useRouter()
+
+  const handleOpenDeleteDialog = (items: Category[]) => {
+    dialog.open('delete-alert', {
+      selectedItems: items,
+      entityName: 'danh mục',
+      deleteMutation: deleteCategoryMutation,
+      bulkDeleteMutation: bulkDeleteCategoriesMutation,
+      getItemName: (item: Category) => item.name,
+      onSuccess: () => {
+        table.toggleAllRowsSelected(false)
+      }
+    })
   }
 
-  const memoizedColumns = React.useMemo(() => getColumns(handleOpenDrawer), [])
+  const memoizedColumns = React.useMemo(
+    () => getColumns(),
+    []
+  )
 
   const {
     page,
@@ -54,6 +69,7 @@ export default function Page() {
     sortBy,
     sortOrder,
     search,
+    isDeleted: false,
     isActive,
     startDate,
     endDate,
@@ -75,9 +91,12 @@ export default function Page() {
     }
   })
 
-  // If you want to throw the error to be caught by a parent error boundary, you can uncomment this block
   if (error) {
     throw error
+  }
+
+  const handleOnRowClick = (category: Category) => {
+    router.push(ROUTES.ADMIN.CATEGORY.EDIT(category.id))
   }
 
   return (
@@ -95,77 +114,49 @@ export default function Page() {
           <Skeleton className='h-[500px] w-full bg-white' />
         </div>
       ) : (
-        <React.Fragment>
-          <DataTable table={table} onRowClick={handleOpenDrawer}>
-            <DataTableToolbar table={table}>
-              {table.getFilteredSelectedRowModel().rows.length > 0 && (
-                <Button
-                  variant='outline'
-                  className='text-xs'
-                  onClick={() => {
-                    const selectedRows = table.getFilteredSelectedRowModel().rows
-                    console.log(
-                      'Selected products:',
-                      selectedRows.map((row) => row.original)
-                    )
-                  }}
-                >
-                  <Trash2 />
-                  <span>Xóa</span>({table.getFilteredSelectedRowModel().rows.length})
-                </Button>
-              )}
-
+        <DataTable table={table} onRowClick={handleOnRowClick}>
+          <DataTableToolbar table={table}>
+            {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                variant={'outline'}
-                className='text-xs'
-                onClick={() => handleOpenDrawer(null)}
+                variant='destructive'
+                className='text-sm'
+                onClick={() => {
+                  const selectedRows = table.getFilteredSelectedRowModel().rows
+                  handleOpenDeleteDialog(selectedRows.map((row) => row.original))
+                }}
               >
+                <Trash2 />
+                <span>Xóa</span>({table.getFilteredSelectedRowModel().rows.length})
+              </Button>
+            )}
+
+            <Link
+              href={{
+                pathname: ROUTES.ADMIN.CATEGORY.NEW
+              }}
+            >
+              <Button variant={'outline'} className='text-sm'>
                 <Plus />
                 <span>Thêm Danh Mục</span>
               </Button>
+            </Link>
 
-              <ExportCsvButton
-                data={data?.data || []}
-                filename='categories.csv'
-                fields={['id', 'name', 'slug', 'depth', 'isActive', 'productCount', 'createdAt']}
-                transform={(category) => ({
-                  ID: category.id,
-                  Name: category.name,
-                  Slug: category.slug,
-                  Depth: category.depth,
-                  'Is Active': category.isActive,
-                  'Product Count': category.productCount || 0,
-                  'Created At': new Date(category.createdAt).toLocaleDateString()
-                })}
-              />
-            </DataTableToolbar>
-          </DataTable>
-
-          <Drawer direction='right' open={openDrawer} onOpenChange={setOpenDrawer}>
-            <DrawerTrigger></DrawerTrigger>
-            <DrawerContent className='w-full max-w-full'>
-              <DrawerHeader>
-                <DrawerTitle>
-                  {selectedCategory ? 'Chỉnh sửa danh mục' : 'Thêm mới danh mục'}
-                </DrawerTitle>
-              </DrawerHeader>
-              <div className='px-2'>
-                <UpsertCategoryForm
-                  category={selectedCategory}
-                  onSuccess={() => setOpenDrawer(false)}
-                />
-              </div>
-              {/* <DrawerFooter>
-                <Button>Submit</Button>
-                <DrawerClose>
-                  <Button className='w-full' variant='outline'>
-                    Cancel
-                  </Button>
-                </DrawerClose>
-              </DrawerFooter> */}
-            </DrawerContent>
-          </Drawer>
-        </React.Fragment>
+            <ExportCsvButton
+              data={data?.data || []}
+              filename='categories.csv'
+              fields={['id', 'name', 'slug', 'depth', 'isActive', 'productCount', 'createdAt']}
+              transform={(category) => ({
+                ID: category.id,
+                Name: category.name,
+                Slug: category.slug,
+                Depth: category.depth,
+                'Is Active': category.isActive,
+                'Product Count': category.productCount || 0,
+                'Created At': new Date(category.createdAt).toLocaleDateString()
+              })}
+            />
+          </DataTableToolbar>
+        </DataTable>
       )}
     </div>
   )

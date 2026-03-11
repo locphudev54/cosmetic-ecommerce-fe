@@ -124,6 +124,15 @@
     @apply bg-background text-foreground;
   }
 
+  /* Hide scrollbar globally */
+  html {
+    scrollbar-width: none; /* Firefox */
+  }
+
+  html::-webkit-scrollbar {
+    display: none; /* Webkit browsers */
+  }
+
   .ql-editor {
     min-height: 280px;
   }

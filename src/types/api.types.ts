@@ -21,9 +21,9 @@ export class ApiResponse<T = any, M = Record<string, any>> {
  * Standard API error response
  */
 export class ApiError {
-  success: false = false
+  success = false as const
   statusCode: number = 400
-  message: string = ''
+  message: any
   error: string = ''
   path: string = ''
   details?: any

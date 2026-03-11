@@ -26,12 +26,17 @@ export const ROUTES = {
     PRODUCT: {
       HOME: '/admin/products',
       NEW: '/admin/products/new',
-      EDIT: (id: string) => `/admin/products/${id}/edit`
+      EDIT: (id: string) => `/admin/products/${id}`
     },
     CATEGORY: {
       HOME: '/admin/categories',
       NEW: '/admin/categories/new',
-      EDIT: (id: string) => `/admin/categories/${id}/edit`
+      EDIT: (id: string) => `/admin/categories/${id}`
+    },
+    ATTRIBUTE: {
+      HOME: '/admin/attributes',
+      NEW: '/admin/attributes/new',
+      EDIT: (id: string) => `/admin/attributes/${id}`
     },
     PROFILE: '/admin/profile',
     SETTINGS: '/admin/settings',

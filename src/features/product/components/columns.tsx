@@ -23,6 +23,7 @@ import {
   MapPin,
   MoreHorizontal,
   Package,
+  SquarePen,
   Tag
 } from 'lucide-react'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -65,6 +66,9 @@ export const columns: ColumnDef<Product>[] = [
         checked={
           table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
         aria-label='Select all'
       />
@@ -72,12 +76,16 @@ export const columns: ColumnDef<Product>[] = [
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label='Select row'
       />
     ),
     enableSorting: false,
-    enableHiding: false
+    enableHiding: false,
+    size: 40
   },
   // {
   //   id: 'code',
@@ -98,7 +106,7 @@ export const columns: ColumnDef<Product>[] = [
     id: 'name',
     accessorKey: 'name',
     header: ({ column }) => <DataTableColumnHeader label='Name' column={column} />,
-    cell: ({ row }) => <div className='max-w-75 truncate'>{row.getValue('name')}</div>,
+    cell: ({ row, cell }) => <div className='max-w-75 truncate'>{row.getValue('name')}</div>,
     meta: {
       label: 'Name',
       placeholder: 'Tìm sản phẩm theo mã / tên / mô tả...',
@@ -124,8 +132,8 @@ export const columns: ColumnDef<Product>[] = [
       placeholder: 'Search brand...',
       variant: 'text',
       icon: Package
-    }
-    // enableColumnFilter: true
+    },
+    enableSorting: false
   },
   {
     id: 'countryOfOrigin',
@@ -140,8 +148,8 @@ export const columns: ColumnDef<Product>[] = [
       placeholder: 'Search country...',
       variant: 'text',
       icon: MapPin
-    }
-    // enableColumnFilter: true
+    },
+    enableSorting: false
   },
   {
     id: 'basePrice',
@@ -212,7 +220,7 @@ export const columns: ColumnDef<Product>[] = [
       return (
         <div className='flex items-center justify-end'>
           <Button variant='ghost' size={'icon-sm'}>
-            <Edit2 className='h-4 w-4' />
+            <SquarePen className='h-4 w-4' />
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

@@ -12,7 +12,6 @@ export const isApiError = (error: unknown): error is ApiError => {
       'statusCode' in error &&
       typeof error.statusCode === 'number' &&
       'message' in error &&
-      typeof error.message === 'string' &&
       'error' in error &&
       typeof error.error === 'string' &&
       'path' in error &&

@@ -50,8 +50,18 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string) => `/categories/${id}`,
     CREATE: '/categories',
     UPDATE: (id: string) => `/categories/${id}`,
-    DELETE: (id: string) => `/categories/${id}`,
+    DELETE: (id: string) => `/categories/${id}/soft`,
     BULK_DELETE: '/categories/bulk-delete'
+  },
+
+  // Attributes
+  ATTRIBUTES: {
+    LIST: '/attributes',
+    DETAIL: (id: string) => `/attributes/${id}`,
+    CREATE: '/attributes',
+    UPDATE: (id: string) => `/attributes/${id}`,
+    DELETE: (id: string) => `/attributes/${id}/soft`,
+    BULK_DELETE: '/attributes/bulk-delete'
   },
 
   // Health check
