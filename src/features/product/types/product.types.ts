@@ -1,4 +1,5 @@
 import { AttributeType, ProductStatus } from '@/enums'
+import { AttributeValue } from '@/features/attributes'
 import { Category } from '@/features/categories/types/category.types'
 import { PaginationQueryParams } from '@/types/api.types'
 
@@ -103,7 +104,7 @@ export interface CreateProductDto {
   categoryIds?: string[]
 }
 
-export interface UpdateProductDto extends Partial<CreateProductDto> {}
+export type UpdateProductDto = Partial<CreateProductDto>
 
 /**
  * The real ProductVariant object:
@@ -171,19 +172,19 @@ export interface ProductAttributeValueType {
 
 // Received Types from BE
 
-export interface Attribute {
-  id: string
-  name: string
-  slug: string
-  type: AttributeType
-  values: AttributeValue[]
-  isGlobalFilter: boolean
-  filterGroup?: string
-  unit?: string
-}
+// export interface Attribute {
+//   id: string
+//   name: string
+//   slug: string
+//   type: AttributeType
+//   values: AttributeValue[]
+//   isGlobalFilter: boolean
+//   filterGroup?: string
+//   unit?: string
+// }
 
-export interface AttributeValue {
-  id: string
-  attributeId: string
-  value: string
-}
+// export interface AttributeValue {
+//   id: string
+//   attributeId: string
+//   value: string
+// }

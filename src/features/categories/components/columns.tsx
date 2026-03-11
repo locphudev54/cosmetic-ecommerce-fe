@@ -3,6 +3,7 @@
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,19 +14,17 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Category } from '@/features/categories/types'
 import { ColumnDef } from '@tanstack/react-table'
-import { Activity, Calendar, Edit2, Eye, MoreHorizontal, Tag, Folder } from 'lucide-react'
 import {
-  Drawer,
-  DrawerClose,
-  DrawerContent,
-  DrawerDescription,
-  DrawerFooter,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger
-} from '@/components/ui/drawer'
-import { UpsertCategoryForm } from '@/features/categories/components/upsert-category-form'
-import { Checkbox } from '@/components/ui/checkbox'
+  Activity,
+  CheckCircle2,
+  Eye,
+  Folder,
+  MoreHorizontal,
+  SquarePen,
+  Tag,
+  XCircle
+} from 'lucide-react'
+import { toast } from 'sonner'
 
 const getStatusVariant = (isActive: boolean) => {
   return isActive ? 'outline' : 'destructive'
@@ -40,7 +39,7 @@ const formatDate = (date: string | Date | null) => {
   })
 }
 
-export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Category>[] => [
+export const getColumns = (onOpenDrawer?: (row: Category) => void): ColumnDef<Category>[] => [
   {
     id: 'select',
     header: ({ table }) => (
@@ -49,6 +48,9 @@ export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Cat
           table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
         }
         onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
         aria-label='Select all'
       />
     ),
@@ -56,17 +58,21 @@ export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Cat
       <Checkbox
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onClick={(e) => {
+          e.stopPropagation()
+        }}
         aria-label='Select row'
       />
     ),
     enableSorting: false,
-    enableHiding: false
+    enableHiding: false,
+    size: 40
   },
   {
     id: 'name',
     accessorKey: 'name',
     header: ({ column }) => <DataTableColumnHeader label='Tên Danh Mục' column={column} />,
-    cell: ({ row }) => <div className='max-w-75 truncate'>{row.original.name}</div>,
+    cell: ({ row }) => <div className='max-w-75 truncate font-medium'>{row.original.name}</div>,
     meta: {
       label: 'Tên Danh Mục',
       placeholder: 'Tìm danh mục theo tên...',
@@ -79,7 +85,7 @@ export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Cat
     id: 'slug',
     accessorKey: 'slug',
     header: ({ column }) => <DataTableColumnHeader label='Slug' column={column} />,
-    cell: ({ row }) => <div className='font-medium'>{row.original.slug}</div>,
+    cell: ({ row }) => <div className='max-w-32 truncate'>{row.original.slug}</div>,
     meta: {
       label: 'Slug',
       placeholder: 'Tìm theo slug...',
@@ -88,7 +94,7 @@ export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Cat
     }
   },
   {
-    id: 'parent',
+    id: 'parentCategoryName',
     accessorFn: (row) => row.parent?.name,
     header: ({ column }) => <DataTableColumnHeader label='Danh Mục Cha' column={column} />,
     cell: ({ row }) => <div className='font-normal'>{row.original.parent?.name || ''}</div>,
@@ -130,8 +136,15 @@ export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Cat
     accessorKey: 'isActive',
     header: ({ column }) => <DataTableColumnHeader label='Trạng Thái' column={column} />,
     cell: ({ row }) => {
-      const isActive = row.getValue('isActive') as boolean
-      return <Badge variant={getStatusVariant(isActive)}>{isActive ? 'Active' : 'Inactive'}</Badge>
+      const isActive = row.original.isActive
+      const Icon = isActive === true ? CheckCircle2 : XCircle
+
+      return (
+        <Badge variant='outline' className='capitalize'>
+          <Icon size={14} className='mr-1' />
+          {isActive === true ? 'Active' : 'Inactive'}
+        </Badge>
+      )
     },
     meta: {
       label: 'Trạng Thái',
@@ -163,8 +176,8 @@ export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Cat
 
       return (
         <div className='flex items-center justify-end'>
-          <Button variant='ghost' onClick={() => onOpenDrawer(category)}>
-            <Edit2 className='h-4 w-4' />
+          <Button variant='ghost' onClick={() => onOpenDrawer && onOpenDrawer(category)}>
+            <SquarePen className='h-4 w-4' />
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -175,7 +188,13 @@ export const getColumns = (onOpenDrawer: (row: Category) => void): ColumnDef<Cat
             </DropdownMenuTrigger>
             <DropdownMenuContent align='end'>
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => navigator.clipboard.writeText(category.id)}>
+              <DropdownMenuItem
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigator.clipboard.writeText(category.id)
+                  toast.success('Category ID copied to clipboard')
+                }}
+              >
                 Copy category ID
               </DropdownMenuItem>
               <DropdownMenuSeparator />

@@ -1,13 +1,11 @@
+import LoadingWrapper from '@/components/common/loading-wrapper'
+import { Toaster } from '@/components/ui/sonner'
+import { TooltipProvider } from '@/components/ui/tooltip'
+import ServerWrapper from '@/features/auth/components/server-wrapper'
+import { Providers } from '@/providers/providers'
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import { Providers } from '@/providers/providers'
-import { cookies } from 'next/headers'
-import { getAccessToken } from '@/utilts/cookies.utils'
-import { AuthInitializer } from '@/features/auth/components/auth-initializer'
-import { TooltipProvider } from '@/components/ui/tooltip'
-import { Toaster } from '@/components/ui/sonner'
-import ServerWrapper from '@/features/auth/components/server-wrapper'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -33,10 +31,12 @@ export default async function RootLayout({
     <html lang='en'>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <Providers>
-          <TooltipProvider>{children}</TooltipProvider>
+          <TooltipProvider>
+            <LoadingWrapper>{children}</LoadingWrapper>
+          </TooltipProvider>
         </Providers>
         <ServerWrapper />
-        <Toaster position='bottom-right' />
+        <Toaster position='bottom-right' richColors />
       </body>
     </html>
   )

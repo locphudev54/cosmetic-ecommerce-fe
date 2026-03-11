@@ -1,14 +1,13 @@
 import { API_ENDPOINTS } from '@/constants/api.constant'
-import apiClient from '@/lib/api-client'
-import { ApiResponse, OffsetPaginationMeta } from '@/types/api.types'
 import {
   Category,
+  CategoryTreeNodeType,
   CreateCategoryDto,
-  UpdateCategoryDto,
   FindAllCategoriesQueryParams,
-  CategoryTreeNodeType
+  UpdateCategoryDto
 } from '@/features/categories/types'
-import { get } from 'http'
+import apiClient from '@/lib/api-client'
+import { ApiResponse, OffsetPaginationMeta } from '@/types/api.types'
 
 export const categoryService = {
   getCategories(
@@ -19,8 +18,10 @@ export const categoryService = {
     })
   },
 
-  async getCategoryTree(): Promise<CategoryTreeNodeType[]> {
-    const response = await apiClient.get<CategoryTreeNodeType[]>(API_ENDPOINTS.CATEGORIES.TREE)
+  async getCategoryTree(params?: { isDeleted?: boolean }): Promise<CategoryTreeNodeType[]> {
+    const response = await apiClient.get<CategoryTreeNodeType[]>(API_ENDPOINTS.CATEGORIES.TREE, {
+      params
+    })
     return response.data
   },
 

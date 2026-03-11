@@ -1,15 +1,17 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
+import { ApiError } from '@/types'
 import { useRouter } from 'next/navigation'
 import { startTransition } from 'react'
 
-export default function Error({ error, reset }: { error: Error; reset: () => void }) {
+export default function Error({ error, reset }: { error: ApiError | Error; reset: () => void }) {
   const router = useRouter()
 
   return (
     <div className='flex min-h-screen flex-col items-center justify-center gap-5'>
-      <h2>Something went wrong layout!</h2>
+      <h2>Something went wrong!</h2>
+      <p>{JSON.stringify(error)}</p>
       <Button
         onClick={() => {
           router.refresh() // re-call failed api requests

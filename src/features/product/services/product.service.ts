@@ -1,14 +1,12 @@
 import { API_ENDPOINTS } from '@/constants/api.constant'
+import {
+  CreateProductDto,
+  FindAllProductsQueryParams,
+  Product,
+  UpdateProductDto
+} from '@/features/product/types'
 import apiClient from '@/lib/api-client'
 import { ApiResponse, OffsetPaginationMeta } from '@/types/api.types'
-import {
-  Product,
-  CreateProductDto,
-  UpdateProductDto,
-  Attribute,
-  FindAllProductsQueryParams,
-  FindAllAttributesQueryParams
-} from '@/features/product/types'
 
 export const productService = {
   getProducts(
@@ -38,11 +36,5 @@ export const productService = {
 
   async bulkDeleteProducts(ids: string[]): Promise<void> {
     await apiClient.post(API_ENDPOINTS.PRODUCTS.BULK_DELETE, { ids })
-  },
-
-  async getAttributes(
-    params?: FindAllAttributesQueryParams
-  ): Promise<ApiResponse<Attribute[], OffsetPaginationMeta>> {
-    return apiClient.get<Attribute[], OffsetPaginationMeta>('/attributes', { params })
   }
 }

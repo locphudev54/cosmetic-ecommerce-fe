@@ -26,18 +26,20 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table'
-import { useAttributes } from '@/features/product/hooks'
+import { Attribute, useAttributes } from '@/features/attributes'
+import { useCategoryTreeStore } from '@/features/product/store/category-tree-store'
 import {
   ProductAttributeType,
   ProductAttributeValueType,
   ProductVariantType
 } from '@/features/product/types'
 import { useUploadSingleImage } from '@/features/upload/hooks/use-upload'
-import { ChevronDown, PenLine, Plus, Trash2, X } from 'lucide-react'
+import { useDialog } from '@/hooks/use-dialog'
+import { ChevronDown, Edit2Icon, Minus, PenLine, Plus, Trash2, X, Zap } from 'lucide-react'
 import Image from 'next/image'
-import { Switch } from 'radix-ui'
-import React, { use } from 'react'
+import React from 'react'
 import { toast } from 'sonner'
+import { de } from 'zod/v4/locales'
 
 interface Props {
   productVariantList?: ProductVariantType[]
@@ -52,6 +54,9 @@ interface Props {
 }
 
 export default function ProductVariantsForm(props: Props) {
+  const dialog = useDialog()
+  const primaryCategoryId = useCategoryTreeStore((state) => state.primaryCategoryId)
+
   const [attributes, setAttributes] = React.useState<ProductAttributeType[]>(
     props.attrbutes ?? [{ id: '', name: '', values: [] }]
   )
@@ -61,8 +66,24 @@ export default function ProductVariantsForm(props: Props) {
   )
 
   // Remote state - Queries
-  const { data: attributesData } = useAttributes()
-  const attributeList = attributesData?.data ?? []
+  const { data: attributesData } = useAttributes({ getAll: true })
+  const attributeList = React.useMemo(() => attributesData?.data ?? [], [attributesData?.data])
+
+  const { data: categoryAttributesData } = useAttributes(
+    { getAll: true, categoryId: primaryCategoryId ?? undefined },
+    !!primaryCategoryId
+  )
+  const categoryAttributeList = React.useMemo(
+    () => categoryAttributesData?.data ?? [],
+    [categoryAttributesData?.data]
+  )
+
+  const isContainAllCategoryAttributes = React.useMemo(() => {
+    return (
+      categoryAttributeList.length > 0 &&
+      categoryAttributeList.every((catAttr) => attributes.some((attr) => attr.id === catAttr.id))
+    )
+  }, [categoryAttributeList, attributes])
 
   // Mutations
   const uploadSingleImageMutation = useUploadSingleImage()
@@ -121,7 +142,7 @@ export default function ProductVariantsForm(props: Props) {
     setProductVariantList(productVariantList)
   }, [attributes])
 
-  function handleSelectAttributeName(attIndex: number, selectedAttValue: string) {
+  async function handleSelectAttributeName(attIndex: number, selectedAttValue: string) {
     // Nếu bỏ chọn thuộc tính (selectedAttValue = '' - empty string) thì sẽ xóa tên thuộc tính và giá trị của thuộc tính đó đi
     if (!selectedAttValue) {
       return setAttributes((prev) => {
@@ -134,6 +155,27 @@ export default function ProductVariantsForm(props: Props) {
     }
 
     const { attributeName, attributeId } = JSON.parse(selectedAttValue)
+
+    // Special case: if selecting "add-new-attribute", open the dialog
+    if (attributeName === 'add-new-attribute') {
+      const result = await dialog.open('upsert-attribute', { attribute: null })
+
+      if (result && result.actionType === 'create' && result.data) {
+        const newAttribute = result.data
+        setAttributes((prev) => {
+          const targetAttribute = prev[attIndex]
+          targetAttribute.id = newAttribute.id
+          targetAttribute.name = newAttribute.name
+          targetAttribute.values = newAttribute.values.map((value) => ({
+            attributeValueId: value.id,
+            value: value.value
+          }))
+          return [...prev]
+        })
+      }
+
+      return
+    }
 
     // Nếu đã tồn tại thuộc tính
     if (attributes.some((att) => att.name === attributeName)) {
@@ -181,16 +223,45 @@ export default function ProductVariantsForm(props: Props) {
     setAttributes((prev) => prev.filter((_, attIdx) => attIdx !== attIndex))
   }
 
-  const handleChangeAttributeValues = (attIndex: number) => (selectedAttributeValues: string[]) => {
-    setAttributes((prev) => {
-      const targetAttribute = prev[attIndex]
-      const parsedSelectedAttValues: ProductAttributeValueType[] = selectedAttributeValues.map(
-        (item) => JSON.parse(item)
+  const handleChangeAttributeValues =
+    (attIndex: number) => async (selectedAttributeValues: string[]) => {
+      const { attributeValueId } = JSON.parse(
+        selectedAttributeValues[selectedAttributeValues.length - 1]
       )
-      targetAttribute.values = parsedSelectedAttValues
-      return [...prev]
-    })
-  }
+
+      const editingAttributeId = attributes[attIndex].id
+      const editingAttribute = attributeList.find((att) => att.id === editingAttributeId)
+
+      if (attributeValueId === 'edit-attribute-values') {
+        const result = await dialog.open('upsert-attribute', {
+          attribute: editingAttribute ?? null
+        })
+
+        if (result && result.actionType === 'update' && result.data) {
+          const updatedAttribute = result.data
+
+          setAttributes((prev) => {
+            const targetAttribute = prev[attIndex]
+            targetAttribute.values = updatedAttribute.values.map((value) => ({
+              attributeValueId: value.id,
+              value: value.value
+            }))
+            return [...prev]
+          })
+        }
+
+        return
+      }
+
+      setAttributes((prev) => {
+        const targetAttribute = prev[attIndex]
+        const parsedSelectedAttValues: ProductAttributeValueType[] = selectedAttributeValues.map(
+          (item) => JSON.parse(item)
+        )
+        targetAttribute.values = parsedSelectedAttValues
+        return [...prev]
+      })
+    }
 
   const handleCostPriceChange = (prodVariantIndex: number) => (value: number) => {
     setProductVariantList((prev) => {
@@ -267,6 +338,38 @@ export default function ProductVariantsForm(props: Props) {
     })
   }
 
+  const handleQuicklyCreateProductVariantsByPrimaryCategory = async () => {
+    const result = await dialog.open('confirm-action', {
+      title: 'Xác nhận tạo nhanh biến thể',
+      description:
+        'Hành động này sẽ tạo nhanh biến thể dựa trên thuộc tính của danh mục chính. Bạn có chắc chắn muốn tiếp tục?',
+      confirmLabel: 'Xác nhận',
+      cancelLabel: 'Hủy'
+    })
+
+    if (result && !result.confirmed) {
+      return
+    }
+
+    const remainingCategoryAttributes: ProductAttributeType[] = categoryAttributeList
+      .filter((catAttr) => !attributes.some((attr) => attr.id === catAttr.id))
+      .map((catAttr) => ({
+        id: catAttr.id,
+        name: catAttr.name,
+        values: catAttr.values.map((value) => ({
+          attributeValueId: value.id,
+          value: value.value
+        }))
+      }))
+
+    const mergedAttributes = [...attributes, ...remainingCategoryAttributes]
+    setAttributes(mergedAttributes)
+
+    // Don't need to set product variant here because the useEffect that generate product variant from attribute
+    // setProductVariantList([])
+    toast.success('Đã tạo nhanh biến thể dựa trên thuộc tính của danh mục chính!')
+  }
+
   // function onSubmit() {
   //   setAttributes([{ name: '', values: [] }])
   //   setProductVariantList([])
@@ -275,14 +378,29 @@ export default function ProductVariantsForm(props: Props) {
 
   return (
     <div>
-      <FieldLabel className='mb-4'>
+      <FieldLabel className='mb-4 flex w-full items-start justify-between'>
         <TypographyMuted>Variant Settings</TypographyMuted>
+        {categoryAttributeList.length > 0 &&
+          primaryCategoryId &&
+          !isContainAllCategoryAttributes && (
+            <Button
+              variant={'blue_gradient'}
+              className=''
+              type='button'
+              onClick={handleQuicklyCreateProductVariantsByPrimaryCategory}
+            >
+              <Zap className='' />
+              Tạo nhanh
+            </Button>
+          )}
       </FieldLabel>
 
       <div className='grid grid-cols-12 items-start gap-x-3 gap-y-2'>
         {attributes.map((attribute, attributeIdx) => {
           // Get the coresponding attribute in attributeList to get its values for rendering options in combobox
-          const attributeItem = attributeList.find((attItem) => attItem.id === attribute.id)
+          const attributeItem: Attribute | undefined = attributeList.find(
+            (attItem) => attItem.id === attribute.id
+          )
           const attributeItemValues = attributeItem?.values ?? []
 
           return (
@@ -294,8 +412,11 @@ export default function ProductVariantsForm(props: Props) {
                     attributeName: attribute.name,
                     attributeId: attribute.id
                   })}
+                  inputValue={attribute.name}
+                  // inputValue={attributeComboboxValues[attributeIdx]}
+                  onInputValueChange={() => {}}
                   onValueChange={(value) => handleSelectAttributeName(attributeIdx, value)}
-                  // onFilter={onFilter}
+                  // manualFiltering
                 >
                   <ComboboxAnchor>
                     <ComboboxInput placeholder='Chọn thuộc tính' />
@@ -303,7 +424,7 @@ export default function ProductVariantsForm(props: Props) {
                       <ChevronDown className='h-4 w-4' />
                     </ComboboxTrigger>
                   </ComboboxAnchor>
-                  <ComboboxContent>
+                  <ComboboxContent className='custom-scrollbar max-h-75 overflow-x-hidden overflow-y-auto'>
                     <ComboboxEmpty>
                       <div>Không tìm thấy thuộc tính nào</div>
                     </ComboboxEmpty>
@@ -320,7 +441,8 @@ export default function ProductVariantsForm(props: Props) {
                           <span>{attributeItem.name}</span>
                           <Button
                             onClick={(e) => {
-                              e.preventDefault()
+                              e.stopPropagation()
+                              dialog.open('upsert-attribute', { attribute: attributeItem })
                             }}
                             type='button'
                             className='cursor-pointer'
@@ -335,10 +457,32 @@ export default function ProductVariantsForm(props: Props) {
                         </div>
                       </ComboboxItem>
                     ))}
-                    <Button variant={'ghost'} className='mt-1 w-full'>
+                    <ComboboxItem
+                      key={'add-new-attribute'}
+                      value={JSON.stringify({
+                        attributeName: 'add-new-attribute',
+                        attributeId: 'add-new-attribute'
+                      })}
+                    >
+                      {/* <Button type='button' variant={'ghost'} className='mt-1 w-full'> */}
+                      <div className='flex items-center gap-x-2 py-1 font-medium'>
+                        <Plus size={16} />
+                        <span>Thêm mới thuộc tính</span>
+                      </div>
+                      {/* </Button> */}
+                    </ComboboxItem>
+                    {/* <Button
+                      variant={'ghost'}
+                      className='mt-1 w-full'
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        dialog.open('upsert-attribute', { attribute: null })
+                      }}
+                    >
                       <Plus />
                       <span>Thêm mới thuộc tính</span>
-                    </Button>
+                    </Button> */}
                   </ComboboxContent>
                 </Combobox>
               </div>
@@ -370,14 +514,6 @@ export default function ProductVariantsForm(props: Props) {
                     </ComboboxBadgeList>
                     <ComboboxInput
                       autoFocus
-                      // onKeyDown={(e) => {
-                      //   if (e.key === 'Enter') {
-                      //     const attributeValue = e.currentTarget.value
-
-                      //
-                      //     // your logic here
-                      //   }
-                      // }}
                       placeholder='Chọn giá trị thuộc tính...'
                       className='h-auto min-w-20 flex-1'
                     />
@@ -398,10 +534,24 @@ export default function ProductVariantsForm(props: Props) {
                         {attItemValue.value}
                       </ComboboxItem>
                     ))}
-                    <Button variant={'ghost'} className='mt-1 w-full'>
+
+                    <ComboboxItem
+                      key={'edit-attribute-values'}
+                      value={JSON.stringify({
+                        attributeValueId: 'edit-attribute-values',
+                        value: 'edit-attribute-values'
+                      })}
+                    >
+                      <div className='flex items-center gap-x-2 py-1 font-medium'>
+                        <PenLine size={16} />
+                        <span>Chỉnh sửa giá trị thuộc tính</span>
+                      </div>
+                    </ComboboxItem>
+
+                    {/* <Button variant={'ghost'} className='mt-1 w-full'>
                       <Plus />
-                      <span>Thêm mới giá trị thuộc tính</span>
-                    </Button>
+                      <span>Chỉnh sửa giá trị thuộc tính</span>
+                    </Button> */}
                   </ComboboxContent>
                 </Combobox>
 
@@ -447,21 +597,39 @@ export default function ProductVariantsForm(props: Props) {
         })}
       </div>
 
-      <Button
-        type='button'
-        variant={'link'}
-        className='mt-2 cursor-pointer font-medium text-blue-600 hover:text-blue-700 hover:no-underline'
-        onClick={handleAddNewAttributeName}
-      >
-        <Plus />
-        <span>Thêm thuộc tính</span>
-      </Button>
+      <div className='flex items-center justify-between'>
+        <Button
+          type='button'
+          variant={'link'}
+          className='mt-2 cursor-pointer font-medium text-blue-600 hover:text-blue-700 hover:no-underline'
+          onClick={handleAddNewAttributeName}
+        >
+          <Plus />
+          <span>Thêm thuộc tính</span>
+        </Button>
+
+        {productVariantList.length > 0 && !!productVariantList[0].attributeValues[0] && (
+          <Button
+            type='button'
+            variant={'link'}
+            className='mt-2 cursor-pointer font-medium text-red-600 hover:text-red-600 hover:no-underline'
+            onClick={() => {
+              setAttributes([{ id: '', name: '', values: [] }])
+            }}
+          >
+            <Minus />
+            <span>Xóa tất cả ({productVariantList.length})</span>
+          </Button>
+        )}
+      </div>
 
       {/* Product Variant Settings */}
       {productVariantList.length > 0 && !!productVariantList[0].attributeValues[0] && (
-        <div>
-          <h5 className='my-3 font-semibold'>Sản phẩm cùng loại ({productVariantList.length})</h5>
-          <div className='custom-scrollbar overflow-x-auto py-2'>
+        <React.Fragment>
+          <div className='flex items-center justify-between'>
+            <h5 className='my-3 font-semibold'>Sản phẩm cùng loại ({productVariantList.length})</h5>
+          </div>
+          <div className='custom-scrollbar py-2'>
             <Table className='w-max'>
               <TableHeader>
                 <TableRow>
@@ -525,11 +693,6 @@ export default function ProductVariantsForm(props: Props) {
                           })
                         }}
                       />
-                      {/* <div>
-                        {prodVariant.attributeValues
-                          .map((attrValue) => attrValue.value)
-                          .join(' - ')}
-                      </div> */}
                     </TableCell>
                     <TableCell>
                       <Input type='text' placeholder='Mã vạch...' />
@@ -597,7 +760,7 @@ export default function ProductVariantsForm(props: Props) {
               </TableBody>
             </Table>
           </div>
-        </div>
+        </React.Fragment>
       )}
     </div>
   )

@@ -1,5 +1,7 @@
+import { API_ENDPOINTS } from '@/constants/api.constant'
+import { Attribute } from '@/features/attributes'
+import { ATTRIBUTE_QUERY_KEYS } from '@/features/attributes/hooks/use-attributes'
 import UpsertProductForm from '@/features/product/components/upsert-product-form'
-import { Attribute } from '@/features/product/types/product.types'
 import { getServerQueryClient } from '@/lib/query-client'
 import serverFetchClient from '@/lib/server-fetch'
 import { OffsetPaginationMeta } from '@/types'
@@ -12,11 +14,14 @@ export default async function Page() {
   const queryClient = getServerQueryClient()
 
   await queryClient.fetchQuery({
-    queryKey: ['attributes'],
+    queryKey: ATTRIBUTE_QUERY_KEYS.list({ getAll: true }),
     queryFn: () =>
-      serverFetchClient.get<Attribute[], OffsetPaginationMeta>('/attributes?getAll=true', {
-        headers: { Authorization: `Bearer ${accessToken}` }
-      })
+      serverFetchClient.get<Attribute[], OffsetPaginationMeta>(
+        `${API_ENDPOINTS.ATTRIBUTES.LIST}?getAll=true`,
+        {
+          headers: { Authorization: `Bearer ${accessToken}` }
+        }
+      )
   })
 
   return (

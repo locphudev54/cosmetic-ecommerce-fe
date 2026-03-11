@@ -76,10 +76,3 @@ export const useBulkDeleteProducts = () => {
     }
   })
 }
-
-export const useAttributes = (params?: FindAllAttributesQueryParams) => {
-  return useQuery({
-    queryKey: ['attributes'],
-    queryFn: () => productService.getAttributes(params)
-  })
-}

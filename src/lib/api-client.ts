@@ -240,6 +240,7 @@ class ApiClient {
             }
           }
           // For all other errors, reject normally - 400, 403, 500, etc. received from Backend
+
           if (isApiError(errorObject)) {
             throw new ApiError(errorObject)
           }
@@ -288,7 +289,7 @@ class ApiClient {
 }
 
 // Registry to track active requests for bulk cancellation
-let activeControllers: Set<AbortController> = new Set()
+const activeControllers: Set<AbortController> = new Set()
 
 /**
  * Utility functions for request cancellation

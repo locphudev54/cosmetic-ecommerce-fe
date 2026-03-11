@@ -76,13 +76,7 @@ export function ExportCsvButton<T extends Record<string, any>>({
   }
 
   return (
-    <Button
-      onClick={exportToCSV}
-      variant={variant}
-      size={size}
-      disabled={disabled}
-      className='text-xs'
-    >
+    <Button onClick={exportToCSV} variant={variant} size={size} disabled={disabled}>
       <Download className='mr-2 h-4 w-4' />
       {children || 'Export'}
     </Button>

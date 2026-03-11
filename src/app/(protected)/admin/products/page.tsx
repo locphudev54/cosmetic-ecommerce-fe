@@ -2,21 +2,20 @@
 
 import * as React from 'react'
 
-import { TypographyH3 } from '@/components/common/typography'
+import { DateRangePicker } from '@/components/common/date-range-picker'
 import { ExportCsvButton } from '@/components/common/export-csv-button'
+import { TypographyH3 } from '@/components/common/typography'
 import { DataTable } from '@/components/data-table/data-table'
 import { DataTableToolbar } from '@/components/data-table/data-table-toolbar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { ROUTES } from '@/constants/route.constant'
 import { columns } from '@/features/product/components/columns'
-import { useProducts } from '@/features/product/hooks/use-products'
 import { useProductQueryParams } from '@/features/product/hooks/use-product-query-params'
+import { useProducts } from '@/features/product/hooks/use-products'
 import { useDataTable } from '@/hooks/use-data-table'
-import { Plus, Trash, Trash2 } from 'lucide-react'
+import { Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { DateRangePicker } from '@/components/common/date-range-picker'
 
 export default function Page() {
   const memoizedColumns = React.useMemo(() => columns, [])
@@ -106,8 +105,7 @@ export default function Page() {
           <DataTableToolbar table={table}>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
-                variant='outline'
-                className='text-xs'
+                variant='destructive'
                 onClick={() => {
                   const selectedRows = table.getFilteredSelectedRowModel().rows
                   console.log(

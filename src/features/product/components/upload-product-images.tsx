@@ -1,8 +1,12 @@
 'use client'
 
+import { ImageUploadButton } from '@/components/common/image-upload-button'
 import NextJsImage from '@/components/common/next-js-image'
-import { Button } from '@/components/ui/button'
+import { TypographyMuted } from '@/components/common/typography'
+import { Checkbox } from '@/components/ui/checkbox'
+import { FieldLabel } from '@/components/ui/field'
 import ProductImageThumbnail from '@/features/product/components/product-image-thumbnail'
+import { useUploadMultipleImages } from '@/features/upload/hooks/use-upload'
 import { CarouselImage } from '@/types/carousel'
 import {
   closestCenter,
@@ -13,9 +17,9 @@ import {
   useSensors
 } from '@dnd-kit/core'
 import { arrayMove, horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable'
-import { Upload } from 'lucide-react'
 import dynamic from 'next/dynamic'
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
+import { toast } from 'sonner'
 import type { RenderThumbnailProps } from 'yet-another-react-lightbox'
 import Captions from 'yet-another-react-lightbox/plugins/captions'
 import 'yet-another-react-lightbox/plugins/captions.css'
@@ -25,12 +29,6 @@ import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import 'yet-another-react-lightbox/styles.css'
-import { Checkbox } from '@/components/ui/checkbox'
-import { FieldLabel } from '@/components/ui/field'
-import { TypographyMuted } from '@/components/common/typography'
-import { ImageUploadButton } from '@/components/common/image-upload-button'
-import { useUploadMultipleImages, useUploadSingleImage } from '@/features/upload/hooks/use-upload'
-import { toast } from 'sonner'
 
 // ── Dynamically import the heavy lightbox so it's excluded from initial bundle
 const Lightbox = dynamic(() => import('yet-another-react-lightbox'), {
