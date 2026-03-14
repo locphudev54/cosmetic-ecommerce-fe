@@ -1,8 +1,6 @@
 'use client'
 
-import { UpsertAttributeForm } from '@/features/attributes/components/upsert-attribute-form'
-import { useDeleteAttribute } from '@/features/attributes/hooks/use-attributes'
-import { useDialog } from '@/hooks/use-dialog'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -10,36 +8,36 @@ import {
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog'
-import { Button } from '@/components/ui/button'
+import { UpsertAttributeForm } from '@/features/attributes/components/upsert-attribute-form'
+import { Attribute } from '@/features/attributes/types/attribute.types'
 import type { DialogWrapperProps, UpsertAttributeDialogData } from '@/types/dialog.types'
 import { Trash2 } from 'lucide-react'
-import { Attribute } from '@/features/attributes/types/attribute.types'
 
 export function UpsertAttributeDialog({ config, onClose }: DialogWrapperProps<'upsert-attribute'>) {
   const { attribute } = config.data as UpsertAttributeDialogData
-  const dialog = useDialog()
-  const deleteAttributeMutation = useDeleteAttribute()
+  // const dialog = useDialog()
+  // const deleteAttributeMutation = useDeleteAttribute()
 
-  const handleDeleteAttribute = async () => {
-    if (!attribute) return
+  // const handleDeleteAttribute = async () => {
+  //   if (!attribute) return
 
-    const result = await dialog.open('confirm-action', {
-      title: 'Xóa thuộc tính',
-      description: `Bạn có chắc chắn muốn xóa thuộc tính "${attribute.name}"? Hành động này không thể hoàn tác.`,
-      confirmLabel: 'Xóa',
-      cancelLabel: 'Hủy',
-      variant: 'destructive'
-    })
+  //   const result = await dialog.open('confirm-action', {
+  //     title: 'Xóa thuộc tính',
+  //     description: `Bạn có chắc chắn muốn xóa thuộc tính "${attribute.name}"? Hành động này không thể hoàn tác.`,
+  //     confirmLabel: 'Xóa',
+  //     cancelLabel: 'Hủy',
+  //     variant: 'destructive'
+  //   })
 
-    if (result.confirmed) {
-      try {
-        await deleteAttributeMutation.mutateAsync(attribute.id)
-        onClose()
-      } catch {
-        // Error handled by mutation
-      }
-    }
-  }
+  //   if (result && result.confirmed) {
+  //     try {
+  //       await deleteAttributeMutation.mutateAsync(attribute.id)
+  //       onClose()
+  //     } catch {
+  //       // Error handled by mutation
+  //     }
+  //   }
+  // }
 
   return (
     <Dialog open onOpenChange={() => onClose()}>
@@ -58,7 +56,7 @@ export function UpsertAttributeDialog({ config, onClose }: DialogWrapperProps<'u
             }
           />
         </div>
-        {attribute && (
+        {/* {attribute && (
           <DialogFooter>
             <Button
               type='button'
@@ -70,7 +68,7 @@ export function UpsertAttributeDialog({ config, onClose }: DialogWrapperProps<'u
               {deleteAttributeMutation.isPending ? 'Đang xóa...' : 'Xóa thuộc tính'}
             </Button>
           </DialogFooter>
-        )}
+        )} */}
       </DialogContent>
     </Dialog>
   )

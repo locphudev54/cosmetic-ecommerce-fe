@@ -51,15 +51,16 @@ export const useCreateCategory = () => {
   })
 }
 
-export const useUpdateCategory = (id: string) => {
+export const useUpdateCategory = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (data: UpdateCategoryDto) => categoryService.updateCategory(id, data),
-    onSuccess: () => {
+    mutationFn: ({ id, data }: { id: string; data: UpdateCategoryDto }) =>
+      categoryService.updateCategory(id, data),
+    onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.lists() })
       queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.tree() })
-      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.detail(id) })
+      queryClient.invalidateQueries({ queryKey: CATEGORY_QUERY_KEYS.detail(variables.id) })
     }
   })
 }

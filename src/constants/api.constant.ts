@@ -64,6 +64,24 @@ export const API_ENDPOINTS = {
     BULK_DELETE: '/attributes/bulk-delete'
   },
 
+  // Brands
+  BRANDS: {
+    LIST: '/brands',
+    DETAIL: (id: string) => `/brands/${id}`,
+    CREATE: '/brands',
+    UPDATE: (id: string) => `/brands/${id}`,
+    DELETE: (id: string) => `/brands/${id}/soft`
+  },
+
+  // Country of Origin
+  COUNTRY_OF_ORIGIN: {
+    LIST: '/country-of-origin',
+    DETAIL: (id: string) => `/country-of-origin/${id}`,
+    CREATE: '/country-of-origin',
+    UPDATE: (id: string) => `/country-of-origin/${id}`,
+    DELETE: (id: string) => `/country-of-origin/${id}/soft`
+  },
+
   // Health check
   HEALTH: '/health'
 } as const

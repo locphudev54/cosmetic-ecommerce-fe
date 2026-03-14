@@ -1,13 +1,28 @@
 import { UseMutationResult } from '@tanstack/react-query'
 
 import { Attribute } from '@/features/attributes/types'
+import { Brand } from '@/features/brands/types'
+import { CountryOfOrigin } from '@/features/country-of-origin/types'
 
 // ─── Dialog IDs ──────────────────────────────────────────────────────────────
-export type DialogId = 'upsert-attribute' | 'delete-alert' | 'confirm-action'
+export type DialogId =
+  | 'upsert-attribute'
+  | 'upsert-brand'
+  | 'upsert-country-of-origin'
+  | 'delete-alert'
+  | 'confirm-action'
 
 // ─── Per-Dialog Data Maps ────────────────────────────────────────────────────
 export interface UpsertAttributeDialogData {
   attribute: Attribute | null
+}
+
+export interface UpsertBrandDialogData {
+  brand: Brand | null
+}
+
+export interface UpsertCountryOfOriginDialogData {
+  countryOfOrigin: CountryOfOrigin | null
 }
 
 export interface DeleteAlertDialogData<T = any> {
@@ -30,6 +45,8 @@ export interface ConfirmActionDialogData {
 // ─── Registry Map (DialogId → Data type) ─────────────────────────────────────
 export interface DialogRegistryMap {
   'upsert-attribute': UpsertAttributeDialogData
+  'upsert-brand': UpsertBrandDialogData
+  'upsert-country-of-origin': UpsertCountryOfOriginDialogData
   'delete-alert': DeleteAlertDialogData
   'confirm-action': ConfirmActionDialogData
 }
@@ -37,6 +54,8 @@ export interface DialogRegistryMap {
 // ─── Dialog Result Map (DialogId → Result type) ──────────────────────────────
 export interface DialogResultMap {
   'upsert-attribute': { data: Attribute; actionType: 'create' | 'update' }
+  'upsert-brand': { data: Brand; actionType: 'create' | 'update' }
+  'upsert-country-of-origin': { data: CountryOfOrigin; actionType: 'create' | 'update' }
   'delete-alert': { confirmed: boolean }
   'confirm-action': { confirmed: boolean }
 }

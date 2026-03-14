@@ -27,7 +27,7 @@ export default function Page() {
   const deleteAttributeMutation = useDeleteAttribute()
   const bulkDeleteAttributesMutation = useBulkDeleteAttributes()
 
-  const handleOpenDialog = React.useCallback(
+  const handleOpenUpsertAttributeDialog = React.useCallback(
     (attribute: Attribute | null) => {
       dialog.open('upsert-attribute', { attribute })
     },
@@ -47,7 +47,10 @@ export default function Page() {
     })
   }
 
-  const memoizedColumns = React.useMemo(() => getColumns(handleOpenDialog), [handleOpenDialog])
+  const memoizedColumns = React.useMemo(
+    () => getColumns(handleOpenUpsertAttributeDialog),
+    [handleOpenUpsertAttributeDialog]
+  )
 
   const { page, perPage, sorting, search, sortBy, sortOrder } =
     useAttributeQueryParams(memoizedColumns)
@@ -92,7 +95,7 @@ export default function Page() {
           <Skeleton className='h-[500px] w-full bg-white' />
         </div>
       ) : (
-        <DataTable table={table} onRowClick={handleOpenDialog}>
+        <DataTable table={table} onRowClick={handleOpenUpsertAttributeDialog}>
           <DataTableToolbar table={table}>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button
@@ -108,7 +111,11 @@ export default function Page() {
               </Button>
             )}
 
-            <Button variant={'outline'} className='text-sm' onClick={() => handleOpenDialog(null)}>
+            <Button
+              variant={'outline'}
+              className='text-sm'
+              onClick={() => handleOpenUpsertAttributeDialog(null)}
+            >
               <Plus />
               <span>Thêm Thuộc Tính</span>
             </Button>
@@ -122,8 +129,7 @@ export default function Page() {
                 Name: attribute.name,
                 Slug: attribute.slug,
                 'Is Global Filter': attribute.isGlobalFilter,
-                Values: attribute.values.map((v) => v.value).join('; '),
-                'Created At': new Date(attribute.createdAt).toLocaleDateString()
+                Values: attribute.values.map((v) => v.value).join('; ')
               })}
             />
           </DataTableToolbar>

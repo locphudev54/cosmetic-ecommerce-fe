@@ -1,5 +1,6 @@
 'use client'
 import { Button } from '@/components/ui/button'
+import { FieldError } from '@/components/ui/field'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { useCategoryTree } from '@/features/categories/hooks'
 import { CategoryTreeNodeType } from '@/features/categories/types/category.types'
@@ -14,17 +15,16 @@ interface CategorySelectionProps {
   initialParentCategoryIds?: string[]
   multiSelect?: boolean
   showProductCount?: boolean
-  onSelectionChange?: (selectedParentCategoryIds: string[]) => void
+  onChange?: (categories: Array<{ categoryId: string; isPrimary: boolean }>) => void
+  error?: { message?: string }
 }
 
 function CategorySelection({
-  // If you assign the empty array as the default value for this prop,
-  // It will cause an unnecessary re-renders because the memoized value will always be a new array reference when the parent component re-render.
-  // By leaving it as undefined, you can handle the default case inside the component without causing unnecessary re-renders.
   initialParentCategoryIds,
   multiSelect = false,
   showProductCount = false,
-  onSelectionChange
+  onChange,
+  error
 }: CategorySelectionProps) {
   const [open, setOpen] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
@@ -53,11 +53,13 @@ function CategorySelection({
     setShowProductCount,
     clearSelection,
     expandNodes,
+    primaryCategoryId,
     setPrimaryCategoryId
   } = useCategoryTreeStore(
     useShallow((s) => ({
       selectedCategories: s.selectedCategories,
       setPrimaryCategoryId: s.setPrimaryCategoryId,
+      primaryCategoryId: s.primaryCategoryId,
       toggleSelect: s.toggleSelect,
       setCategories: s.setCategories,
       setMultiSelect: s.setMultiSelect,
@@ -104,14 +106,14 @@ function CategorySelection({
       initialParentCategoryIds.forEach((id) => {
         const category = findCategory(categoryTreeNodeList, id)
 
-        // Prevent duplicate selection and expansion in case of the parent component of CategorySelection re-rendering
+        // Prevent duplicate selection in case of the parent component of CategorySelection re-rendering
         // with the same initialParentCategoryIds
         const isSelected = selectedCategories.some((cat) => cat.id === id)
 
         if (category && !isSelected) {
           toggleSelect(id)
-          // setSelectedCategories((prev) => [...prev, category])
           setSelectedLeafCategories((prev) => [...prev, category])
+
           // Collect ancestor IDs so the tree expands to reveal this node
           // const ancestors = findAncestorIds(categoryTreeNodeList, id)
           const ancestors = category.path.split('/').slice(0, -1) // Assuming path is like "root/parent/child", this will give us ["root", "parent"]
@@ -148,6 +150,17 @@ function CategorySelection({
       clearSelection()
     }
   }, [clearSelection])
+
+  // Sync selectedLeafCategories + primaryCategoryId to the parent form field
+  React.useEffect(() => {
+    if (!onChange) return
+
+    const payload = selectedLeafCategories.map((cat) => ({
+      categoryId: cat.id,
+      isPrimary: cat.id === primaryCategoryId
+    }))
+    onChange(payload)
+  }, [selectedLeafCategories, primaryCategoryId, onChange])
 
   const handleClose = React.useCallback(() => {
     // Use getState() to guarantee a non-stale snapshot at the moment of closing,
@@ -195,9 +208,14 @@ function CategorySelection({
 
     // setSelectedCategories(selectedCategories)
     // Use the selected categories instead of leafCategories beacuse it's full and correct than leaf categories -> Use for displaying in the UI
-    onSelectionChange?.(selectedCategories.map((cat) => cat.id))
+    onChange?.(
+      selectedCategories.map((cat) => ({
+        categoryId: cat.id,
+        isPrimary: cat.id === primaryCategoryId
+      }))
+    )
     setOpen(false)
-  }, [multiSelect, onSelectionChange, selectedCategories, setPrimaryCategoryId])
+  }, [multiSelect, onChange, primaryCategoryId, selectedCategories, setPrimaryCategoryId])
 
   // Sync selection changes to the store
   // React.useEffect(() => {
@@ -292,12 +310,26 @@ function CategorySelection({
 
                   // Remove the leaf category from the store selection
                   toggleSelect(leafCat.id)
+
+                  // Set the nearest ancestor category as a primary category if the removing category is a primary category
+                  // If shouldDisplayBackNearestAncestor is false, we will set the primary category is the immediately after the removing category leaf
+                  const immediatelyAfterRemovingCategoryLeaf =
+                    selectedLeafCategories[selectedLeafCategories.length - 2].id ?? null
+
+                  if (primaryCategoryId === leafCat.id) {
+                    setPrimaryCategoryId(
+                      shouldDisplayBackNearestAncestor
+                        ? nearestAncestorCategory.id
+                        : immediatelyAfterRemovingCategoryLeaf
+                    )
+                  }
                 }}
               />
             )
           })}
         </React.Fragment>
       )}
+      {error && <FieldError errors={[error]} className='mt-2' />}
     </React.Fragment>
   )
 }

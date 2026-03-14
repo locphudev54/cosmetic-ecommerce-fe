@@ -6,16 +6,15 @@ interface Props extends React.InputHTMLAttributes<HTMLInputElement> {
   value?: number
   onValueChange?: (value: number) => void
   minValue?: number
+  className?: string
 }
 
 const InputNumber = React.forwardRef<HTMLInputElement, Props>(
   ({ value, onValueChange, className, minValue, ...rest }, ref) => {
-    const [number, setNumber] = React.useState<number | undefined>(value)
     const [displayValue, setDisplayValue] = React.useState<string>(value?.toLocaleString() || '')
 
     React.useEffect(() => {
       if (value !== undefined) {
-        setNumber(value)
         setDisplayValue(value.toLocaleString())
       }
     }, [value])
@@ -29,11 +28,9 @@ const InputNumber = React.forwardRef<HTMLInputElement, Props>(
       }
 
       if (!Number.isNaN(numberValue)) {
-        setNumber(numberValue)
         setDisplayValue(formatNumberWithCommas(numberValue))
         onValueChange?.(numberValue)
       } else if (rawValue === '') {
-        setNumber(undefined)
         setDisplayValue('')
         onValueChange?.(0)
       }
