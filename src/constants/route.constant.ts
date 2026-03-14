@@ -34,9 +34,13 @@ export const ROUTES = {
       EDIT: (id: string) => `/admin/categories/${id}`
     },
     ATTRIBUTE: {
-      HOME: '/admin/attributes',
-      NEW: '/admin/attributes/new',
-      EDIT: (id: string) => `/admin/attributes/${id}`
+      HOME: '/admin/attributes'
+    },
+    BRAND: {
+      HOME: '/admin/brands'
+    },
+    COUNTRY_OF_ORIGIN: {
+      HOME: '/admin/country-of-origin'
     },
     PROFILE: '/admin/profile',
     SETTINGS: '/admin/settings',

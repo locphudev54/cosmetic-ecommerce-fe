@@ -18,14 +18,6 @@ import {
 } from '@/components/ui/combobox'
 import { FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow
-} from '@/components/ui/table'
 import { Attribute, useAttributes } from '@/features/attributes'
 import { useCategoryTreeStore } from '@/features/product/store/category-tree-store'
 import {
@@ -35,35 +27,34 @@ import {
 } from '@/features/product/types'
 import { useUploadSingleImage } from '@/features/upload/hooks/use-upload'
 import { useDialog } from '@/hooks/use-dialog'
-import { ChevronDown, Edit2Icon, Minus, PenLine, Plus, Trash2, X, Zap } from 'lucide-react'
+import { generateVariantSku } from '@/utilts/client.utils'
+import { ChevronDown, Minus, PenLine, Plus, Trash2, X, Zap } from 'lucide-react'
 import Image from 'next/image'
 import React from 'react'
 import { toast } from 'sonner'
-import { de } from 'zod/v4/locales'
 
 interface Props {
-  productVariantList?: ProductVariantType[]
-  attrbutes?: ProductAttributeType[]
-  onSubmit?: ({
-    productVariants,
-    attributes
-  }: {
-    productVariants: ProductVariantType[]
-    attributes: ProductAttributeType[]
-  }) => void
+  productVariantList: ProductVariantType[]
+  attrbutes: ProductAttributeType[]
+  productCode?: string
+  onChange?: (variants: ProductVariantType[]) => void
 }
 
-export default function ProductVariantsForm(props: Props) {
+export default function ProductVariantsForm({ onChange, ...props }: Props) {
   const dialog = useDialog()
   const primaryCategoryId = useCategoryTreeStore((state) => state.primaryCategoryId)
 
-  const [attributes, setAttributes] = React.useState<ProductAttributeType[]>(
-    props.attrbutes ?? [{ id: '', name: '', values: [] }]
-  )
+  const [attributes, setAttributes] = React.useState<ProductAttributeType[]>([
+    { id: '', name: '', values: [] }
+  ])
 
   const [productVariantList, setProductVariantList] = React.useState<ProductVariantType[]>(
     props.productVariantList ?? []
   )
+
+  // Refs to control initialization from props (edit mode)
+  const hasInitializedFromProps = React.useRef(false)
+  const skipNextVariantRegen = React.useRef(false)
 
   // Remote state - Queries
   const { data: attributesData } = useAttributes({ getAll: true })
@@ -88,25 +79,45 @@ export default function ProductVariantsForm(props: Props) {
   // Mutations
   const uploadSingleImageMutation = useUploadSingleImage()
 
-  // React.useEffect(() => {
-  //   if (
-  //     !props.productVariantList ||
-  //     props.productVariantList.length === 0 ||
-  //     !props.attrbutes ||
-  //     props.attrbutes.length === 0
-  //   )
-  //     return
-
-  //   setAttributes(props.attrbutes)
-  //   setProductVariantList(props.productVariantList)
-  // }, [props.attrbutes, props.productVariantList])
-
+  // Sync productVariantList to the parent form field whenever it changes
   React.useEffect(() => {
+    debugger
+    onChange?.(productVariantList)
+  }, [productVariantList, onChange])
+
+  // Initialize from props in edit mode (runs once when initial data becomes available)
+  React.useEffect(() => {
+    debugger
+    if (hasInitializedFromProps.current) return
+    if (!props.productVariantList.length || !props.attrbutes.length) return
+
+    hasInitializedFromProps.current = true
+    // Skip the next variant regeneration that would be triggered by setAttributes
+    skipNextVariantRegen.current = true
+    setAttributes(props.attrbutes)
+    setProductVariantList(props.productVariantList)
+  }, [props.productVariantList, props.attrbutes])
+
+  // Generate all possible combinations of attribute values (Cartesian product) - based on attribute state
+  React.useEffect(() => {
+    debugger
+    // Skip regeneration once after initializing from props to preserve existing variant data
+    // When component mouts first time
+    if (skipNextVariantRegen.current) {
+      skipNextVariantRegen.current = false
+      return
+    }
+
+    // Remove empty attribute values to avoid generating variants for them - when firstly mount
     const attributeValuesList = attributes
       .map((att) => att.values)
       .filter((values) => values.length > 0)
 
-    // Generate all possible combinations of attribute values (Cartesian product)
+    if (attributeValuesList.length === 0) {
+      setProductVariantList([])
+      return
+    }
+
     const attributeValueCombinations = attributeValuesList.reduce<ProductAttributeValueType[][]>(
       (previousCombinations, currentAttributeValues) =>
         previousCombinations.flatMap((combination) =>
@@ -120,27 +131,60 @@ export default function ProductVariantsForm(props: Props) {
     //   attributeValueCombinations[index] = combination.filter((value) => value !== '')
     // })
 
-    const productVariantList: ProductVariantType[] = attributeValueCombinations.map(
-      (attributeValuesCombination) => ({
-        attributeValues: attributeValuesCombination,
-        costPrice: 0,
-        sellingPrice: 0,
-        stockOnHand: 0,
-        barcode: '',
-        imageUrl: undefined,
-        sku: attributeValuesCombination
-          .map((attrValue) => attrValue.value)
-          .join('-')
-          .toUpperCase(),
-        lowStockThreshold: 0,
-        maxStockThreshold: 0,
-        name: attributeValuesCombination.map((attrValue) => attrValue.value).join(' - '),
-        isActive: true
-      })
+    const newProductVariantList: ProductVariantType[] = attributeValueCombinations.map(
+      (attributeValuesCombination) => {
+        return {
+          id: undefined, // new variant doesn't have id
+          attributeValues: attributeValuesCombination,
+          costPrice: 0,
+          sellingPrice: 0,
+          stockOnHand: 0,
+          barcode: undefined,
+          imageUrl: undefined,
+          sku: props.productCode
+            ? generateVariantSku(
+                props.productCode,
+                attributeValuesCombination.map((attrValue) => ({
+                  attributeValueId: attrValue.attributeValueId,
+                  value: attrValue.value
+                }))
+              )
+            : undefined,
+          lowStockThreshold: 0,
+          maxStockThreshold: 0,
+          name: attributeValuesCombination.map((attrValue) => attrValue.value).join(' - '),
+          isActive: true
+        }
+      }
     )
 
-    setProductVariantList(productVariantList)
-  }, [attributes])
+    // Perserve existing variant data if the variant with the same attribute values combination already exists in the props.productVariantList (edit mode)
+    const mergedProductVariantList = newProductVariantList.map((newVariant) => {
+      const existingVariant = props.productVariantList.find((variant) => {
+        // Check if the variant has the same attribute values combination
+        return (
+          variant.attributeValues.length === newVariant.attributeValues.length &&
+          variant.attributeValues.every((attrValue) =>
+            newVariant.attributeValues.some(
+              (newAttrValue) => newAttrValue.attributeValueId === attrValue.attributeValueId
+            )
+          )
+        )
+      })
+
+      return existingVariant
+        ? {
+            ...newVariant,
+            ...existingVariant
+            // The purpose of this is to preserve existing variant data (like id, costPrice, sellingPrice, etc.) if the attribute values combination matches
+            // Otherwise use the new variant generated from the current attributes state.
+            // This allows us to keep user input for existing variants when they make changes to attributes that don't affect those variants.
+          }
+        : newVariant
+    })
+
+    setProductVariantList(mergedProductVariantList)
+  }, [attributes, props.productCode, props.productVariantList])
 
   async function handleSelectAttributeName(attIndex: number, selectedAttValue: string) {
     // Nếu bỏ chọn thuộc tính (selectedAttValue = '' - empty string) thì sẽ xóa tên thuộc tính và giá trị của thuộc tính đó đi
@@ -225,9 +269,10 @@ export default function ProductVariantsForm(props: Props) {
 
   const handleChangeAttributeValues =
     (attIndex: number) => async (selectedAttributeValues: string[]) => {
-      const { attributeValueId } = JSON.parse(
-        selectedAttributeValues[selectedAttributeValues.length - 1]
-      )
+      const { attributeValueId }: ProductAttributeValueType =
+        selectedAttributeValues.length > 0
+          ? JSON.parse(selectedAttributeValues[selectedAttributeValues.length - 1])
+          : {}
 
       const editingAttributeId = attributes[attIndex].id
       const editingAttribute = attributeList.find((att) => att.id === editingAttributeId)
@@ -304,12 +349,9 @@ export default function ProductVariantsForm(props: Props) {
       if (needRemoveAttValue) {
         setAttributes((prev) => {
           const targetAttribute = prev[attIdx]
-          targetAttribute.values = targetAttribute.values.filter((value) => value !== attValue)
-
-          // if (targetAttribute.values.length === 0) {
-          //   targetAttribute.values = ['']
-          // }
-
+          targetAttribute.values = targetAttribute.values.filter(
+            (value) => value.attributeValueId !== attValue.attributeValueId
+          )
           return [...prev]
         })
       }
@@ -379,7 +421,7 @@ export default function ProductVariantsForm(props: Props) {
   return (
     <div>
       <FieldLabel className='mb-4 flex w-full items-start justify-between'>
-        <TypographyMuted>Variant Settings</TypographyMuted>
+        <TypographyMuted>Biến thể sản phẩm</TypographyMuted>
         {categoryAttributeList.length > 0 &&
           primaryCategoryId &&
           !isContainAllCategoryAttributes && (
@@ -464,25 +506,11 @@ export default function ProductVariantsForm(props: Props) {
                         attributeId: 'add-new-attribute'
                       })}
                     >
-                      {/* <Button type='button' variant={'ghost'} className='mt-1 w-full'> */}
                       <div className='flex items-center gap-x-2 py-1 font-medium'>
                         <Plus size={16} />
                         <span>Thêm mới thuộc tính</span>
                       </div>
-                      {/* </Button> */}
                     </ComboboxItem>
-                    {/* <Button
-                      variant={'ghost'}
-                      className='mt-1 w-full'
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        dialog.open('upsert-attribute', { attribute: null })
-                      }}
-                    >
-                      <Plus />
-                      <span>Thêm mới thuộc tính</span>
-                    </Button> */}
                   </ComboboxContent>
                 </Combobox>
               </div>
@@ -629,60 +657,86 @@ export default function ProductVariantsForm(props: Props) {
           <div className='flex items-center justify-between'>
             <h5 className='my-3 font-semibold'>Sản phẩm cùng loại ({productVariantList.length})</h5>
           </div>
-          <div className='custom-scrollbar py-2'>
-            <Table className='w-max'>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className='min-w-32 text-center'>Hình ảnh</TableHead>
-                  <TableHead className='min-w-32 truncate text-center'>Biến thể</TableHead>
-                  <TableHead className='min-w-32 text-center'>Mã vạch</TableHead>
-                  <TableHead className='min-w-32 text-center'>Giá vốn</TableHead>
-                  <TableHead className='min-w-32 text-center'>Giá bán</TableHead>
-                  <TableHead className='min-w-32 text-center'>Tồn kho</TableHead>
-                  <TableHead className='min-w-32 text-center'>Tồn tối thiểu</TableHead>
-                  <TableHead className='min-w-32 text-center'>Tồn tối đa</TableHead>
-                  <TableHead className='min-w-32 text-center'>Hiện thị</TableHead>
-                  <TableHead className='min-w-16 text-center'></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody className='font-normal'>
-                {productVariantList.map((prodVariant, prodVariantIdx) => (
-                  <TableRow key={prodVariantIdx}>
-                    <TableCell>
-                      <div className='aspect-square w-24'>
-                        {prodVariant.imageUrl ? (
-                          <div className='group relative rounded-md border border-gray-300 bg-gray-100'>
-                            <Image
-                              width={0}
-                              height={0}
-                              sizes='100vw'
-                              src={prodVariant.imageUrl}
-                              alt={`Product Variant ${prodVariantIdx + 1}`}
-                              className='aspect-square h-full w-full rounded-md object-cover transition-transform duration-200 group-hover:scale-105'
-                            />
-                            {/* Remove button */}
-                            <Button
-                              type='button'
-                              variant={'destructive'}
-                              size={'icon-xs'}
-                              className='absolute top-1 right-1 cursor-pointer rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100'
-                              onClick={() => handleRemoveProductVariantImage(prodVariantIdx)}
-                            >
-                              <X className='size-3' />
-                            </Button>
-                          </div>
-                        ) : (
-                          <ImageUploadButton
-                            mode='immediate'
-                            onUpload={handleImmediateUpload(prodVariantIdx)}
-                          />
-                        )}
+          <div className='space-y-3'>
+            {productVariantList.map((prodVariant, prodVariantIdx) => (
+              <div
+                key={prodVariantIdx}
+                className='bg-card rounded-lg border p-3 shadow-sm transition-shadow hover:shadow-md'
+              >
+                {/* Card header: variant name + actions */}
+                <div className='mb-2 flex items-center justify-between gap-2'>
+                  <span className='text-foreground truncate text-sm font-medium'>
+                    {prodVariant.name || `Biến thể ${prodVariantIdx + 1}`}
+                  </span>
+                  <div className='flex shrink-0 items-center gap-2'>
+                    <label className='text-muted-foreground flex cursor-pointer items-center gap-1.5 text-xs'>
+                      <Checkbox
+                        checked={prodVariant.isActive}
+                        onCheckedChange={(checked) => {
+                          setProductVariantList((prev) => {
+                            const targetProductVariant = prev[prodVariantIdx]
+                            targetProductVariant.isActive = checked as boolean
+                            return [...prev]
+                          })
+                        }}
+                        className='h-3.5 w-3.5'
+                      />
+                      Hiện thị
+                    </label>
+                    <Button
+                      type='button'
+                      variant={'ghost'}
+                      size={'icon-xs'}
+                      className='text-destructive hover:bg-destructive/10 hover:text-destructive h-7 w-7'
+                      onClick={() => {
+                        handleRemoveProductVariant(prodVariantIdx, prodVariant.attributeValues)
+                      }}
+                    >
+                      <Trash2 className='h-3.5 w-3.5' />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Card body: image + fields grid */}
+                <div className='flex gap-3'>
+                  {/* Image */}
+                  <div className='aspect-square w-16 shrink-0'>
+                    {prodVariant.imageUrl ? (
+                      <div className='group relative h-full rounded-md border border-gray-200 bg-gray-50'>
+                        <Image
+                          width={0}
+                          height={0}
+                          sizes='100vw'
+                          src={prodVariant.imageUrl}
+                          alt={`Product Variant ${prodVariantIdx + 1}`}
+                          className='aspect-square h-full w-full rounded-md object-cover transition-transform duration-200 group-hover:scale-105'
+                        />
+                        <Button
+                          type='button'
+                          variant={'destructive'}
+                          size={'icon-xs'}
+                          className='absolute top-0.5 right-0.5 h-4 w-4 cursor-pointer rounded-full opacity-0 transition-opacity duration-200 group-hover:opacity-100'
+                          onClick={() => handleRemoveProductVariantImage(prodVariantIdx)}
+                        >
+                          <X className='size-2.5' />
+                        </Button>
                       </div>
-                    </TableCell>
-                    <TableCell>
+                    ) : (
+                      <ImageUploadButton
+                        mode='immediate'
+                        onUpload={handleImmediateUpload(prodVariantIdx)}
+                      />
+                    )}
+                  </div>
+
+                  {/* Fields grid */}
+                  <div className='grid min-w-0 flex-1 grid-cols-2 gap-x-2 gap-y-1.5 sm:grid-cols-3 lg:grid-cols-4'>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Tên biến thể</label>
                       <Input
                         type='text'
-                        placeholder='Tên biến thể...'
+                        placeholder='Tên...'
+                        className='h-7 text-xs'
                         value={prodVariant.name}
                         onChange={(e) => {
                           const value = e.currentTarget.value
@@ -693,72 +747,102 @@ export default function ProductVariantsForm(props: Props) {
                           })
                         }}
                       />
-                    </TableCell>
-                    <TableCell>
-                      <Input type='text' placeholder='Mã vạch...' />
-                    </TableCell>
-                    <TableCell>
-                      <InputNumber
-                        placeholder='Giá vốn...'
-                        value={prodVariant.costPrice}
-                        onValueChange={handleCostPriceChange(prodVariantIdx)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <InputNumber
-                        placeholder='Giá bán...'
-                        value={prodVariant.sellingPrice}
-                        onValueChange={handleSellingPriceChange(prodVariantIdx)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <InputNumber
-                        placeholder='Tồn kho...'
-                        value={prodVariant.stockOnHand}
-                        onValueChange={handleStockOnHandeChange(prodVariantIdx)}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <InputNumber
-                        placeholder='Tồn tối thiểu...'
-                        value={prodVariant.stockOnHand}
-                        onValueChange={() => {}}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <InputNumber
-                        placeholder='Tồn tối đa...'
-                        value={prodVariant.stockOnHand}
-                        onValueChange={() => {}}
-                      />
-                    </TableCell>
-                    <TableCell>
-                      <Checkbox
-                        checked={prodVariant.isActive}
-                        onCheckedChange={(checked) => {
+                    </div>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Mã SKU</label>
+                      <Input
+                        type='text'
+                        placeholder='SKU...'
+                        className='h-7 text-xs'
+                        value={prodVariant.sku}
+                        onChange={(e) => {
+                          const value = e.currentTarget.value
                           setProductVariantList((prev) => {
                             const targetProductVariant = prev[prodVariantIdx]
-                            targetProductVariant.isActive = checked as boolean
+                            targetProductVariant.sku = value
                             return [...prev]
                           })
                         }}
                       />
-                    </TableCell>
-                    <TableCell className=''>
-                      <Button
-                        type='button'
-                        variant={'outline'}
-                        onClick={() => {
-                          handleRemoveProductVariant(prodVariantIdx, prodVariant.attributeValues)
+                    </div>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Mã barcode</label>
+                      <Input
+                        type='text'
+                        placeholder='Barcode...'
+                        className='h-7 text-xs'
+                        value={prodVariant.barcode ?? ''}
+                        onChange={(e) => {
+                          const value = e.currentTarget.value
+                          setProductVariantList((prev) => {
+                            const targetProductVariant = prev[prodVariantIdx]
+                            targetProductVariant.barcode = value
+                            return [...prev]
+                          })
                         }}
-                      >
-                        <Trash2 />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                      />
+                    </div>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Giá vốn</label>
+                      <InputNumber
+                        placeholder='0'
+                        className='h-7 text-xs'
+                        value={prodVariant.costPrice}
+                        onValueChange={handleCostPriceChange(prodVariantIdx)}
+                      />
+                    </div>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Giá bán</label>
+                      <InputNumber
+                        placeholder='0'
+                        className='h-7 text-xs'
+                        value={prodVariant.sellingPrice}
+                        onValueChange={handleSellingPriceChange(prodVariantIdx)}
+                      />
+                    </div>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Tồn kho</label>
+                      <InputNumber
+                        placeholder='0'
+                        className='h-7 text-xs'
+                        value={prodVariant.stockOnHand}
+                        onValueChange={handleStockOnHandeChange(prodVariantIdx)}
+                      />
+                    </div>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Tồn tối thiểu</label>
+                      <InputNumber
+                        placeholder='0'
+                        className='h-7 text-xs'
+                        value={prodVariant.lowStockThreshold ?? 0}
+                        onValueChange={(value) => {
+                          setProductVariantList((prev) => {
+                            const targetProductVariant = prev[prodVariantIdx]
+                            targetProductVariant.lowStockThreshold = value
+                            return [...prev]
+                          })
+                        }}
+                      />
+                    </div>
+                    <div className='space-y-0.5'>
+                      <label className='text-muted-foreground text-[11px]'>Tồn tối đa</label>
+                      <InputNumber
+                        placeholder='0'
+                        className='h-7 text-xs'
+                        value={prodVariant.maxStockThreshold ?? 0}
+                        onValueChange={(value) => {
+                          setProductVariantList((prev) => {
+                            const targetProductVariant = prev[prodVariantIdx]
+                            targetProductVariant.maxStockThreshold = value
+                            return [...prev]
+                          })
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </React.Fragment>
       )}

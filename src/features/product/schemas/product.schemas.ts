@@ -1,188 +1,146 @@
+import { ProductStatus } from '@/enums'
 import { z } from 'zod'
 
-export const createProductSchema = z.object({
-  name: z.string().min(1, 'Tên sản phẩm không được để trống'),
-  description: z.string().optional()
-
-  //   code: z.string().min(1, 'Mã sản phẩm không được để trống'),
-
-  //   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED'], {
-  //     message: 'Trạng thái không hợp lệ'
-  //   }),
-
-  //   basePrice: z
-  //     .number({
-  //       error: 'Giá cơ bản phải là số'
-  //     })
-  //     .nonnegative('Giá cơ bản phải lớn hơn hoặc bằng 0'),
-
-  //   brandId: z.string().uuid('brandId phải là UUID hợp lệ'),
-  //   countryOriginId: z.string().uuid('countryOriginId phải là UUID hợp lệ'),
-
-  //   categories: z
-  //     .array(
-  //       z.object({
-  //         categoryId: z.string().uuid('categoryId phải là UUID hợp lệ'),
-  //         isPrimary: z.boolean({
-  //           error: 'isPrimary phải là boolean'
-  //         })
-  //       })
-  //     )
-  //     .min(1, 'Phải có ít nhất 1 danh mục'),
-
-  //   images: z
-  //     .array(
-  //       z.object({
-  //         url: z.string().url('URL hình ảnh không hợp lệ'),
-  //         altText: z.string().optional()
-  //       })
-  //     )
-  //     .optional(),
-
-  //   attributes: z
-  //     .array(
-  //       z.object({
-  //         attributeId: z.string().uuid('attributeId phải là UUID hợp lệ'),
-  //         isRequired: z.boolean({
-  //           error: 'isRequired phải là boolean'
-  //         })
-  //       })
-  //     )
-  //     .optional(),
-
-  //   variants: z
-  //     .array(
-  //       z.object({
-  //         sku: z.string().min(1, 'SKU không được để trống'),
-  //         name: z.string().min(1, 'Tên biến thể không được để trống'),
-
-  //         barcode: z.string().optional(),
-
-  //         costPrice: z
-  //           .number({
-  //             error: 'Giá nhập phải là số'
-  //           })
-  //           .nonnegative('Giá nhập phải >= 0'),
-
-  //         sellingPrice: z
-  //           .number({
-  //             error: 'Giá bán phải là số'
-  //           })
-  //           .nonnegative('Giá bán phải >= 0'),
-
-  //         stockOnHand: z
-  //           .number({
-  //             error: 'Tồn kho phải là số'
-  //           })
-  //           .int('Tồn kho phải là số nguyên')
-  //           .nonnegative('Tồn kho phải >= 0'),
-
-  //         imageUrl: z.string().url('URL ảnh biến thể không hợp lệ').optional(),
-
-  //         lowStockThreshold: z
-  //           .number({
-  //             error: 'Ngưỡng tồn thấp phải là số'
-  //           })
-  //           .int('Ngưỡng tồn thấp phải là số nguyên')
-  //           .nonnegative('Ngưỡng tồn thấp phải >= 0')
-  //           .optional(),
-
-  //         maxStockThreshold: z
-  //           .number({
-  //             error: 'Ngưỡng tồn tối đa phải là số'
-  //           })
-  //           .int('Ngưỡng tồn tối đa phải là số nguyên')
-  //           .nonnegative('Ngưỡng tồn tối đa phải >= 0')
-  //           .optional(),
-
-  //         isActive: z.boolean({
-  //           error: 'isActive phải là boolean'
-  //         }),
-
-  //         attributeValues: z
-  //           .array(
-  //             z.object({
-  //               attributeValueId: z.string().uuid('attributeValueId phải là UUID hợp lệ')
-  //             })
-  //           )
-  //           .min(1, 'Biến thể phải có ít nhất 1 thuộc tính'),
-
-  //         images: z
-  //           .array(
-  //             z.object({
-  //               url: z.string().url('URL hình ảnh không hợp lệ'),
-  //               altText: z.string().optional()
-  //             })
-  //           )
-  //           .optional()
-  //       })
-  //     )
-  //     .min(1, 'Phải có ít nhất 1 biến thể')
-  // })
-  // .superRefine((data, ctx) => {
-  //   // Rule 1: Chỉ 1 category isPrimary = true
-  //   const primaryCategories = data.categories.filter((c) => c.isPrimary)
-  //   if (primaryCategories.length !== 1) {
-  //     ctx.addIssue({
-  //       code: z.ZodIssueCode.custom,
-  //       message: 'Phải có đúng 1 danh mục chính (isPrimary = true)',
-  //       path: ['categories']
-  //     })
-  //   }
-
-  //   //  Rule 2: SKU phải unique
-  //   const skuSet = new Set()
-  //   data.variants.forEach((variant, index) => {
-  //     if (skuSet.has(variant.sku)) {
-  //       ctx.addIssue({
-  //         code: z.ZodIssueCode.custom,
-  //         message: 'SKU bị trùng',
-  //         path: ['variants', index, 'sku']
-  //       })
-  //     }
-  //     skuSet.add(variant.sku)
-  //   })
-
-  //   // Rule 3: sellingPrice >= costPrice
-  //   data.variants.forEach((variant, index) => {
-  //     if (variant.sellingPrice < variant.costPrice) {
-  //       ctx.addIssue({
-  //         code: z.ZodIssueCode.custom,
-  //         message: 'Giá bán phải lớn hơn hoặc bằng giá nhập',
-  //         path: ['variants', index, 'sellingPrice']
-  //       })
-  //     }
-  //   })
-
-  //   // Rule 4: lowStockThreshold <= maxStockThreshold
-  //   data.variants.forEach((variant, index) => {
-  //     if (
-  //       variant.lowStockThreshold !== undefined &&
-  //       variant.maxStockThreshold !== undefined &&
-  //       variant.lowStockThreshold > variant.maxStockThreshold
-  //     ) {
-  //       ctx.addIssue({
-  //         code: z.ZodIssueCode.custom,
-  //         message: 'Ngưỡng tồn thấp không được lớn hơn ngưỡng tồn tối đa',
-  //         path: ['variants', index, 'lowStockThreshold']
-  //       })
-  //     }
-  //   })
-
-  //   // rule 5: attributeValues không được trùng trong 1 variant
-  //   data.variants.forEach((variant, index) => {
-  //     const attrSet = new Set()
-  //     variant.attributeValues.forEach((attr, attrIndex) => {
-  //       if (attrSet.has(attr.attributeValueId)) {
-  //         ctx.addIssue({
-  //           code: z.ZodIssueCode.custom,
-  //           message: 'Thuộc tính bị trùng trong biến thể',
-  //           path: ['variants', index, 'attributeValues', attrIndex]
-  //         })
-  //       }
-  //       attrSet.add(attr.attributeValueId)
-  //     })
-  //   })
+const productImageSchema = z.object({
+  url: z.url('URL hình ảnh không hợp lệ'),
+  displayOrder: z
+    .number()
+    .int('Thứ tự hiển thị phải là số nguyên')
+    .positive('Thứ tự hiển thị phải lớn hơn 0')
+    .optional(),
+  altText: z.string().max(255, 'Văn bản thay thế không được vượt quá 255 ký tự').optional()
 })
 
-export type UpsertProductFormValues = z.infer<typeof createProductSchema>
+const variantAttributeValueSchema = z.object({
+  attributeValueId: z.uuid('ID giá trị thuộc tính không hợp lệ'),
+  value: z
+    .string()
+    .min(1, 'Giá trị không được để trống')
+    .max(255, 'Giá trị không được vượt quá 255 ký tự')
+})
+
+const productVariantSchema = z.object({
+  id: z.uuid('ID biến thể không hợp lệ').optional(), // present in edit mode for existing variants
+  sku: z
+    .string()
+    .min(1, 'SKU không được để trống')
+    .max(100, 'SKU không được vượt quá 100 ký tự')
+    .optional(),
+  name: z
+    .string()
+    .min(1, 'Tên biến thể không được để trống')
+    .max(255, 'Tên biến thể không được vượt quá 255 ký tự'),
+  barcode: z
+    .string()
+    // .min(1, 'Mã vạch không được để trống')
+    .max(100, 'Mã vạch không được vượt quá 100 ký tự')
+    .optional(),
+  costPrice: z.number().min(0, 'Giá vốn phải lớn hơn hoặc bằng 0'),
+  sellingPrice: z.number().min(0, 'Giá bán phải lớn hơn hoặc bằng 0'),
+  stockOnHand: z
+    .number()
+    .int('Số lượng tồn kho phải là số nguyên')
+    .min(0, 'Số lượng tồn kho phải lớn hơn hoặc bằng 0')
+    .optional(),
+  imageUrl: z
+    .url('URL hình ảnh không hợp lệ')
+    .max(500, 'URL hình ảnh không được vượt quá 500 ký tự')
+    .optional(),
+  lowStockThreshold: z
+    .number()
+    .int('Ngưỡng tồn kho thấp phải là số nguyên')
+    .min(0, 'Ngưỡng tồn kho thấp phải lớn hơn hoặc bằng 0')
+    .optional(),
+  maxStockThreshold: z
+    .number()
+    .int('Ngưỡng tồn kho cao phải là số nguyên')
+    .min(0, 'Ngưỡng tồn kho cao phải lớn hơn hoặc bằng 0')
+    .optional(),
+  isActive: z.boolean().optional(),
+  attributeValues: z
+    .array(variantAttributeValueSchema)
+    .min(1, 'Phải có ít nhất một giá trị thuộc tính')
+})
+
+const productCategorySchema = z.object({
+  categoryId: z.uuid('ID danh mục không hợp lệ'),
+  isPrimary: z.boolean()
+})
+
+export const productSchema = z
+  .object({
+    name: z
+      .string()
+      .min(1, 'Tên sản phẩm không được để trống')
+      .max(255, 'Tên sản phẩm không được vượt quá 255 ký tự'),
+    slug: z
+      .string()
+      .min(1, 'Slug không được để trống')
+      .max(255, 'Slug không được vượt quá 255 ký tự')
+      .optional(),
+    description: z.string().max(10000, 'Mô tả không được vượt quá 10000 ký tự').optional(),
+    status: z
+      .enum([ProductStatus.PUBLISHED, ProductStatus.DRAFT, ProductStatus.ARCHIVED])
+      .optional(),
+    basePrice: z.number().min(0, 'Giá cơ bản phải lớn hơn hoặc bằng 0'),
+    code: z
+      .string()
+      .min(1, 'Mã sản phẩm không được để trống')
+      .max(50, 'Mã sản phẩm không được vượt quá 50 ký tự')
+      .optional(),
+    brandId: z.uuid('ID thương hiệu không hợp lệ'),
+    countryOriginId: z.uuid('ID quốc gia xuất xứ không hợp lệ'),
+    categories: z.array(productCategorySchema).min(1, { error: 'Phải có ít nhất một danh mục' }),
+    images: z.array(productImageSchema).optional(),
+    variants: z.array(productVariantSchema).optional()
+  })
+  .refine(
+    (data) => {
+      // Validate that exactly one category is marked as primary
+      const primaryCount = data.categories.filter((cat) => cat.isPrimary).length
+      return primaryCount === 1
+    },
+    {
+      message: 'Phải có chính xác một danh mục được đánh dấu là danh mục chính',
+      path: ['categories']
+    }
+  )
+  .refine(
+    (data) => {
+      // Check for duplicate SKUs across variants
+      if (!data.variants) return true
+      const skus = data.variants.map((v) => v.sku).filter(Boolean)
+      const uniqueSkus = new Set(skus)
+      return skus.length === uniqueSkus.size
+    },
+    {
+      message: 'Tìm thấy SKU trùng lặp trong các biến thể',
+      path: ['variants']
+    }
+  )
+  .refine(
+    (data) => {
+      // Check for duplicate barcodes across variants
+      if (!data.variants) return true
+      const barcodes = data.variants.map((v) => v.barcode).filter(Boolean)
+      const uniqueBarcodes = new Set(barcodes)
+      return barcodes.length === uniqueBarcodes.size
+    },
+    {
+      message: 'Tìm thấy mã vạch trùng lặp trong các biến thể',
+      path: ['variants']
+    }
+  )
+  .refine(
+    (data) => {
+      // Validate price logic: sellingPrice >= costPrice for each variant
+      if (!data.variants) return true
+      return data.variants.every((variant) => variant.sellingPrice >= variant.costPrice)
+    },
+    {
+      message: 'Giá bán phải lớn hơn hoặc bằng giá vốn cho tất cả các biến thể',
+      path: ['variants']
+    }
+  )
+
+export type UpsertProductFormValues = z.infer<typeof productSchema>

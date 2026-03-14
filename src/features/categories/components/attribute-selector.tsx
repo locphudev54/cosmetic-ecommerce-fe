@@ -96,10 +96,11 @@ export function AttributeSelector({
   const openUpsertAttributeDialog = async (attribute: Attribute | null) => {
     const result = await dialog.open('upsert-attribute', { attribute })
 
-    if (result.data) {
+    if (result && result.data) {
       const upsertResult = result.data
-      const isExisting = selectedAttributes.some((attr) => attr.id === upsertResult.id)
-      if (isExisting) {
+      const actionType = result.actionType
+
+      if (actionType === 'update') {
         // Update in-place
         setSelectedAttributes((prev) =>
           prev.map((attr) => (attr.id === upsertResult.id ? upsertResult : attr))
@@ -158,7 +159,13 @@ export function AttributeSelector({
           ref={(node) => setContent(node)}
           className='relative max-h-75 overflow-x-hidden overflow-y-auto'
         >
-          <ComboboxEmpty>Không tìm thấy thuộc tính nào.</ComboboxEmpty>
+          <ComboboxEmpty>
+            <div className='mb-5'>Không tìm thấy thuộc tính nào.</div>
+            <Button variant='link' onClick={() => openUpsertAttributeDialog(null)}>
+              <Plus className='mr-1 h-4 w-4' />
+              <span>Thêm thuộc tính mới</span>
+            </Button>
+          </ComboboxEmpty>
           <div className='relative w-full' style={{ height: `${virtualizer.getTotalSize()}px` }}>
             {virtualizer.getVirtualItems().map((virtualItem) => {
               const attribute = filteredAttributes[virtualItem.index]

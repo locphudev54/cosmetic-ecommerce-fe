@@ -4,6 +4,8 @@ import type { ComponentType } from 'react'
 
 import type { DialogId, DialogWrapperProps } from '@/types/dialog.types'
 import { UpsertAttributeDialog } from '@/components/dialog-manager/dialogs/upsert-attribute-dialog'
+import { UpsertBrandDialog } from '@/components/dialog-manager/dialogs/upsert-brand-dialog'
+import { UpsertCountryOfOriginDialog } from '@/components/dialog-manager/dialogs/upsert-country-of-origin-dialog'
 import { DeleteAlertDialogWrapper } from '@/components/dialog-manager/dialogs/delete-alert-dialog-wrapper'
 import { ConfirmActionDialog } from '@/components/dialog-manager/dialogs/confirm-action-dialog'
 
@@ -19,6 +21,8 @@ import { ConfirmActionDialog } from '@/components/dialog-manager/dialogs/confirm
 
 export const dialogRegistry: Record<DialogId, ComponentType<DialogWrapperProps<any>>> = {
   'upsert-attribute': UpsertAttributeDialog,
+  'upsert-brand': UpsertBrandDialog,
+  'upsert-country-of-origin': UpsertCountryOfOriginDialog,
   'delete-alert': DeleteAlertDialogWrapper,
   'confirm-action': ConfirmActionDialog
 }

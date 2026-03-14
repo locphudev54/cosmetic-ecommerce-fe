@@ -4,7 +4,7 @@ import { ImageUploadButton } from '@/components/common/image-upload-button'
 import NextJsImage from '@/components/common/next-js-image'
 import { TypographyMuted } from '@/components/common/typography'
 import { Checkbox } from '@/components/ui/checkbox'
-import { FieldLabel } from '@/components/ui/field'
+import { FieldError, FieldLabel } from '@/components/ui/field'
 import ProductImageThumbnail from '@/features/product/components/product-image-thumbnail'
 import { useUploadMultipleImages } from '@/features/upload/hooks/use-upload'
 import { CarouselImage } from '@/types/carousel'
@@ -37,19 +37,28 @@ const Lightbox = dynamic(() => import('yet-another-react-lightbox'), {
 
 export interface UploadedImage {
   id: string
-  file: File
+  file?: File
   preview: string
 }
 
 interface ImageUploadProps {
   maxImages?: number
+  onChange?: (images: Array<{ url: string; displayOrder?: number; altText?: string }>) => void
+  error?: { message?: string }
+  initialImages?: Array<{ url: string; altText?: string | null; displayOrder?: number }>
 }
 
 const ORIGINAL_FIRST_ROW_IMAGES_QUANTITY = 5
 const MAX_FIRST_ROW_IMAGES_QUANTITY = 7
 
-export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps) {
+export default function UploadProductImages({
+  maxImages = 5,
+  onChange,
+  error,
+  initialImages
+}: ImageUploadProps) {
   const [images, setImages] = useState<UploadedImage[]>([])
+  // const [hasInitialized, setHasInitialized] = useState(false)
   const [showAllImages, setShowAllImages] = useState<boolean>(false)
   const [lightboxIndex, setLightboxIndex] = useState<number>(-1) // -1 = closed
   const [selectImageIds, setSelectImageIds] = useState<string[]>([])
@@ -146,6 +155,33 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
     setImages((prev) => [...prev, ...newUploadedImages])
   }
 
+  React.useEffect(() => {
+    if (
+      !initialImages ||
+      // || hasInitialized
+      initialImages.length === 0
+    )
+      return
+    const serverImages: UploadedImage[] = initialImages.map((img, idx) => ({
+      id: `server-${idx}-${img.url}`,
+      preview: img.url
+    }))
+    setImages(serverImages)
+    // setHasInitialized(true)
+  }, [
+    initialImages
+    // hasInitialized
+  ])
+
+  React.useEffect(() => {
+    onChange?.(
+      images.map((img, idx) => ({
+        url: img.preview,
+        displayOrder: idx + 1
+      }))
+    )
+  }, [images, onChange])
+
   const hasMaxImages = images.length >= maxImages
   const hasMoreImage = images.length > ORIGINAL_FIRST_ROW_IMAGES_QUANTITY
   const imageIds = images.map((img) => img.id)
@@ -156,7 +192,7 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
   const remainingImages = showAllImages ? images.slice(FIRST_ROW_IMAGE_QUANTITY) : []
   const lightboxImages: CarouselImage[] = images.map((img) => ({
     src: img.preview,
-    alt: img.file.name
+    alt: img.file?.name ?? img.preview
   }))
   const isSelecteAllImages = selectImageIds.length === images.length && images.length > 0
 
@@ -419,6 +455,7 @@ export default function UploadProductImages({ maxImages = 5 }: ImageUploadProps)
         //   </div>
         // </div>
       )}
+      {error && <FieldError errors={[error]} className='mt-2' />}
     </div>
   )
 }

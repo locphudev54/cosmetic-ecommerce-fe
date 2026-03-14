@@ -16,8 +16,11 @@ import { useProducts } from '@/features/product/hooks/use-products'
 import { useDataTable } from '@/hooks/use-data-table'
 import { Plus, Trash2 } from 'lucide-react'
 import Link from 'next/link'
+import { Product } from '@/features/product/types'
+import { useRouter } from 'next/navigation'
 
 export default function Page() {
+  const router = useRouter()
   const memoizedColumns = React.useMemo(() => columns, [])
 
   const {
@@ -79,6 +82,9 @@ export default function Page() {
   //     </div>
   //   )
   // }
+  const handleOnRowClick = (product: Product) => {
+    router.push(ROUTES.ADMIN.PRODUCT.EDIT(product.id))
+  }
 
   return (
     <div>
@@ -101,7 +107,7 @@ export default function Page() {
           <Skeleton className='h-[500px] w-full bg-white' />
         </div>
       ) : (
-        <DataTable table={table}>
+        <DataTable table={table} onRowClick={handleOnRowClick}>
           <DataTableToolbar table={table}>
             {table.getFilteredSelectedRowModel().rows.length > 0 && (
               <Button

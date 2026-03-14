@@ -1,6 +1,7 @@
-import { AttributeType, ProductStatus } from '@/enums'
-import { AttributeValue } from '@/features/attributes'
+import { ProductStatus } from '@/enums'
+import { Brand } from '@/features/brands'
 import { Category } from '@/features/categories/types/category.types'
+import { CountryOfOrigin } from '@/features/country-of-origin'
 import { PaginationQueryParams } from '@/types/api.types'
 
 export interface Product {
@@ -24,41 +25,43 @@ export interface Product {
   updatedAt: string | Date | null
 }
 
-export interface Brand {
-  id: string
-  code: string
-  name: string
-  slug: string
-  description?: string | null
-  logo?: string | null
-  createdAt: string | Date
-  updatedAt: string | Date | null
-}
-
-export interface CountryOfOrigin {
-  id: string
-  code: string
-  name: string
-  slug: string
-  createdAt: string | Date
-  updatedAt: string | Date | null
-}
-
 export interface ProductCategory {
   id: string
   productId: string
   categoryId: string
+  isPrimary: boolean
   category?: Category
   createdAt: string | Date
 }
+
+export interface VariantAttributeValueItem {
+  id: string
+  variantId: string
+  attributeValueId: string
+  attributeValue?: {
+    id: string
+    value: string
+    attribute?: {
+      id: string
+      name: string
+    }
+  }
+}
+
 export interface ProductVariant {
   id: string
   productId: string
   sku: string
   name: string
-  price: string | number
-  stock: number
-  isDefault: boolean
+  barcode: string
+  costPrice: string | number
+  sellingPrice: string | number
+  stockOnHand: number | null
+  imageUrl?: string | null
+  lowStockThreshold: number
+  maxStockThreshold: number
+  isActive: boolean
+  attributeValues?: VariantAttributeValueItem[]
   createdAt: string | Date
   updatedAt: string | Date | null
 }
@@ -93,62 +96,102 @@ export interface FindAllAttributesQueryParams extends PaginationQueryParams {
   getAll?: boolean
 }
 
-export interface CreateProductDto {
-  brandId: string
-  countryOriginId: string
+export interface CreateProductCategoryDto {
+  categoryId: string
+  isPrimary: boolean
+}
+
+export interface CreateProductImageDto {
+  url: string
+  displayOrder?: number
+  altText?: string
+}
+
+export interface CreateVariantAttributeValueDto {
+  attributeValueId: string
+  value: string
+}
+
+export interface CreateProductVariantDto {
+  sku?: string
   name: string
-  slug: string
+  barcode?: string
+  costPrice: number
+  sellingPrice: number
+  stockOnHand?: number
+  imageUrl?: string
+  lowStockThreshold?: number
+  maxStockThreshold?: number
+  isActive?: boolean
+  attributeValues: CreateVariantAttributeValueDto[]
+}
+
+export interface CreateProductDto {
+  name: string
+  slug?: string
   description?: string
   status?: ProductStatus
   basePrice: number
-  categoryIds?: string[]
+  brandId: string
+  countryOriginId: string
+  categories: CreateProductCategoryDto[]
+  images?: CreateProductImageDto[]
+  variants?: CreateProductVariantDto[]
 }
 
-export type UpdateProductDto = Partial<CreateProductDto>
+export interface UpdateProductCategoryDto extends Partial<CreateProductCategoryDto> {
+  id?: string
+  _delete?: boolean
+}
 
-/**
- * The real ProductVariant object:
- *  {
-      "sku": "TSHIRT-001-RED-S",
-      "name": "Red - Small",
-      "barcode": "8901234567890",
-      "costPrice": 15.00,
-      "sellingPrice": 29.99,
-      "stockOnHand": 50,
-      "imageUrl": "https://cdn.example.com/variants/tshirt-red-s.jpg",
-      "lowStockThreshold": 10,
-      "maxStockThreshold": 200,
-      "isActive": true,
-      "attributeValues": [
-        {
-          "attributeValueId": "03723340-c328-476a-a1c8-31d5825b9f0f"
-        },
-        {
-          "attributeValueId": "4a94db09-5d94-4351-bbfa-b776b2a84042"
-        },
-        {
-          "attributeValueId": "d119e0cd-82b5-4655-bb9b-1aea27891b27"
-        }
-      ],
-        "images": [
-            {
-            "url": "https://cdn.example.com/variants/tshirt-red-s-front.jpg",
-            "altText": "Red Small T-Shirt - Front"
-            },
-            {
-            "url": "https://cdn.example.com/variants/tshirt-red-s-worn.jpg",
-            "altText": "Red Small T-Shirt - Model Wearing"
-        }
-      ]
-    }
- */
+export interface UpdateProductImageDto extends Partial<CreateProductImageDto> {
+  id?: string
+  _delete?: boolean
+}
 
-// This is the type for the form state when creating/updating a product
+export interface UpdateVariantAttributeValueDto extends Partial<CreateVariantAttributeValueDto> {
+  id?: string
+  _delete?: boolean
+}
+
+export interface UpdateVariantImageDto {
+  id?: string
+  url?: string
+  altText?: string
+  _delete?: boolean
+}
+
+export interface UpdateProductVariantDto extends Partial<
+  Omit<CreateProductVariantDto, 'sku' | 'attributeValues'>
+> {
+  id?: string
+  attributeValues?: UpdateVariantAttributeValueDto[]
+  images?: UpdateVariantImageDto[]
+  _delete?: boolean
+}
+
+export interface UpdateProductAttributeDto {
+  id?: string
+  attributeId?: string
+  isRequired?: boolean
+  _delete?: boolean
+}
+
+export interface UpdateProductDto extends Partial<
+  Omit<CreateProductDto, 'categories' | 'images' | 'variants' | 'attributes'>
+> {
+  code?: string
+  categories?: UpdateProductCategoryDto[]
+  images?: UpdateProductImageDto[]
+  variants?: UpdateProductVariantDto[]
+  attributes?: UpdateProductAttributeDto[]
+}
 
 export type ProductVariantType = {
-  sku?: string // remove
+  id?: string // present in edit mode to track existing variants
+  sku?: string
   name: string
-  barcode: string
+  barcode?: string
   costPrice: number
   sellingPrice: number
   stockOnHand: number
@@ -169,22 +212,3 @@ export interface ProductAttributeValueType {
   attributeValueId: string
   value: string
 }
-
-// Received Types from BE
-
-// export interface Attribute {
-//   id: string
-//   name: string
-//   slug: string
-//   type: AttributeType
-//   values: AttributeValue[]
-//   isGlobalFilter: boolean
-//   filterGroup?: string
-//   unit?: string
-// }
-
-// export interface AttributeValue {
-//   id: string
-//   attributeId: string
-//   value: string
-// }

@@ -28,7 +28,7 @@ interface CategoryTreeState {
   setSearchQuery: (query: string) => void
   setMultiSelect: (multiSelect: boolean) => void
   setShowProductCount: (showProductCount: boolean) => void
-  // setOnSelectionChange: (callback?: (selected: string[]) => void) => void
+  // set: (callback?: (selected: string[]) => void) => void
   toggleExpand: (id: string) => void
   expandNodes: (ids: string[]) => void
   toggleSelect: (id: string) => void
@@ -194,7 +194,6 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
       selectedCategories: [],
       multiSelect: false,
       showProductCount: false,
-      onSelectionChange: undefined,
 
       // Computed (initial)
       matchingNodes: new Set<string>(),
@@ -242,8 +241,6 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
       setMultiSelect: (multiSelect) => set({ multiSelect }),
 
       setShowProductCount: (showProductCount) => set({ showProductCount }),
-
-      // setOnSelectionChange: (callback) => set({ onSelectionChange: callback }),
 
       toggleExpand: (id) =>
         set((state) => {
@@ -310,7 +307,6 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
 
       clearSelection: () =>
         set(() => {
-          // state.onSelectionChange?.([])
           return { selectedCategories: [] }
           // return { selected: new Set<string>() }
         }),

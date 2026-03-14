@@ -3,10 +3,11 @@
 import {
   BookOpen,
   Bot,
+  Frame,
   GalleryVerticalEnd,
   Package2,
-  Settings2,
-  SquareTerminal
+  PieChart,
+  Settings2
 } from 'lucide-react'
 import * as React from 'react'
 
@@ -23,20 +24,12 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar'
 import { ROUTES } from '@/constants/route.constant'
+import { NavProjects } from '@/components/common/nav-projects'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
     <Sidebar collapsible='icon' {...props}>
       <SidebarHeader>
-        {/* <TeamSwitcher
-          teams={[
-            {
-              name: 'Acme Inc',
-              logo: GalleryVerticalEnd,
-              plan: 'Enterprise'
-            }
-          ]}
-        /> */}
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton
@@ -47,8 +40,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <GalleryVerticalEnd className='size-4' />
               </div>
               <div className='grid flex-1 text-left text-sm leading-tight'>
-                <span className='truncate font-medium'>Acme Inc</span>
-                <span className='truncate text-xs'>Enterprise</span>
+                <span className='truncate font-medium'>Phu Loc</span>
+                <span className='truncate text-xs'>E-commerce</span>
               </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
@@ -74,6 +67,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {
                   title: 'Thuộc tính',
                   url: ROUTES.ADMIN.ATTRIBUTE.HOME
+                },
+                {
+                  title: 'Thương hiệu',
+                  url: ROUTES.ADMIN.BRAND.HOME
+                },
+                {
+                  title: 'Xuất xứ',
+                  url: ROUTES.ADMIN.COUNTRY_OF_ORIGIN.HOME
                 }
               ]
             },
@@ -90,71 +91,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {
                   title: 'Tạo mới',
                   url: ROUTES.ADMIN.CATEGORY.NEW
-                }
-              ]
-            },
-            {
-              title: 'Models',
-              url: '#',
-              icon: Bot,
-              items: [
-                {
-                  title: 'Genesis',
-                  url: '#'
-                },
-                {
-                  title: 'Explorer',
-                  url: '#'
-                },
-                {
-                  title: 'Quantum',
-                  url: '#'
-                }
-              ]
-            },
-            {
-              title: 'Documentation',
-              url: '#',
-              icon: BookOpen,
-              items: [
-                {
-                  title: 'Introduction',
-                  url: '#'
-                },
-                {
-                  title: 'Get Started',
-                  url: '#'
-                },
-                {
-                  title: 'Tutorials',
-                  url: '#'
-                },
-                {
-                  title: 'Changelog',
-                  url: '#'
-                }
-              ]
-            },
-            {
-              title: 'Settings',
-              url: '#',
-              icon: Settings2,
-              items: [
-                {
-                  title: 'General',
-                  url: '#'
-                },
-                {
-                  title: 'Team',
-                  url: '#'
-                },
-                {
-                  title: 'Billing',
-                  url: '#'
-                },
-                {
-                  title: 'Limits',
-                  url: '#'
                 }
               ]
             }
@@ -175,7 +111,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             {
               name: 'Travel',
               url: '#',
-              icon: Map
+              icon: PieChart
+              // icon: Map
             }
           ]}
         /> */}

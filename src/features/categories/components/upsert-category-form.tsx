@@ -52,7 +52,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
 
   // Mutations
   const createCategoryMutation = useCreateCategory()
-  const updateCaegoryMutation = useUpdateCategory(categoryId ?? '')
+  const updateCaegoryMutation = useUpdateCategory()
 
   const parentIdValue = form.watch('parentId')
   const initialParentIds = React.useMemo(
@@ -74,7 +74,6 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
           ? categoryData.categoryAttributes.map((attr) => attr.attributeId)
           : []
       })
-
       setParentAttributes(
         categoryData.categoryAttributes
           ? categoryData.categoryAttributes.map((attr) => attr.attribute)
@@ -117,9 +116,11 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
     )
   }
 
-  const handleSelectParentCategory = async (selectedIds: string[]) => {
+  const handleSelectParentCategory = async (
+    selectedCategories: Array<{ categoryId: string; isPrimary: boolean }>
+  ) => {
     // Select single parent category
-    const selectedId = selectedIds.length > 0 ? selectedIds[0] : null
+    const selectedId = selectedCategories.length > 0 ? selectedCategories[0].categoryId : null
     form.setValue('parentId', selectedId)
 
     if (!selectedId) {
@@ -147,7 +148,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
       variant: 'default'
     })
 
-    if (result.confirmed) {
+    if (result && result.confirmed) {
       const isContainAllParentAttributes = parentAttributesData.every((parentAttr) =>
         parentAttributes.some((attr) => attr.id === parentAttr.id)
       )
@@ -187,7 +188,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
   const onSubmit = async (data: UpsertCategoryFormValues) => {
     try {
       if (categoryId) {
-        await updateCaegoryMutation.mutateAsync(data)
+        await updateCaegoryMutation.mutateAsync({ id: categoryId, data })
       } else {
         await createCategoryMutation.mutateAsync(data)
       }
@@ -298,13 +299,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                         </FieldLabel>
                         <CategorySelection
                           initialParentCategoryIds={initialParentIds}
-                          onSelectionChange={
-                            //   (selectedIds) => {
-                            //   const selectedId = selectedIds.length > 0 ? selectedIds[0] : null
-                            //   field.onChange(selectedId)
-                            // }
-                            handleSelectParentCategory
-                          }
+                          onChange={handleSelectParentCategory}
                         />
                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                       </Field>
