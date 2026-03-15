@@ -51,3 +51,11 @@ export function generateVariantSku(
 
   return `${productCode}-${attributePart}`
 }
+
+export const formatNumberToVnCurrency = (number: number) => {
+  return formatNumberWithCommas(number) + ' VNĐ'
+}
+
+export function formatNumberWithCommas(number: number): string {
+  return number.toLocaleString('en-US')
+}

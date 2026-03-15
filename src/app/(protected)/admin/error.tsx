@@ -13,12 +13,13 @@ export default function Error({ error, reset }: { error: ApiError | Error; reset
       <h2>Something went wrong!</h2>
       <p>{JSON.stringify(error)}</p>
       <Button
+        variant={'default'}
         onClick={() => {
           router.refresh() // re-call failed api requests
           startTransition(reset) // reset the error boundary state - remove the built-in error state in the error boundary
         }}
       >
-        Try again
+        Try again 123
       </Button>
     </div>
   )

@@ -13,13 +13,12 @@ export interface Product {
   slug: string
   description: string | null
   status: ProductStatus | null
-  basePrice: string | number
+  basePrice: string | number // using string to handle large numbers from backend
   views: number | null
   brand?: Brand
   countryOfOrigin?: CountryOfOrigin
   categories?: ProductCategory[]
   variants?: ProductVariant[]
-  attributes?: ProductAttribute[]
   images?: ProductImage[]
   createdAt: string | Date
   updatedAt: string | Date | null
@@ -80,7 +79,6 @@ export interface ProductImage {
   url: string
   altText?: string | null
   displayOrder: number
-  isPrimary: boolean
   createdAt: string | Date
   updatedAt: string | Date | null
 }
@@ -90,6 +88,7 @@ export interface FindAllProductsQueryParams extends PaginationQueryParams {
   status?: ProductStatus[]
   brandId?: string
   categoryId?: string
+  includeImages?: boolean
 }
 
 export interface FindAllAttributesQueryParams extends PaginationQueryParams {
@@ -187,6 +186,7 @@ export interface UpdateProductDto extends Partial<
   attributes?: UpdateProductAttributeDto[]
 }
 
+/// state types
 export type ProductVariantType = {
   id?: string // present in edit mode to track existing variants
   sku?: string

@@ -90,7 +90,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
     }
   }
 
-  const removeParentAttributes = () => {
+  const removeParentAttributes = React.useCallback(() => {
     if (!categoryData) {
       // Add mode
       setParentAttributes([])
@@ -105,7 +105,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
       'attributeIds',
       currentAttributes.map((attr) => attr.id)
     )
-  }
+  }, [categoryData, form])
 
   const handleRemoveAttribute = (attributeId: string) => {
     const updatedAttributes = parentAttributes.filter((attr) => attr.id !== attributeId)
@@ -116,66 +116,67 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
     )
   }
 
-  const handleSelectParentCategory = async (
-    selectedCategories: Array<{ categoryId: string; isPrimary: boolean }>
-  ) => {
-    // Select single parent category
-    const selectedId = selectedCategories.length > 0 ? selectedCategories[0].categoryId : null
-    form.setValue('parentId', selectedId)
+  const handleSelectParentCategory = React.useCallback(
+    async (selectedCategories: Array<{ categoryId: string; isPrimary: boolean }>) => {
+      // Select single parent category
+      const selectedId = selectedCategories.length > 0 ? selectedCategories[0].categoryId : null
+      form.setValue('parentId', selectedId)
 
-    if (!selectedId) {
-      removeParentAttributes()
-      return
-    }
-
-    const { data: parentAttributesData } = await attributeService.getAttributes({
-      categoryId: selectedId,
-      getAll: true
-    })
-
-    if (parentAttributesData.length === 0) {
-      // toast.info('Danh mục cha không có thuộc tính nào để kế thừa')
-      removeParentAttributes()
-      return
-    }
-
-    const result = await dialog.open('confirm-action', {
-      title: 'Bạn có muốn kế thừa thuộc tính từ danh mục cha?',
-      description:
-        'Bạn có thể thêm, xóa hoặc chỉnh sửa thuộc tính sau khi kế thừa. Việc kế thừa chỉ giúp tiết kiệm thời gian khi muốn sử dụng lại các thuộc tính của danh mục cha.',
-      confirmLabel: 'Tiếp ',
-      cancelLabel: 'Hủy',
-      variant: 'default'
-    })
-
-    if (result && result.confirmed) {
-      const isContainAllParentAttributes = parentAttributesData.every((parentAttr) =>
-        parentAttributes.some((attr) => attr.id === parentAttr.id)
-      )
-
-      if (isContainAllParentAttributes) {
-        toast.info('Đã kế thừa tất cả thuộc tính từ danh mục cha trước đó')
+      if (!selectedId) {
+        removeParentAttributes()
         return
       }
 
-      // Inherit remaining parent attributes that are not already in the current child category
-      const remainingParentAttributes = parentAttributesData.filter(
-        (parentAttr) => !parentAttributes.some((attr) => attr.id === parentAttr.id)
-      )
-
-      setParentAttributes((prev) => {
-        const mergedAttributes = [...prev, ...remainingParentAttributes]
-        form.setValue(
-          'attributeIds',
-          mergedAttributes.map((attr) => attr.id)
-        )
-        return mergedAttributes
+      const { data: parentAttributesData } = await attributeService.getAttributes({
+        categoryId: selectedId,
+        getAll: true
       })
-      toast.success(`Đã kế thừa ${remainingParentAttributes.length} thuộc tính từ danh mục cha`)
-    } else {
-      removeParentAttributes()
-    }
-  }
+
+      if (parentAttributesData.length === 0) {
+        // toast.info('Danh mục cha không có thuộc tính nào để kế thừa')
+        removeParentAttributes()
+        return
+      }
+
+      const result = await dialog.open('confirm-action', {
+        title: 'Bạn có muốn kế thừa thuộc tính từ danh mục cha?',
+        description:
+          'Bạn có thể thêm, xóa hoặc chỉnh sửa thuộc tính sau khi kế thừa. Việc kế thừa chỉ giúp tiết kiệm thời gian khi muốn sử dụng lại các thuộc tính của danh mục cha.',
+        confirmLabel: 'Tiếp ',
+        cancelLabel: 'Hủy',
+        variant: 'default'
+      })
+
+      if (result && result.confirmed) {
+        const isContainAllParentAttributes = parentAttributesData.every((parentAttr) =>
+          parentAttributes.some((attr) => attr.id === parentAttr.id)
+        )
+
+        if (isContainAllParentAttributes) {
+          toast.info('Đã kế thừa tất cả thuộc tính từ danh mục cha trước đó')
+          return
+        }
+
+        // Inherit remaining parent attributes that are not already in the current child category
+        const remainingParentAttributes = parentAttributesData.filter(
+          (parentAttr) => !parentAttributes.some((attr) => attr.id === parentAttr.id)
+        )
+
+        setParentAttributes((prev) => {
+          const mergedAttributes = [...prev, ...remainingParentAttributes]
+          form.setValue(
+            'attributeIds',
+            mergedAttributes.map((attr) => attr.id)
+          )
+          return mergedAttributes
+        })
+        toast.success(`Đã kế thừa ${remainingParentAttributes.length} thuộc tính từ danh mục cha`)
+      } else {
+        removeParentAttributes()
+      }
+    },
+    [dialog, form, parentAttributes, removeParentAttributes]
+  )
 
   const handleAttributeSelectorChange = (selectedAttributes: Attribute[]) => {
     setParentAttributes(selectedAttributes)

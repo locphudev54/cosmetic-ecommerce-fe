@@ -40,7 +40,8 @@ export const API_ENDPOINTS = {
     CREATE: '/products',
     UPDATE: (id: string) => `/products/${id}`,
     DELETE: (id: string) => `/products/${id}`,
-    BULK_DELETE: '/products/bulk-delete'
+    BULK_DELETE: '/products/bulk-delete',
+    BY_SLUG: (slug: string) => `/products/by-slug/${slug}`
   },
 
   // Categories

@@ -6,8 +6,8 @@ import { useEffect } from 'react'
 import { envClient } from '@/config/env.client'
 import { API_ENDPOINTS } from '@/constants/api.constant'
 import { ROUTES } from '@/constants/route.constant'
-import { useAuthStore } from '@/stores/auth-store'
 import internalApiClient from '@/lib/internal-api-client'
+import { useAuthStore } from '@/stores/auth-store'
 
 export default function LogoutPage() {
   const router = useRouter()

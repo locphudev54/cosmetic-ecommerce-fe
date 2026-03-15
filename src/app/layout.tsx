@@ -4,16 +4,21 @@ import { TooltipProvider } from '@/components/ui/tooltip'
 import ServerWrapper from '@/features/auth/components/server-wrapper'
 import { Providers } from '@/providers/providers'
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono } from 'next/font/google'
+import { Geist, Geist_Mono, Quicksand } from 'next/font/google'
 import './globals.css'
 
-const geistSans = Geist({
-  variable: '--font-geist-sans',
+const primaryFont = Quicksand({
+  variable: '--font-primary',
   subsets: ['latin']
 })
 
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
+const adminFont = Geist({
+  variable: '--font-admin',
+  subsets: ['latin']
+})
+
+const monoFont = Geist_Mono({
+  variable: '--font-mono',
   subsets: ['latin']
 })
 
@@ -29,7 +34,9 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang='en'>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${primaryFont.variable} ${adminFont.variable} ${monoFont.variable} ${primaryFont.className} antialiased`}
+      >
         <Providers>
           <TooltipProvider>
             <LoadingWrapper>{children}</LoadingWrapper>
