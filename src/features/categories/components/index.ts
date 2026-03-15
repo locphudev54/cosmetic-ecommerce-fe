@@ -1,2 +1,2 @@
 export { getColumns } from './columns'
-export { UpsertCategoryForm } from './upsert-category-form'
+export { default } from './upsert-category-form'

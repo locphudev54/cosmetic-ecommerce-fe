@@ -1,4 +1,5 @@
 import React from 'react'
+import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { HighlightedText } from './highlighted-text'
 import { Product } from '@/features/product/types'
@@ -16,7 +17,7 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
   onSelect,
   isHovered
 }) => {
-  const primaryImage = product.images?.find((img) => img.isPrimary)
+  const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
   const displayPrice =
     typeof product.basePrice === 'string' ? parseFloat(product.basePrice) : product.basePrice
 
@@ -31,10 +32,12 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
       <div className='flex gap-3'>
         {primaryImage && (
           <div className='h-12 w-12 flex-shrink-0 rounded border bg-slate-200'>
-            <img
+            <Image
               src={primaryImage.url}
               alt={product.name}
               className='h-full w-full rounded object-cover'
+              width={48}
+              height={48}
             />
           </div>
         )}

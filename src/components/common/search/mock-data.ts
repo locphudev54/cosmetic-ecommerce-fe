@@ -21,7 +21,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '1',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -47,7 +46,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '2',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -73,7 +71,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '3',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -101,7 +98,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '4',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -127,7 +123,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '5',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -155,7 +150,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '6',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -181,7 +175,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '7',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -209,7 +202,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '8',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -235,7 +227,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '9',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -261,7 +252,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '10',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -289,7 +279,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '11',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -315,7 +304,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '12',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -343,7 +331,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '13',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -369,7 +356,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '14',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -397,7 +383,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '15',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -423,7 +408,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '16',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -451,7 +435,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '17',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -477,7 +460,6 @@ export const mockSuggestionsData: Record<string, Product[]> = {
           productId: '18',
           url: '/placeholder.jpg',
           displayOrder: 0,
-          isPrimary: true,
           createdAt: new Date(),
           updatedAt: new Date()
         }
