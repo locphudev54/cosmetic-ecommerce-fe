@@ -19,6 +19,13 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   })
 
   return (
+    // If we don't use pass dehydrated state to the client, the client will fetch the data again and cause a flash of loading state
+    // Also, it's not good for SEO because the server-rendered HTML will not have the product data and search engines might not be able to index the page properly
+    // <ProductDetailPage slug={slug} />
+
+    // On the other hand, if we use HydrationBoundary to pass the dehydrated state to the client,
+    // the client can use the pre-fetched data and avoid the flash of loading state,
+    // and also improve SEO because the server-rendered HTML will have the product data
     <HydrationBoundary state={dehydrate(queryClient)}>
       <ProductDetailPage slug={slug} />
     </HydrationBoundary>

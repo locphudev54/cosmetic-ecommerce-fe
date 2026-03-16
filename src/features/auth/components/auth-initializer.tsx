@@ -49,8 +49,10 @@ export function AuthInitializer({ accessToken }: AuthInitializerProps) {
       }
     }
 
-    refreshToken()
-  }, [])
+    // Bug, when user go to home page, this useEffect will run, but accessToken is undefined, so it will call refreshToken, but refreshToken will fail because there is no refresh token in cookie, so it will clearAut
+    //  but user is not authenticated and user will be logged out, and user will be redirected to login page
+    // refreshToken()
+  }, [accessToken, clearAuth, isAuthenticated, isAuthenticationPath, setAccessToken, setUser])
 
   return null
 }
