@@ -1,12 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { productService } from '@/features/product/services/product.service'
 import {
   CreateProductDto,
-  UpdateProductDto,
   FindAllProductsQueryParams,
-  FindAllAttributesQueryParams
+  UpdateProductDto
 } from '@/features/product/types'
 import { DateRangeQueryParams } from '@/types'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
 export const PRODUCT_QUERY_KEYS = {
   all: ['products'] as const,
@@ -28,6 +27,14 @@ export const useProduct = (id: string) => {
     queryKey: PRODUCT_QUERY_KEYS.detail(id),
     queryFn: () => productService.getProductById(id),
     enabled: !!id
+  })
+}
+
+export const useProductBySlug = (slug: string) => {
+  return useQuery({
+    queryKey: PRODUCT_QUERY_KEYS.detail(slug),
+    queryFn: () => productService.getProductBySlug(slug),
+    enabled: !!slug
   })
 }
 

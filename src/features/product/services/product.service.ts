@@ -7,6 +7,7 @@ import {
 } from '@/features/product/types'
 import apiClient from '@/lib/api-client'
 import { ApiResponse, OffsetPaginationMeta } from '@/types/api.types'
+import { get } from 'http'
 
 export const productService = {
   getProducts(
@@ -17,6 +18,12 @@ export const productService = {
 
   async getProductById(id: string): Promise<Product> {
     const response = await apiClient.get<Product>(API_ENDPOINTS.PRODUCTS.DETAIL(id))
+    return response.data
+  },
+
+  async getProductBySlug(slug: string): Promise<Product> {
+    debugger
+    const response = await apiClient.get<Product>(API_ENDPOINTS.PRODUCTS.BY_SLUG(slug))
     return response.data
   },
 

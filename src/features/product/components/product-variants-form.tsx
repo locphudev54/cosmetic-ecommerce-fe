@@ -114,7 +114,7 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
       .filter((values) => values.length > 0)
 
     if (attributeValuesList.length === 0) {
-      setProductVariantList([])
+      // setProductVariantList([])
       return
     }
 
@@ -123,13 +123,8 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
         previousCombinations.flatMap((combination) =>
           currentAttributeValues.map((value) => [...combination, value])
         ),
-      [[]] // Start with an empty combination
+      [[]] // An empty combination
     )
-
-    // Remove empty strings from combinations
-    // attributeValueCombinations.forEach((combination, index) => {
-    //   attributeValueCombinations[index] = combination.filter((value) => value !== '')
-    // })
 
     const newProductVariantList: ProductVariantType[] = attributeValueCombinations.map(
       (attributeValuesCombination) => {

@@ -19,7 +19,7 @@ const authRoutes = [
   ROUTES.AUTH.OAUTH_CALLBACK
 ]
 
-const protectedRoutesPrefixes = [ROUTES.PROTECTED.HOME, ROUTES.ADMIN.HOME]
+const protectedRoutesPrefixes = [ROUTES.ADMIN.HOME]
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl

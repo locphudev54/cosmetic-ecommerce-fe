@@ -13,11 +13,9 @@ export const ROUTES = {
     OAUTH_CALLBACK: '/auth/callback'
   },
 
-  // Protected
-  PROTECTED: {
-    HOME: '/protected',
-    CLIENT: '/protected/client',
-    SERVER: '/protected/server'
+  // Products
+  PRODUCTS: {
+    DETAIL: (slug: string) => `/products/${slug}`
   },
 
   // Dashboard
@@ -41,10 +39,6 @@ export const ROUTES = {
     },
     COUNTRY_OF_ORIGIN: {
       HOME: '/admin/country-of-origin'
-    },
-    PROFILE: '/admin/profile',
-    SETTINGS: '/admin/settings',
-    ANALYTICS: '/admin/analytics',
-    USERS: '/admin/users'
+    }
   }
 }

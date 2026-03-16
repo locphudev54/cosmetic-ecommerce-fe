@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/sidebar'
 import { ROUTES } from '@/constants/route.constant'
 import { NavProjects } from '@/components/common/nav-projects'
+import Link from 'next/link'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
@@ -36,9 +37,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               size='lg'
               className='data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground'
             >
-              <div className='bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
-                <GalleryVerticalEnd className='size-4' />
-              </div>
+              <Link href={ROUTES.HOME}>
+                <div className='bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
+                  <GalleryVerticalEnd className='size-4' />
+                </div>
+              </Link>
               <div className='grid flex-1 text-left text-sm leading-tight'>
                 <span className='truncate font-medium'>Phu Loc</span>
                 <span className='truncate text-xs'>E-commerce</span>

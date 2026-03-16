@@ -27,7 +27,8 @@ function CategorySelection({
   error
 }: CategorySelectionProps) {
   const [open, setOpen] = useState(false)
-  const [hasInitialized, setHasInitialized] = useState(false)
+  // const [hasInitialized, setHasInitialized] = useState(false)
+  const hasInitializedRef = React.useRef(false)
   const [selectedLeafCategories, setSelectedLeafCategories] = useState<CategoryTreeNodeType[]>([])
   // const [selectedCategories, setSelectedCategories] = useState<CategoryTreeNodeType[]>([])
 
@@ -84,7 +85,7 @@ function CategorySelection({
   }, [categoryTreeNodeList, setCategories])
 
   React.useEffect(() => {
-    if (hasInitialized) return
+    if (hasInitializedRef.current) return
 
     // Case 1: Always mark the initialized flag as True even though the selected Category doesn't have any parent category
     if (
@@ -92,7 +93,7 @@ function CategorySelection({
       initialParentCategoryIds &&
       initialParentCategoryIds.length === 0
     ) {
-      setHasInitialized(true)
+      hasInitializedRef.current = true
     }
 
     // Case 2: The selected Category has parent category, we need to expand the tree to the parent category and select it
@@ -126,11 +127,11 @@ function CategorySelection({
         expandNodes(ancestorIds)
       }
 
-      setHasInitialized(true)
+      hasInitializedRef.current = true
     }
   }, [
     categoryTreeNodeList,
-    hasInitialized,
+    hasInitializedRef,
     initialParentCategoryIds,
     toggleSelect,
     expandNodes,
@@ -160,7 +161,17 @@ function CategorySelection({
       isPrimary: cat.id === primaryCategoryId
     }))
     onChange(payload)
-  }, [selectedLeafCategories, primaryCategoryId, onChange])
+
+    // because onChange callback is a prop from the parent component, we should not include it in the dependency array to avoid unnecessary re-renders and potential infinite loops,
+    // we can assume that the parent component will provide a stable reference for the onChange callback (e.g., by using useCallback)
+    // to ensure that it doesn't change on every render. I
+    // f we include onChange in the dependency array, it may cause this effect to run more often than necessary,
+    // especially if the parent component re-renders frequently and creates a new onChange function each time.
+    // By omitting onChange from the dependency array, we can ensure that this effect only runs when selectedLeafCategories or primaryCategoryId changes,
+    // which are the relevant pieces of state for determining when to call onChange.
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedLeafCategories, primaryCategoryId])
 
   const handleClose = React.useCallback(() => {
     // Use getState() to guarantee a non-stale snapshot at the moment of closing,

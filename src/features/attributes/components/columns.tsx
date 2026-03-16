@@ -2,6 +2,7 @@
 
 import { DataTableColumnHeader } from '@/components/data-table/data-table-column-header'
 import { Badge } from '@/components/ui/badge'
+import { BadgeOverflow } from '@/components/ui/badge-overflow'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -98,16 +99,13 @@ export const getColumns = (onOpenDrawer: (row: Attribute) => void): ColumnDef<At
     accessorFn: (row) => row.values.map((v) => v.value).join(', '),
     header: ({ column }) => <DataTableColumnHeader label='Giá Trị' column={column} />,
     cell: ({ row }) => {
-      const values = row.original.values.map((v) => v.value)
+      const attributeValues = row.original.values.map((v) => v.value)
       return (
-        <div className='custom-scrollbar flex max-w-52 items-center overflow-x-auto'>
-          {/* Use Badge component for each value */}
-          {values.slice(0, 10).map((value, index) => (
-            <Badge key={index} variant='secondary' className='mr-2 mb-2 shrink-0'>
-              {value}
-            </Badge>
-          ))}
-        </div>
+        <BadgeOverflow
+          items={attributeValues.map((value) => ({ name: value }))}
+          getBadgeLabel={(item) => item.name}
+          renderBadge={(item, label) => <Badge variant={'secondary'}>{label}</Badge>}
+        />
       )
     },
     meta: {
@@ -116,7 +114,8 @@ export const getColumns = (onOpenDrawer: (row: Attribute) => void): ColumnDef<At
       variant: 'text',
       icon: Tag
     },
-    enableColumnFilter: true
+    enableColumnFilter: true,
+    size: 300
   },
   {
     id: 'isGlobalFilter',

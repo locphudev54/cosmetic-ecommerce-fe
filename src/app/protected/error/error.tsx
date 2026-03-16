@@ -7,16 +7,17 @@ export default function Error({ error, reset }: { error: Error; reset: () => voi
   const router = useRouter()
 
   return (
-    <div className='flex items-center justify-center flex-col gap-5 min-h-screen'>
+    <div className='flex min-h-screen flex-col items-center justify-center gap-5'>
       <h2>Something went wrong!</h2>
-      <Button
+      {/* <Button
         onClick={() => {
           router.refresh()
           reset()
         }}
       >
         Try again
-      </Button>
+      </Button> */}
+      <Button>kaskdfksdf</Button>
     </div>
   )
 }

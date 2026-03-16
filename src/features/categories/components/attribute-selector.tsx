@@ -2,6 +2,7 @@
 
 import { TypographyMuted } from '@/components/common/typography'
 import { Badge } from '@/components/ui/badge'
+import { BadgeOverflow } from '@/components/ui/badge-overflow'
 import { Button } from '@/components/ui/button'
 import {
   Combobox,
@@ -27,8 +28,6 @@ import { useDialog } from '@/hooks/use-dialog'
 import { useVirtualizer } from '@tanstack/react-virtual'
 import { ChevronDown, Edit2, Plus, Trash2 } from 'lucide-react'
 import React, { useDeferredValue } from 'react'
-
-const MAX_DISPLAYED_ATTRIBUTE_VALUES = 2
 
 interface AttributeSelectorProps {
   parentAttributes?: Attribute[]
@@ -219,7 +218,7 @@ export function AttributeSelector({
                   <TableCell>{attributeItemIdx + 1}</TableCell>
                   <TableCell className='font-medium'>{attributeItem.name}</TableCell>
                   <TableCell>
-                    {attributeItem.values.slice(0, MAX_DISPLAYED_ATTRIBUTE_VALUES).map((value) => {
+                    {/* {attributeItem.values.slice(0, MAX_DISPLAYED_ATTRIBUTE_VALUES).map((value) => {
                       return (
                         <Badge key={value.id} variant='outline' className='mr-2 mb-2'>
                           {value.value}
@@ -231,7 +230,12 @@ export function AttributeSelector({
                       <Badge variant='outline' className='mb-2'>
                         +{attributeItem.values.length - MAX_DISPLAYED_ATTRIBUTE_VALUES} giá trị khác
                       </Badge>
-                    )}
+                    )} */}
+                    <BadgeOverflow
+                      items={attributeItem.values.map((v) => ({ name: v.value }))}
+                      getBadgeLabel={(item) => item.name}
+                      renderBadge={(item, label) => <Badge variant={'secondary'}>{label}</Badge>}
+                    />
                   </TableCell>
                   <TableCell className='flex items-center justify-end gap-2'>
                     <Button
