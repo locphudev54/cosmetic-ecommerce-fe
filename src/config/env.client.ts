@@ -12,7 +12,7 @@ const parsed = envSchema.safeParse({
   NEXT_PUBLIC_BACKEND_API_URL: process.env.NEXT_PUBLIC_BACKEND_API_URL,
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
   NEXT_PUBLIC_LOGOUT_SECRET_KEY: process.env.NEXT_PUBLIC_LOGOUT_SECRET_KEY,
-  NEXT_PUBLIC_NODE_ENV: process.env.NODE_ENV
+  NEXT_PUBLIC_NODE_ENV: process.env.NEXT_PUBLIC_NODE_ENV
 })
 
 if (!parsed.success) {
