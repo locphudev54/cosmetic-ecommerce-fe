@@ -134,6 +134,9 @@ export default function HomePage() {
               <strong className='mt-3 inline-block text-lg'>
                 Cảm ơn bạn đã truy cập website ❣️
               </strong>
+              <strong className='mt-3 inline-block text-xl text-blue-700'>
+                Nếu website không hiển thị sản phẩm, vui lòng truy cập lại sau vài phút !
+              </strong>
             </DialogDescription>
           </DialogHeader>
         </DialogContent>
