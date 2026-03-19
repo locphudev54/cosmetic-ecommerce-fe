@@ -1,6 +1,6 @@
 'use client'
 
-import { usePathname, useSearchParams } from 'next/navigation'
+import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import TopLoader, { TopLoaderRef } from './top-loader'
 

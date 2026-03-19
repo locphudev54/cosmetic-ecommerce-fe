@@ -1,11 +1,11 @@
 import { API_ENDPOINTS } from '@/constants/api.constant'
 import serverFetchClient from '@/lib/server-fetch'
-import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
-import { getAccessToken, getRefreshToken, clearAuthCookies } from '@/utilts/cookies.utils'
 import { ApiResponse } from '@/types/api.types'
+import { clearAuthCookies, getAccessToken, getRefreshToken } from '@/utilts/cookies.utils'
+import { cookies } from 'next/headers'
+import { NextResponse } from 'next/server'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Get access token from cookies
     const cookieStore = await cookies()

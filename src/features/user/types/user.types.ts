@@ -1,5 +1,5 @@
-import { UserRole } from "@/enums"
-import { BaseEntity } from "@/types/common.types"
+import { UserRole } from '@/enums'
+import { BaseEntity } from '@/types/common.types'
 
 export interface User extends BaseEntity {
   email: string

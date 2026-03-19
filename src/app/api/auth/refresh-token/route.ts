@@ -4,11 +4,10 @@ import serverFetchClient from '@/lib/server-fetch'
 import { ApiError } from '@/types/api.types'
 import { isApiError } from '@/utilts/common.utils'
 import { getRefreshToken, setAuthCookies } from '@/utilts/cookies.utils'
-import { isNextRedirectError } from '@/utilts/server.utils'
 import { cookies } from 'next/headers'
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     // Get refresh token from cookies
     const cookieStore = await cookies()

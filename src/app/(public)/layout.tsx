@@ -12,8 +12,16 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
           <NavMenu />
         </div>
       </div>
-      <main className='gorw'>
-        <React.Suspense fallback={'Loading homepage'}>{children}</React.Suspense>
+      <main className='grow'>
+        <React.Suspense
+          fallback={
+            <div className='flex min-h-[50vh] items-center justify-center'>
+              Vui lòng truy cập lại website sau khoảng 5 phút nếu có lỗi xảy ra
+            </div>
+          }
+        >
+          {children}
+        </React.Suspense>
       </main>
       <Footer />
     </React.Fragment>

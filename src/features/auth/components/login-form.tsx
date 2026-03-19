@@ -1,24 +1,37 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card'
+import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { envClient } from '@/config/env.client'
+import { OAUTH_ERROR_MESSAGE } from '@/constants/api.constant'
 import { ROUTES } from '@/constants/route.constant'
-import { useLogin } from '@/features/auth/hooks/use-auth'
+import { useLoginMutation } from '@/features/auth/hooks/use-auth'
 import { LoginFormValues, loginSchema } from '@/features/auth/schemas'
 import { cn } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
-import { ApiError } from '@/types/api.types'
+import { ApiError, OAuthProviders } from '@/types/api.types'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { CanceledError } from 'axios'
+import { Eye, EyeOff } from 'lucide-react'
+import Image from 'next/image'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 
 export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) {
   const router = useRouter()
-  const { setUser, setAccessToken } = useAuthStore()
+  const setUser = useAuthStore((state) => state.setUser)
+  const setAccessToken = useAuthStore((state) => state.setAccessToken)
 
   const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
@@ -28,14 +41,23 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     }
   })
 
-  const [error, setError] = useState<string | null>(null)
-  const loginMutation = useLogin()
+  const [showPassword, setShowPassword] = useState(false)
+  const [generalError, setGeneralError] = useState<string | null>(null)
+  const loginMutation = useLoginMutation()
   const searchParams = useSearchParams()
-  const returnUrl = searchParams.get('returnUrl') || ROUTES.ADMIN.PRODUCT.NEW
+  const returnUrl = searchParams.get('returnUrl') || ROUTES.HOME
+  const errorMessageOnUrl = searchParams.get('error')
+
+  // Show error if redirected from OAuth callback with error
+  React.useEffect(() => {
+    if (errorMessageOnUrl === OAUTH_ERROR_MESSAGE) {
+      setGeneralError('Failed to authenticate with Google')
+    }
+  }, [errorMessageOnUrl])
 
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      setError(null)
+      setGeneralError(null)
       const res = await loginMutation.mutateAsync(data)
       setUser(res.user)
       setAccessToken(res.accessToken)
@@ -44,10 +66,10 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
       if (error instanceof CanceledError) return
 
       if (error instanceof ApiError) {
-        setError(error.message || 'Login failed')
+        setGeneralError(error.message || 'Login failed')
       } else if (error instanceof Error) {
         // Axios error without proper ApiError response - unexpected error
-        setError(error.message || 'Login failed due to an unexpected error')
+        setGeneralError(error.message || 'Login failed due to an unexpected error')
       }
 
       setUser(null)
@@ -55,19 +77,23 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
     }
   }
 
+  const handleLoginWithSocial = (provider: OAuthProviders) => {
+    window.location.href = `${envClient.NEXT_PUBLIC_BACKEND_API_URL}/auth/${provider}`
+  }
+
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
+    <div className='max-w-[25rem] shrink-0 grow px-3 sm:px-0'>
       <Card>
         <CardHeader>
-          <CardTitle>Login to your account</CardTitle>
-          <CardDescription>Enter your email below to login to your account</CardDescription>
+          <CardTitle className='text-xl font-semibold'>Đăng nhập</CardTitle>
+          <CardDescription>Chào mừng bạn đến với AB Beauty</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <FieldGroup>
-              {error && (
-                <div className='p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md'>
-                  {error}
+              {generalError && (
+                <div className='rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-600'>
+                  {generalError}
                 </div>
               )}
               <Controller
@@ -94,43 +120,101 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                   <Field data-invalid={fieldState.invalid}>
                     <div className='flex items-center'>
                       <FieldLabel htmlFor='password'>Password</FieldLabel>
-                      <a
-                        href='#'
+                      <Link
+                        href={ROUTES.AUTH.FORGOT_PASSWORD}
                         className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
                       >
-                        Forgot your password?
-                      </a>
+                        Quên mật khẩu?
+                      </Link>
                     </div>
-                    <Input
-                      id='password'
-                      type='password'
-                      disabled={loginMutation.isPending}
-                      {...field}
-                    />
+                    <div className='relative'>
+                      <Input
+                        id='password'
+                        type={showPassword ? 'text' : 'password'}
+                        disabled={loginMutation.isPending}
+                        {...field}
+                      />
+                      <Button
+                        type='button'
+                        variant='ghost'
+                        size='icon'
+                        className='absolute top-1/2 right-2 h-7 w-7 -translate-y-1/2'
+                        onClick={() => setShowPassword(!showPassword)}
+                        disabled={loginMutation.isPending}
+                      >
+                        {showPassword ? (
+                          <EyeOff className='h-4 w-4' />
+                        ) : (
+                          <Eye className='h-4 w-4' />
+                        )}
+                      </Button>
+                    </div>
                     {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                   </Field>
                 )}
               />
               {/* Social Provider login */}
               <Field>
-                <Button disabled={loginMutation.isPending} type='submit' className='w-full'>
-                  {loginMutation.isPending ? 'Signing in...' : 'Login'}
-                </Button>
                 <Button
-                  variant='outline'
-                  type='button'
+                  variant={'blue'}
                   disabled={loginMutation.isPending}
+                  type='submit'
                   className='w-full'
                 >
-                  Login with Google
+                  {loginMutation.isPending ? 'Đang đăng nhập...' : 'Đăng nhập'}
                 </Button>
-                <FieldDescription className='text-center'>
-                  Don&apos;t have an account? <a href='#'>Sign up</a>
-                </FieldDescription>
+                <div className='grid grid-cols-2 gap-x-3'>
+                  <div className='col-span-1'>
+                    {' '}
+                    <Button
+                      type='button'
+                      variant={'outline'}
+                      className={cn('w-full', {
+                        'cursor-not-allowed opacity-80': loginMutation.isPending
+                      })}
+                      onClick={() => handleLoginWithSocial('google')}
+                    >
+                      <Image
+                        alt='googleIcon'
+                        src={'/google.svg'}
+                        width={24}
+                        height={24}
+                        className='aspect-square w-6 object-cover'
+                      />
+                    </Button>
+                  </div>
+                  <div className='col-span-1'>
+                    <Button
+                      type='button'
+                      variant={'outline'}
+                      className={cn('w-full', {
+                        'cursor-not-allowed opacity-80': loginMutation.isPending
+                      })}
+                      onClick={() => handleLoginWithSocial('facebook')}
+                    >
+                      <Image
+                        alt='facebookIcon'
+                        src={'/facebook.png'}
+                        width={24}
+                        height={24}
+                        className='aspect-square w-6 object-cover'
+                      />
+                    </Button>
+                  </div>
+                </div>
               </Field>
             </FieldGroup>
           </form>
         </CardContent>
+        <CardFooter className='flex-col gap-y-3'>
+          <Link
+            href={ROUTES.AUTH.REGISTER}
+            className='w-full text-center text-sm text-red-500 dark:text-red-800'
+          >
+            Bạn chưa có tài khoản? Đăng ký ngay
+          </Link>
+          <div className='w-full text-center text-xs italic'>Cosmetic E-commerce</div>
+        </CardFooter>
       </Card>
     </div>
   )

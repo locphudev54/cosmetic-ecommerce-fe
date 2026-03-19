@@ -17,6 +17,28 @@ const buttonVariants = cva(
         secondary: 'bg-secondary text-secondary-foreground hover:bg-secondary/80',
         ghost: 'hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50',
         link: 'text-primary underline-offset-4 hover:underline',
+        blue: 'bg-blue-500 text-white hover:bg-blue-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+
+        yellow:
+          'bg-yellow-400 text-black hover:bg-yellow-500 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+
+        orange:
+          'bg-orange-500 text-white hover:bg-orange-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+
+        green:
+          'bg-green-500 text-white hover:bg-green-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+
+        red: 'bg-red-500 text-white hover:bg-red-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+
+        purple:
+          'bg-purple-500 text-white hover:bg-purple-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+
+        pink: 'bg-pink-500 text-white hover:bg-pink-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+
+        cyan: 'bg-cyan-500 text-white hover:bg-cyan-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+        teal: 'bg-teal-500 text-white hover:bg-teal-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+        gray: 'bg-gray-500 text-white hover:bg-gray-600 hover:shadow-md transition-all duration-200 active:scale-[0.98]',
+        dark: 'bg-gray-900 text-white hover:bg-black hover:shadow-md transition-all duration-200 active:scale-[0.98]',
         blue_gradient:
           'bg-[image:var(--gradient-blue)] text-white hover:bg-[image:var(--gradient-blue-hover)] hover:shadow-md transition-all duration-200 active:scale-[0.98]',
         yellow_gradient:

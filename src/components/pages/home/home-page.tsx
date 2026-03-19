@@ -131,9 +131,7 @@ export default function HomePage() {
             <DialogDescription>
               Một số tính năng demo có thể không hoạt động hoặc dữ liệu có thể không chính xác
               <div>Đội ngũ phát triền đang triển khai các tính năng mới</div>
-              <strong className='mt-3 inline-block text-lg'>
-                Cảm ơn bạn đã truy cập website ❣️
-              </strong>
+              <strong className='mt-3 inline-block text-lg'>Cảm ơn bạn đã truy cập website</strong>
               <strong className='mt-3 inline-block text-xl text-blue-700'>
                 Nếu website không hiển thị sản phẩm, vui lòng truy cập lại sau vài phút !
               </strong>

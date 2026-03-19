@@ -1,5 +1,5 @@
 import { envServer } from '@/config/env.server'
-import { COOKIES_TOKEN_KEYS } from '@/constants/cookies.constant'
+import { JSON_WEB_TOKEN_KEYS } from '@/constants/cookies.constant'
 import { cookies } from 'next/headers'
 
 /**
@@ -63,7 +63,7 @@ export function deleteCookie(cookieStore: Awaited<ReturnType<typeof cookies>>, k
 export function getAccessToken(
   cookieStore: Awaited<ReturnType<typeof cookies>>
 ): string | undefined {
-  return getCookie(cookieStore, COOKIES_TOKEN_KEYS.ACCESS_TOKEN)
+  return getCookie(cookieStore, JSON_WEB_TOKEN_KEYS.ACCESS_TOKEN)
 }
 
 /**
@@ -72,7 +72,7 @@ export function getAccessToken(
 export function getRefreshToken(
   cookieStore: Awaited<ReturnType<typeof cookies>>
 ): string | undefined {
-  return getCookie(cookieStore, COOKIES_TOKEN_KEYS.REFRESH_TOKEN)
+  return getCookie(cookieStore, JSON_WEB_TOKEN_KEYS.REFRESH_TOKEN)
 }
 
 /**
@@ -83,7 +83,7 @@ export function setAccessTokenCookie(
   token: string,
   maxAge?: number
 ): void {
-  setCookie(cookieStore, COOKIES_TOKEN_KEYS.ACCESS_TOKEN, token, {
+  setCookie(cookieStore, JSON_WEB_TOKEN_KEYS.ACCESS_TOKEN, token, {
     maxAge: maxAge || 15 * 60 // 15 minutes default
   })
 }
@@ -96,7 +96,7 @@ export function setRefreshTokenCookie(
   token: string,
   maxAge?: number
 ): void {
-  setCookie(cookieStore, COOKIES_TOKEN_KEYS.REFRESH_TOKEN, token, {
+  setCookie(cookieStore, JSON_WEB_TOKEN_KEYS.REFRESH_TOKEN, token, {
     maxAge: maxAge || 7 * 24 * 60 * 60 // 7 days default
   })
 }
@@ -105,14 +105,14 @@ export function setRefreshTokenCookie(
  * Delete access token cookie
  */
 export function deleteAccessTokenCookie(cookieStore: Awaited<ReturnType<typeof cookies>>): void {
-  deleteCookie(cookieStore, COOKIES_TOKEN_KEYS.ACCESS_TOKEN)
+  deleteCookie(cookieStore, JSON_WEB_TOKEN_KEYS.ACCESS_TOKEN)
 }
 
 /**
  * Delete refresh token cookie
  */
 export function deleteRefreshTokenCookie(cookieStore: Awaited<ReturnType<typeof cookies>>): void {
-  deleteCookie(cookieStore, COOKIES_TOKEN_KEYS.REFRESH_TOKEN)
+  deleteCookie(cookieStore, JSON_WEB_TOKEN_KEYS.REFRESH_TOKEN)
 }
 
 /**

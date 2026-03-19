@@ -369,207 +369,217 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
         </div>
 
         <div className='col-span-12 lg:col-span-8'>
-          <div className='p-4'>
-            <h1 className='line-clamp-2 text-2xl font-bold capitalize'>{product.name}</h1>
+          <div className='grid grid-cols-3'>
+            <div className='col-span-2'>
+              <div className='p-4'>
+                <h1 className='line-clamp-2 text-2xl font-bold capitalize'>{product.name}</h1>
 
-            <div className='mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px]'>
-              <div className='flex items-center gap-x-1 border-r border-r-gray-100 pr-3'>
-                <span>Mã sản phẩm:</span>
-                <span className='font-bold'>{product.code}</span>
-              </div>
-              <div className='flex items-center gap-x-1 border-r border-r-gray-100 pr-3'>
-                <span>Tình trạng:</span>
-                <span className='font-bold'>{stockOnHand > 0 ? 'Còn hàng' : 'Hết hàng'}</span>
-              </div>
-              <div className='flex items-center gap-x-1'>
-                <span>Thương hiệu:</span>
-                <span className='font-bold'>{product.brand?.name ?? 'Đang cập nhật'}</span>
-              </div>
-            </div>
+                <div className='mt-5 flex flex-wrap items-center gap-x-3 gap-y-2 text-[13px]'>
+                  <div className='flex items-center gap-x-1 border-r border-r-gray-100 pr-3'>
+                    <span>Mã sản phẩm:</span>
+                    <span className='font-bold'>{product.code}</span>
+                  </div>
+                  <div className='flex items-center gap-x-1 border-r border-r-gray-100 pr-3'>
+                    <span>Tình trạng:</span>
+                    <span className='font-bold'>{stockOnHand > 0 ? 'Còn hàng' : 'Hết hàng'}</span>
+                  </div>
+                  <div className='flex items-center gap-x-1'>
+                    <span>Thương hiệu:</span>
+                    <span className='font-bold'>{product.brand?.name ?? 'Đang cập nhật'}</span>
+                  </div>
+                </div>
 
-            <div className='mt-4 flex items-center gap-x-1 text-sm text-gray-500'>
-              <span className='text-business-secondary font-semibold'>{product.views ?? 0}</span>{' '}
-              lượt xem
-            </div>
+                <div className='mt-4 flex items-center gap-x-1 text-sm text-gray-500'>
+                  <span className='text-business-secondary font-semibold'>
+                    {product.views ?? 0}
+                  </span>{' '}
+                  lượt xem
+                </div>
 
-            <div className='mt-4 rounded-md bg-gray-50 px-4 py-5'>
-              <div className='flex items-center gap-x-2'>
-                <span className='text-business-secondary text-2xl font-bold'>
-                  {/* {formatNumberToVnCurrency(Number(sellingPrice))} */}
-                  {formatNumberToVnCurrency(Number(+product.basePrice + +product.basePrice * 0.1))}
-                  {/* giả sử giá bán cao hơn giá hãng 10% */}
-                </span>
-                <span className='text-sm font-medium text-gray-500'>(Đã bao gồm VAT)</span>
-              </div>
-              <div className='mt-0.5 text-[15px] font-bold text-gray-500'>
-                Giá hãng {formatNumberToVnCurrency(Number(product.basePrice))}
-              </div>
-            </div>
+                <div className='mt-4 rounded-md bg-gray-50 px-4 py-5'>
+                  <div className='flex items-center gap-x-2'>
+                    <span className='text-business-secondary text-2xl font-bold'>
+                      {/* {formatNumberToVnCurrency(Number(sellingPrice))} */}
+                      {formatNumberToVnCurrency(
+                        Number(+product.basePrice + +product.basePrice * 0.1)
+                      )}
+                      {/* giả sử giá bán cao hơn giá hãng 10% */}
+                    </span>
+                    <span className='text-sm font-medium text-gray-500'>(Đã bao gồm VAT)</span>
+                  </div>
+                  <div className='mt-0.5 text-[15px] font-bold text-gray-500'>
+                    Giá hãng {formatNumberToVnCurrency(Number(product.basePrice))}
+                  </div>
+                </div>
 
-            {/* Variant Selection */}
-            {attributes.length > 0 && (
-              <div className='mt-6 space-y-4'>
-                {attributes.map((attribute) => (
-                  <div key={attribute.id}>
-                    <div className='text-sm font-semibold uppercase'>{attribute.name}</div>
-                    <div className='mt-2 flex flex-wrap gap-2'>
-                      {attribute.values.map((value) => {
-                        const isSelected = selectedAttributes[attribute.id] === value.id
-                        const disabled = isValueDisabled(attribute.id, value.id)
+                {/* Variant Selection */}
+                {attributes.length > 0 && (
+                  <div className='mt-6 space-y-4'>
+                    {attributes.map((attribute) => (
+                      <div key={attribute.id}>
+                        <div className='text-sm font-semibold uppercase'>{attribute.name}</div>
+                        <div className='mt-2 flex flex-wrap gap-2'>
+                          {attribute.values.map((value) => {
+                            const isSelected = selectedAttributes[attribute.id] === value.id
+                            const disabled = isValueDisabled(attribute.id, value.id)
 
-                        return (
+                            return (
+                              <button
+                                key={value.id}
+                                type='button'
+                                disabled={disabled}
+                                onClick={() =>
+                                  setSelectedAttributes((prev) => ({
+                                    ...prev,
+                                    [attribute.id]: value.id
+                                  }))
+                                }
+                                className={cn(
+                                  'relative flex min-w-[120px] items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition',
+                                  isSelected
+                                    ? 'border-red-500 text-red-500'
+                                    : 'border-gray-200 text-gray-900 hover:border-red-300',
+                                  disabled &&
+                                    'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                                )}
+                              >
+                                <span className='line-clamp-2 text-center'>{value.value}</span>
+                                {isSelected && (
+                                  <span className='absolute right-0 bottom-0 h-5 w-5 rounded-tl-md bg-red-500'>
+                                    <span className='absolute right-1 bottom-1 h-2 w-1.5 rotate-45 border-r-2 border-b-2 border-white' />
+                                  </span>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Selector buy count input */}
+                {
+                  // selectedSku.stockOnHand > 0
+                  true && (
+                    <div className='mt-6 flex items-center gap-x-6 pl-4'>
+                      <span className='text-sm font-semibold'>Số lượng:</span>
+                      <QuantitySelect
+                        initialValue={buyCount}
+                        // max={selectedSku.stockOnHand}
+                        max={10}
+                        min={1}
+                        onChange={(value) => {
+                          setBuyCount(value)
+                        }}
+                      />
+                    </div>
+                  )
+                }
+
+                <div className='mt-9 grid grid-cols-2 gap-x-4'>
+                  {
+                    // selectedSku.stockOnHand > 0
+                    true ? (
+                      <React.Fragment>
+                        <div className='col-span-1'>
                           <button
-                            key={value.id}
-                            type='button'
-                            disabled={disabled}
-                            onClick={() =>
-                              setSelectedAttributes((prev) => ({
-                                ...prev,
-                                [attribute.id]: value.id
-                              }))
-                            }
+                            // disabled={addToCartMutation.isPending}
+                            onClick={() => {
+                              // handleAddToCart()
+                            }}
+                            className='border-business-secondary text-business-secondary before:bg-business-secondary relative w-full overflow-hidden rounded-[5px] border bg-white py-2.5 text-[15px] font-bold uppercase transition-all before:absolute before:top-0 before:bottom-0 before:left-0 before:z-0 before:h-full before:w-0 before:transition-all before:duration-500 hover:text-white hover:before:left-0 hover:before:w-full'
+                          >
+                            <span className='relative z-10'>Thêm vào giỏ hàng</span>
+                          </button>
+                        </div>
+                        <div className='col-span-1'>
+                          <button
+                            // disabled={addToCartMutation.isPending}
+                            onClick={() => {
+                              // handleAddToCart(selectedSku._id)
+                            }}
                             className={cn(
-                              'relative flex min-w-[120px] items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition',
-                              isSelected
-                                ? 'border-red-500 text-red-500'
-                                : 'border-gray-200 text-gray-900 hover:border-red-300',
-                              disabled &&
-                                'cursor-not-allowed border-gray-200 bg-gray-100 text-gray-400'
+                              'bg-business-secondary w-full rounded-[5px] border py-2.5 text-[15px] font-bold text-white uppercase transition-opacity duration-300 hover:opacity-70',
+                              {
+                                'cursor-not-allowed': false
+                                //  addToCartMutation.isPending
+                              }
                             )}
                           >
-                            <span className='line-clamp-2 text-center'>{value.value}</span>
-                            {isSelected && (
-                              <span className='absolute right-0 bottom-0 h-5 w-5 rounded-tl-md bg-red-500'>
-                                <span className='absolute right-1 bottom-1 h-2 w-1.5 rotate-45 border-r-2 border-b-2 border-white' />
-                              </span>
-                            )}
+                            Mua ngay
                           </button>
-                        )
-                      })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Selector buy count input */}
-            {
-              // selectedSku.stockOnHand > 0
-              true && (
-                <div className='mt-6 flex items-center gap-x-6 pl-4'>
-                  <span className='text-sm font-semibold'>Số lượng:</span>
-                  <QuantitySelect
-                    initialValue={buyCount}
-                    // max={selectedSku.stockOnHand}
-                    max={10}
-                    min={1}
-                    onChange={(value) => {
-                      setBuyCount(value)
-                    }}
-                  />
+                        </div>
+                      </React.Fragment>
+                    ) : (
+                      <div className='text-base font-semibold text-gray-500'>Tạm thời hết hàng</div>
+                    )
+                  }
                 </div>
-              )
-            }
-
-            <div className='mt-9 grid grid-cols-2 gap-x-4'>
-              {
-                // selectedSku.stockOnHand > 0
-                true ? (
-                  <React.Fragment>
-                    <div className='col-span-1'>
-                      <button
-                        // disabled={addToCartMutation.isPending}
-                        onClick={() => {
-                          // handleAddToCart()
-                        }}
-                        className='border-business-secondary text-business-secondary before:bg-business-secondary relative w-full overflow-hidden rounded-[5px] border bg-white py-2.5 text-[15px] font-bold uppercase transition-all before:absolute before:top-0 before:bottom-0 before:left-0 before:z-0 before:h-full before:w-0 before:transition-all before:duration-500 hover:text-white hover:before:left-0 hover:before:w-full'
-                      >
-                        <span className='relative z-10'>Thêm vào giỏ hàng</span>
-                      </button>
-                    </div>
-                    <div className='col-span-1'>
-                      <button
-                        // disabled={addToCartMutation.isPending}
-                        onClick={() => {
-                          // handleAddToCart(selectedSku._id)
-                        }}
-                        className={cn(
-                          'bg-business-secondary w-full rounded-[5px] border py-2.5 text-[15px] font-bold text-white uppercase transition-opacity duration-300 hover:opacity-70',
-                          {
-                            'cursor-not-allowed': false
-                            //  addToCartMutation.isPending
-                          }
-                        )}
-                      >
-                        Mua ngay
-                      </button>
-                    </div>
-                  </React.Fragment>
-                ) : (
-                  <div className='text-base font-semibold text-gray-500'>Tạm thời hết hàng</div>
-                )
-              }
+              </div>
             </div>
-            <div className='mt-10 grid grid-cols-3 gap-x-6 gap-y-3.5 border-t border-t-gray-100 py-6'>
-              <div className='col-span-1'>
-                <div className='flex items-center gap-x-3'>
-                  <div className='text-2xl text-gray-400'>
-                    <Box size={30} strokeWidth={1} />
-                  </div>
-                  <span className='text-sm text-gray-600'>Cam kết chất lượng chính hãng</span>
-                </div>
-              </div>
-              <div className='col-span-1'>
-                <div className='flex items-center gap-x-3'>
-                  <div className='text-gray-400'>
-                    <Truck size={30} strokeWidth={1} />
-                  </div>
-                  <span className='text-sm text-gray-600'>
-                    Miễn phí giao hàng nội thành HCM từ 179.000đ
-                  </span>
-                </div>
-              </div>
-              <div className='col-span-1'>
-                <div className='flex items-center gap-x-3'>
-                  <div className='text-2xl text-gray-400'>
-                    <Phone size={30} strokeWidth={1} />
-                  </div>
-                  <div className='text-sm text-gray-600'>
-                    Hotline
-                    <span className='ml-2 font-bold'>1900 88 68 99</span>
+            <div className='col-span-3'>
+              <div className='mt-10 grid grid-cols-3 gap-x-6 gap-y-3.5 border-t border-t-gray-100 py-6'>
+                <div className='col-span-1'>
+                  <div className='flex items-center gap-x-3'>
+                    <div className='text-2xl text-gray-400'>
+                      <Box size={30} strokeWidth={1} />
+                    </div>
+                    <span className='text-sm text-gray-600'>Cam kết chất lượng chính hãng</span>
                   </div>
                 </div>
-              </div>
-              <div className='col-span-1'>
-                <div className='flex items-center gap-x-3'>
-                  <div className='aspect-square w-8'>
-                    <Image
-                      alt='like'
-                      width={0}
-                      height={0}
-                      sizes='100vw'
-                      src={'/like-icon.webp'}
-                      className='h-full w-full object-cover'
-                    />
+                <div className='col-span-1'>
+                  <div className='flex items-center gap-x-3'>
+                    <div className='text-gray-400'>
+                      <Truck size={30} strokeWidth={1} />
+                    </div>
+                    <span className='text-sm text-gray-600'>
+                      Miễn phí giao hàng nội thành HCM từ 179.000đ
+                    </span>
                   </div>
-                  <div className='text-sm text-gray-600'>ĐỒNG KIỂM với Shipper</div>
                 </div>
-              </div>
-              <div className='col-span-1'>
-                <div className='flex items-center gap-x-3'>
-                  <div className='aspect-square w-8'>
-                    <Image
-                      alt='like'
-                      width={0}
-                      height={0}
-                      sizes='100vw'
-                      src={'/turn-back-icon.webp'}
-                      className='h-full w-full object-cover'
-                    />
+                <div className='col-span-1'>
+                  <div className='flex items-center gap-x-3'>
+                    <div className='text-2xl text-gray-400'>
+                      <Phone size={30} strokeWidth={1} />
+                    </div>
+                    <div className='text-sm text-gray-600'>
+                      Hotline
+                      <span className='ml-2 font-bold'>1900 88 68 99</span>
+                    </div>
                   </div>
-                  <div className='text-sm text-gray-600'>
-                    Hỗ trợ đổi hàng trong
-                    <span className='ml-1.5 font-bold'>48 giờ</span>
+                </div>
+                <div className='col-span-1'>
+                  <div className='flex items-center gap-x-3'>
+                    <div className='aspect-square w-8'>
+                      <Image
+                        alt='like'
+                        width={0}
+                        height={0}
+                        sizes='100vw'
+                        src={'/like-icon.webp'}
+                        className='h-full w-full object-cover'
+                      />
+                    </div>
+                    <div className='text-sm text-gray-600'>ĐỒNG KIỂM với Shipper</div>
+                  </div>
+                </div>
+                <div className='col-span-1'>
+                  <div className='flex items-center gap-x-3'>
+                    <div className='aspect-square w-8'>
+                      <Image
+                        alt='like'
+                        width={0}
+                        height={0}
+                        sizes='100vw'
+                        src={'/turn-back-icon.webp'}
+                        className='h-full w-full object-cover'
+                      />
+                    </div>
+                    <div className='text-sm text-gray-600'>
+                      Hỗ trợ đổi hàng trong
+                      <span className='ml-1.5 font-bold'>48 giờ</span>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -1,17 +1,9 @@
 'use client'
 
-import { Button } from '@/components/ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { UpsertAttributeForm } from '@/features/attributes/components/upsert-attribute-form'
 import { Attribute } from '@/features/attributes/types/attribute.types'
 import type { DialogWrapperProps, UpsertAttributeDialogData } from '@/types/dialog.types'
-import { Trash2 } from 'lucide-react'
 
 export function UpsertAttributeDialog({ config, onClose }: DialogWrapperProps<'upsert-attribute'>) {
   const { attribute } = config.data as UpsertAttributeDialogData
