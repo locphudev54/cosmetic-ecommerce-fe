@@ -122,6 +122,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-primary), sans-serif;
   }
 
   /* Hide scrollbar globally */
@@ -259,7 +260,7 @@
     margin-inline: auto;
     padding-inline: 1rem;
     width: 100%;
-    max-width: 92rem; /* 1472px */
+    max-width: 90rem; /* 1472px */
   }
 
   @media (min-width: 40rem) {
@@ -269,7 +270,7 @@
     }
 
     .customer-page-container {
-      max-width: 52rem; /* +12rem */
+      max-width: 50rem; /* +12rem */
     }
   }
 
@@ -280,7 +281,7 @@
     }
 
     .customer-page-container {
-      max-width: 60rem; /* +12rem */
+      max-width: 58rem; /* +12rem */
     }
   }
 
@@ -291,7 +292,7 @@
     }
 
     .customer-page-container {
-      max-width: 76rem; /* +12rem */
+      max-width: 74rem; /* +12rem */
     }
   }
 
@@ -302,7 +303,7 @@
     }
 
     .customer-page-container {
-      max-width: 92rem; /* +12rem */
+      max-width: 90rem; /* +12rem */
     }
   }
 }

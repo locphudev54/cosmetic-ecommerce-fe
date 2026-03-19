@@ -12,8 +12,6 @@ interface Props {
 export default function ProductCard(props: Props) {
   const { product } = props
 
-  debugger
-
   return (
     <Link
       href={ROUTES.PRODUCTS.DETAIL(product.slug)}

@@ -7,9 +7,14 @@ import { setAuthCookies } from '@/utilts/cookies.utils'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 
+type LoginBody = {
+  email: string
+  password: string
+}
+
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json()
+    const { email, password }: LoginBody = await request.json()
 
     if (!email || !password) {
       return NextResponse.json(

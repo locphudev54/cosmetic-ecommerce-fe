@@ -1,6 +1,6 @@
 import { envServer } from '@/config/env.server'
 import { API_ENDPOINTS } from '@/constants/api.constant'
-import { COOKIES_TOKEN_KEYS } from '@/constants/cookies.constant'
+import { JSON_WEB_TOKEN_KEYS } from '@/constants/cookies.constant'
 import { ROUTES } from '@/constants/route.constant'
 import { RefreshTokenServerResponse } from '@/features/auth/types/auth.types'
 import serverFetchClient from '@/lib/server-fetch'
@@ -73,14 +73,14 @@ export async function proxy(request: NextRequest) {
         // Instead, we have to set cookies on the RESPONSE object directly
         // But in Route Handlers, we can use cookies() to set cookies for both request and response
 
-        response.cookies.set(COOKIES_TOKEN_KEYS.ACCESS_TOKEN, newAccessToken, {
+        response.cookies.set(JSON_WEB_TOKEN_KEYS.ACCESS_TOKEN, newAccessToken, {
           httpOnly: true,
           secure: envServer.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: newAccessMaxAge
           // path: '/'
         })
-        response.cookies.set(COOKIES_TOKEN_KEYS.REFRESH_TOKEN, newRefreshToken, {
+        response.cookies.set(JSON_WEB_TOKEN_KEYS.REFRESH_TOKEN, newRefreshToken, {
           httpOnly: true,
           secure: envServer.NODE_ENV === 'production',
           sameSite: 'lax',
@@ -101,17 +101,16 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL(ROUTES.HOME, request.url))
   }
 
-  // if (isProtectedRoute && !isAuthenticated) {
-  //   return NextResponse.redirect(new URL(ROUTES.AUTH.LOGIN, request.url))
-  // }
+  if (isProtectedRoute && !isAuthenticated) {
+    return NextResponse.redirect(new URL(ROUTES.AUTH.LOGIN, request.url))
+  }
 
   return response
 }
 
 export const config = {
   matcher: [
-    '/protected/:path*',
-    '/dashboard/:path*',
+    '/admin/:path*',
     '/login',
     '/register',
     '/forgot-password',

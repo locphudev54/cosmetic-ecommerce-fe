@@ -22,7 +22,6 @@ export const productService = {
   },
 
   async getProductBySlug(slug: string): Promise<Product> {
-    debugger
     const response = await apiClient.get<Product>(API_ENDPOINTS.PRODUCTS.BY_SLUG(slug))
     return response.data
   },

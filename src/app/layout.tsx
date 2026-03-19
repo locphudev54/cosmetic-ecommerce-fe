@@ -35,7 +35,7 @@ export default async function RootLayout({
   return (
     <html lang='en'>
       <body
-        className={`${primaryFont.variable} ${adminFont.variable} ${monoFont.variable} ${primaryFont.className} antialiased`}
+        className={`${primaryFont.variable} ${adminFont.variable} ${monoFont.variable} font-medium antialiased`}
       >
         <Providers>
           <TooltipProvider>

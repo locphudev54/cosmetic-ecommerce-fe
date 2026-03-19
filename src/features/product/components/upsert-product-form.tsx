@@ -329,7 +329,6 @@ export default function UpsertProductForm({ productId }: { productId?: string })
           variants: variantUpdates.length > 0 ? variantUpdates : undefined
         }
 
-        debugger
         await updateProductMutation.mutateAsync({ id: productId, data: updatePayload })
       } else {
         await createProductMutation.mutateAsync(data)

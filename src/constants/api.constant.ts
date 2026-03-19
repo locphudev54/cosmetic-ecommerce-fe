@@ -8,6 +8,7 @@ export const API_ENDPOINTS = {
     CHANGE_PASSWORD: '/auth/change-password',
     FORGOT_PASSWORD: '/auth/forgot-password',
     RESET_PASSWORD: '/auth/reset-password',
+    SYNC_TOKENS: '/auth/sync-tokens',
 
     // Haven't implemented these in the backend yet
     VERIFY_EMAIL: '/auth/verify-email',
@@ -88,3 +89,5 @@ export const API_ENDPOINTS = {
 } as const
 
 export const EXPIRED_ACCESS_TOKEN_MESSAGE = 'Access token has expired'
+
+export const OAUTH_ERROR_MESSAGE = 'oauth_failed'

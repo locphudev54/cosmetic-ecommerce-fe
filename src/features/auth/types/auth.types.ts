@@ -16,6 +16,6 @@ export interface RefreshTokenServerResponse {
   refreshToken: string
 }
 
-export interface LoginClientResponse extends RefreshTokenClientResponse {}
+export type LoginClientResponse = RefreshTokenClientResponse
 
-export interface LoginServerResponse extends RefreshTokenServerResponse {}
+export type LoginServerResponse = RefreshTokenServerResponse

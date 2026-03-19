@@ -6,22 +6,25 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { ROUTES } from '@/constants/route.constant'
+import { UserRole } from '@/enums'
 import LogoutButton from '@/features/auth/components/logout-button'
+import { useAuthStore } from '@/stores/auth-store'
 import { ChevronDown, User } from 'lucide-react'
 import Link from 'next/link'
 
 export default function UserMenu() {
-  const isLoggedIn = false // Replace with actual authentication logic
+  const { isAuthenticated, user } = useAuthStore()
 
   return (
     <div className='border-l border-l-gray-700 pl-7'>
       <DropdownMenu>
         <DropdownMenuTrigger>
-          {isLoggedIn ? (
+          {isAuthenticated ? (
             <div className='flex cursor-pointer items-center gap-x-1 py-0.5 text-left'>
               <div>
                 <div>Xin chào:</div>
-                <div className='max- line-clamp-1'>Pham Phu Loc</div>
+                <div className='max- line-clamp-1'>{user?.fullName}</div>
               </div>
               <ChevronDown size={15} />
             </div>
@@ -41,21 +44,21 @@ export default function UserMenu() {
         <DropdownMenuContent align='end' className='w-48'>
           <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
           <DropdownMenuSeparator />
-          {!isLoggedIn && (
+          {!isAuthenticated && (
             <DropdownMenuItem>
-              <Link href='#' className='w-full'>
+              <Link href={ROUTES.AUTH.LOGIN} className='w-full'>
                 Đăng nhập
               </Link>
             </DropdownMenuItem>
           )}
-          {/* {session?.user?.role !== Role.Customer && (
+          {isAuthenticated && user?.role !== UserRole.CUSTOMER && (
             <DropdownMenuItem>
-              <Link href={managePath.dashboard} className='w-full'>
-                Quản lý
+              <Link href={ROUTES.ADMIN.HOME} className='w-full'>
+                Trang quản trị
               </Link>
             </DropdownMenuItem>
-          )} */}
-          {isLoggedIn && <LogoutButton />}
+          )}
+          {isAuthenticated && <LogoutButton />}
         </DropdownMenuContent>
       </DropdownMenu>
     </div>

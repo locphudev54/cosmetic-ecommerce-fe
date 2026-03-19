@@ -1,16 +1,22 @@
 import { authService } from '@/features/auth/services'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQueries, useQuery } from '@tanstack/react-query'
 
-export function useLogin() {
-  // const queryClient = useQueryClient()
-
+export function useLoginMutation() {
   return useMutation({
     mutationFn: authService.login
-    // onSuccess: (data) => {
-    // }
-    // onError: (error) => {
-    //
-    //   console.log({ error })
-    // }
+  })
+}
+
+export function useGetMe(accessToken: string) {
+  return useQuery({
+    queryKey: ['me'],
+    queryFn: () => authService.getMe(accessToken)
+  })
+}
+
+export function useSyncTokensMutation() {
+  return useMutation({
+    mutationFn: ({ accessToken, refreshToken }: { accessToken: string; refreshToken: string }) =>
+      authService.syncTokens(accessToken, refreshToken)
   })
 }

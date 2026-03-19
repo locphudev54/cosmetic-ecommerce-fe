@@ -81,13 +81,11 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
 
   // Sync productVariantList to the parent form field whenever it changes
   React.useEffect(() => {
-    debugger
     onChange?.(productVariantList)
   }, [productVariantList, onChange])
 
   // Initialize from props in edit mode (runs once when initial data becomes available)
   React.useEffect(() => {
-    debugger
     if (hasInitializedFromProps.current) return
     if (!props.productVariantList.length || !props.attrbutes.length) return
 
@@ -100,7 +98,6 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
 
   // Generate all possible combinations of attribute values (Cartesian product) - based on attribute state
   React.useEffect(() => {
-    debugger
     // Skip regeneration once after initializing from props to preserve existing variant data
     // When component mouts first time
     if (skipNextVariantRegen.current) {

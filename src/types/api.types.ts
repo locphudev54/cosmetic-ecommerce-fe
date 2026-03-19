@@ -72,3 +72,5 @@ export interface DateRangeQueryParams {
   endDate?: string
   timezone?: string
 }
+
+export type OAuthProviders = 'google' | 'facebook' | 'github' | 'twitter'

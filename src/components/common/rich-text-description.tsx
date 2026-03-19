@@ -58,7 +58,7 @@ export default function RichTextDescription({
 
       {showToggle && (
         <div className='mt-3 flex items-center justify-center'>
-          <Button type='button' onClick={() => setExpanded((prev) => !prev)}>
+          <Button type='button' variant={'outline'} onClick={() => setExpanded((prev) => !prev)}>
             {expanded ? 'Thu gọn' : 'Xem thêm'}
           </Button>
         </div>

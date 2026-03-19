@@ -1,3 +1,4 @@
+'use client'
 import { AppSidebar } from '@/components/common/app-sidebar'
 import {
   Breadcrumb,
@@ -9,11 +10,18 @@ import {
 } from '@/components/ui/breadcrumb'
 import { Separator } from '@/components/ui/separator'
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar'
-import { Suspense } from 'react'
+import React, { Suspense } from 'react'
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  React.useEffect(() => {
+    document.body.classList.add('admin-font')
+    return () => {
+      document.body.classList.remove('admin-font')
+    }
+  }, [])
+
   return (
-    <div className='admin-font'>
+    <div className='admin-font font-normal'>
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
