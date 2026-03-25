@@ -210,7 +210,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
       <div className='grid grid-cols-12 gap-x-4'>
         <div className='col-span-7'>
           <TypographyH3>Danh mục</TypographyH3>
-          <Card className='mt-4 min-h-[85vh]'>
+          <Card className='mt-4'>
             <CardContent className='flex flex-col gap-y-4'>
               <div className='grid grid-cols-2 gap-x-4 gap-y-6'>
                 <div className='col-span-1'>
@@ -280,6 +280,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                           <TypographyMuted>Mô tả</TypographyMuted>
                         </FieldLabel>
                         <Textarea
+                          className='min-h-24'
                           id='category_description'
                           placeholder='Nhập mô tả danh mục...'
                           rows={5}
@@ -352,7 +353,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
               )}
             </div>
 
-            <Card className='mt-3 min-h-[85vh]'>
+            <Card className='mt-3'>
               <CardContent className='flex flex-col gap-y-4'>
                 {/* Is Active */}
                 <Controller

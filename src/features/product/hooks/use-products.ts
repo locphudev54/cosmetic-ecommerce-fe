@@ -4,6 +4,7 @@ import {
   FindAllProductsQueryParams,
   UpdateProductDto
 } from '@/features/product/types'
+import { InfiniteScrollMode, useInfiniteScroll } from '@/hooks/use-infinite-scroll'
 import { DateRangeQueryParams } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -12,13 +13,40 @@ export const PRODUCT_QUERY_KEYS = {
   lists: () => [...PRODUCT_QUERY_KEYS.all, 'list'] as const,
   list: (params?: FindAllProductsQueryParams) => [...PRODUCT_QUERY_KEYS.lists(), params] as const,
   details: () => [...PRODUCT_QUERY_KEYS.all, 'detail'] as const,
-  detail: (id: string) => [...PRODUCT_QUERY_KEYS.details(), id] as const
+  detail: (id: string) => [...PRODUCT_QUERY_KEYS.details(), id] as const,
+  infiniteCursor: (params?: FindAllProductsQueryParams) =>
+    [...PRODUCT_QUERY_KEYS.all, 'infinite-cursor', params] as const
 }
 
 export const useProducts = (params?: FindAllProductsQueryParams & DateRangeQueryParams) => {
   return useQuery({
     queryKey: PRODUCT_QUERY_KEYS.list(params),
-    queryFn: () => productService.getProducts(params)
+    queryFn: () => productService.getProductsOffset(params)
+  })
+}
+
+/**
+ * Ready-to-use infinite scroll hook for the Products list page.
+ *
+ * Usage:
+ *   const { items, sentinelRef, isLoading, isFetchingNextPage } =
+ *     useProductsInfiniteScroll({ params: { search: debouncedSearch } })
+ */
+export function useProductsInfiniteScroll({
+  params,
+  mode = 'scroll',
+  enabled = true
+}: {
+  params?: Omit<FindAllProductsQueryParams, 'cursor'>
+  mode?: InfiniteScrollMode
+  enabled?: boolean
+} = {}) {
+  return useInfiniteScroll({
+    queryKey: PRODUCT_QUERY_KEYS.infiniteCursor(params),
+    mode,
+    queryFn: (cursor) =>
+      productService.getProductsCursor({ ...params, cursor: cursor ?? undefined }),
+    queryOptions: { enabled }
   })
 }
 

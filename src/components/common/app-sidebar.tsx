@@ -1,14 +1,6 @@
 'use client'
 
-import {
-  BookOpen,
-  Bot,
-  Frame,
-  GalleryVerticalEnd,
-  Package2,
-  PieChart,
-  Settings2
-} from 'lucide-react'
+import { BookOpen, GalleryVerticalEnd, Package2, Settings2 } from 'lucide-react'
 import * as React from 'react'
 
 import { NavMain } from '@/components/common/nav-main'
@@ -24,7 +16,6 @@ import {
   SidebarRail
 } from '@/components/ui/sidebar'
 import { ROUTES } from '@/constants/route.constant'
-import { NavProjects } from '@/components/common/nav-projects'
 import Link from 'next/link'
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
@@ -94,6 +85,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {
                   title: 'Tạo mới',
                   url: ROUTES.ADMIN.CATEGORY.NEW
+                }
+              ]
+            },
+            {
+              title: 'Bộ sưu tập',
+              url: ROUTES.ADMIN.COLLECTION.HOME,
+              icon: Settings2,
+              isActive: true,
+              items: [
+                {
+                  title: 'Danh sách',
+                  url: ROUTES.ADMIN.COLLECTION.HOME
+                },
+                {
+                  title: 'Tạo mới',
+                  url: ROUTES.ADMIN.COLLECTION.NEW
                 }
               ]
             }

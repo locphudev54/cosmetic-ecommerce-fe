@@ -3,10 +3,10 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { UpsertBrandForm } from '@/features/brands/components/upsert-brand-form'
 import { Brand } from '@/features/brands/types/brand.types'
-import type { DialogWrapperProps, UpsertBrandDialogData } from '@/types/dialog.types'
+import type { DialogWrapperProps } from '@/types/dialog.types'
 
 export function UpsertBrandDialog({ config, onClose }: DialogWrapperProps<'upsert-brand'>) {
-  const { brand } = config.data as UpsertBrandDialogData
+  const { brand } = config.data
 
   return (
     <Dialog open onOpenChange={() => onClose()}>

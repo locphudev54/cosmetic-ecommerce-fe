@@ -12,8 +12,9 @@ export default async function HomePage() {
 
   await queryClient.fetchQuery({
     queryKey: PRODUCT_QUERY_KEYS.list({}),
-    queryFn: () =>
-      serverFetchClient.get<Product[], OffsetPaginationMeta>(API_ENDPOINTS.PRODUCTS.LIST)
+    queryFn: () => {
+      return serverFetchClient.get<Product[], OffsetPaginationMeta>(API_ENDPOINTS.PRODUCTS.LIST)
+    }
   })
 
   return (

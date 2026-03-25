@@ -3,7 +3,6 @@
 import { AdvancedSearchBar } from '@/components/common/advanced-search-bar'
 import Cart from '@/components/pages/home/cart'
 import UserMenu from '@/components/pages/home/user-menu'
-import { Product } from '@/features/product/types'
 import { CircleCheckBig, Medal, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -11,10 +10,6 @@ import Link from 'next/link'
 export default function Header() {
   const handleSearch = (query: string) => {
     console.log('Searching for:', query)
-  }
-
-  const handleProductSelect = (product: Product) => {
-    console.log('Product selected:', product)
   }
 
   return (
@@ -37,8 +32,8 @@ export default function Header() {
             {/* <Search Bar /> */}
             <AdvancedSearchBar
               onSearch={handleSearch}
-              onProductSelect={handleProductSelect}
-              placeholder="Try searching 'iPhone', 'laptop'..."
+              // onProductSelect={}
+              placeholder="Try searching 'iPhone', 'laptop'...x"
             />
 
             <div className='text-business-primary mt-3 flex items-center gap-x-2 text-[13px] 2xl:gap-x-5'>

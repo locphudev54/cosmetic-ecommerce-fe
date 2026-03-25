@@ -7,20 +7,19 @@ import {
   EmptyTitle
 } from '@/components/ui/empty'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Product } from '@/features/product/types'
+import { ProductDocument } from '@/features/search/types/search.types'
 import { cn } from '@/lib/utils'
+import { Package2 } from 'lucide-react'
 import React from 'react'
 import { ProductResultItem } from './product-result-item'
 import { SearchSkeleton } from './search-skeleton'
-import { Button } from '@/components/ui/button'
-import { Package2 } from 'lucide-react'
 
 interface SearchResultsProps {
   query: string
   loading: boolean
-  suggestions: Product[]
+  suggestions: ProductDocument[]
   highlightedIndex: number
-  onProductSelect: (product: Product) => void
+  onProductSelect: (product: ProductDocument) => void
   isMobile: boolean
   isOpen: boolean
 }
@@ -41,7 +40,9 @@ export const SearchResults: React.FC<SearchResultsProps> = ({
       {loading ? (
         <SearchSkeleton />
       ) : suggestions.length > 0 ? (
-        <ScrollArea className={cn('overflow-hidden', isMobile && isOpen ? 'h-96' : 'max-h-96')}>
+        <ScrollArea
+          className={cn('overflow-hidden rounded-lg', isMobile && isOpen ? 'h-96' : 'max-h-96')}
+        >
           <div className='divide-y'>
             {suggestions.map((product, idx) => (
               <ProductResultItem

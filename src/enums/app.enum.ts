@@ -31,3 +31,8 @@ export enum AttributeType {
   NUMBER = 'NUMBER',
   BOOLEAN = 'BOOLEAN'
 }
+
+export enum CollectionType {
+  MANUAL = 'MANUAL',
+  CATEGORY_BASED = 'CATEGORY_BASED'
+}

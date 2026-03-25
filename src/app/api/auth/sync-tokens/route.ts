@@ -1,8 +1,4 @@
-import { API_ENDPOINTS } from '@/constants/api.constant'
-import { LoginServerResponse } from '@/features/auth/types/auth.types'
-import serverFetchClient from '@/lib/server-fetch'
 import { ApiError, ApiResponse } from '@/types/api.types'
-import { isApiError } from '@/utilts/common.utils'
 import { setAuthCookies } from '@/utilts/cookies.utils'
 import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
@@ -13,6 +9,7 @@ type SyncTokensBody = {
 }
 
 export async function POST(request: NextRequest) {
+  debugger
   try {
     const cookieStore = await cookies()
     const { accessToken, refreshToken }: SyncTokensBody = await request.json()

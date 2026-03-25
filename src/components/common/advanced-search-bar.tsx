@@ -1,18 +1,21 @@
 'use client'
 
-import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { Search, X } from 'lucide-react'
-import { cn, isClient } from '@/lib/utils'
 import { Input } from '@/components/ui/input'
-import { mockSuggestionsData, trendingSearches } from './search/mock-data'
-import { SearchResults } from './search/search-results'
-import { SearchEmptyState } from './search/search-empty-state'
-import { Product } from '@/features/product/types'
+import { searchService } from '@/features/search/services/search.service'
+import { ProductDocument } from '@/features/search/types/search.types'
 import { useIsMobile } from '@/hooks/use-mobile'
+import { cn } from '@/lib/utils'
+import { getSearchHistory, saveSearchHistory } from '@/utilts/client.utils'
+import { Search, X } from 'lucide-react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { trendingSearches } from './search/mock-data'
+import { SearchEmptyState } from './search/search-empty-state'
+import { SearchResults } from './search/search-results'
+import { useDebouncedCallback } from '@/hooks/use-debounced-callback'
 
 export interface SearchBarProps {
   onSearch?: (query: string) => void
-  onProductSelect?: (product: Product) => void
+  onProductSelect?: (product: ProductDocument) => void
   placeholder?: string
   className?: string
 }
@@ -26,73 +29,35 @@ export const AdvancedSearchBar: React.FC<SearchBarProps> = ({
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [suggestions, setSuggestions] = useState<Product[]>([])
-  const [searchHistory, setSearchHistory] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('searchHistory')
-      return saved ? JSON.parse(saved) : []
-    } catch (e) {
-      console.error('Failed to parse search history', e)
-      return []
-    }
-  })
+  const [suggestions, setSuggestions] = useState<ProductDocument[]>([])
+  const [searchHistory, setSearchHistory] = useState<string[]>(getSearchHistory())
   const [trendingData] = useState(trendingSearches)
   const [highlightedIndex, setHighlightedIndex] = useState(-1)
   const isMobile = useIsMobile()
   const inputRef = useRef<HTMLInputElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const debounceTimer = useRef<NodeJS.Timeout | undefined>(undefined)
+  // const debounceTimer = useRef<NodeJS.Timeout | undefined>(undefined)
 
   // Mock API call to fetch suggestions
-  const fetchSuggestions = useCallback(async (searchQuery: string) => {
+  const fetchSuggestions = useDebouncedCallback(async (searchQuery: string) => {
     if (!searchQuery.trim()) {
       setSuggestions([])
+      setHighlightedIndex(-1)
       return
     }
 
     setLoading(true)
-    // Simulate network delay
-    await new Promise((resolve) => setTimeout(resolve, 300))
 
-    // Mock search with typo tolerance
-    const queryLower = searchQuery.toLowerCase()
-    let results: Product[] = []
+    const results = await searchService.searchProducts(searchQuery)
+    const products = results.products || []
 
-    Object.entries(mockSuggestionsData).forEach(([key, products]) => {
-      if (key.includes(queryLower) || key.startsWith(queryLower.charAt(0))) {
-        results = [...results, ...products]
-      }
-
-      products.forEach((product) => {
-        if (product.name.toLowerCase().includes(queryLower)) {
-          if (!results.find((p) => p.id === product.id)) {
-            results.push(product)
-          }
-        }
-      })
-    })
-
-    setSuggestions(results.slice(0, 8))
+    setSuggestions(products.slice(0, 8))
     setLoading(false)
-  }, [])
+  }, 800)
 
   // Debounced search
   useEffect(() => {
-    if (debounceTimer.current) clearTimeout(debounceTimer.current)
-
-    debounceTimer.current = setTimeout(() => {
-      if (query.trim()) {
-        fetchSuggestions(query)
-        setHighlightedIndex(-1)
-      } else {
-        setSuggestions([])
-        setHighlightedIndex(-1)
-      }
-    }, 250)
-
-    return () => {
-      if (debounceTimer.current) clearTimeout(debounceTimer.current)
-    }
+    fetchSuggestions(query)
   }, [query, fetchSuggestions])
 
   // Close dropdown on outside click
@@ -119,7 +84,7 @@ export const AdvancedSearchBar: React.FC<SearchBarProps> = ({
         8
       )
       setSearchHistory(newHistory)
-      localStorage.setItem('searchHistory', JSON.stringify(newHistory))
+      saveSearchHistory(newHistory)
 
       // Trigger callback
       onSearch?.(searchQuery)
@@ -172,7 +137,7 @@ export const AdvancedSearchBar: React.FC<SearchBarProps> = ({
     }
   }
 
-  const handleProductClick = (product: Product) => {
+  const handleProductClick = (product: ProductDocument) => {
     onProductSelect?.(product)
     handleSearch(product.name)
   }
@@ -180,7 +145,7 @@ export const AdvancedSearchBar: React.FC<SearchBarProps> = ({
   const removeHistory = (queryToRemove: string) => {
     const newHistory = searchHistory.filter((q) => q !== queryToRemove)
     setSearchHistory(newHistory)
-    localStorage.setItem('searchHistory', JSON.stringify(newHistory))
+    saveSearchHistory(newHistory)
   }
 
   const showDropdown = isOpen && (query.trim() || (!query && searchHistory.length > 0))

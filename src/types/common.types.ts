@@ -5,3 +5,7 @@ export interface BaseEntity {
   createdAt: string
   updatedAt: string
 }
+
+export type LayoutMode = 'grid' | 'list'
+
+export type InfiniteFetchingMode = 'scroll' | 'manual'

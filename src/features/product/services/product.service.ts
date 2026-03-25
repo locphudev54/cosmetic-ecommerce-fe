@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from '@/constants/api.constant'
+import { PaginationType } from '@/enums'
 import {
   CreateProductDto,
   FindAllProductsQueryParams,
@@ -6,14 +7,23 @@ import {
   UpdateProductDto
 } from '@/features/product/types'
 import apiClient from '@/lib/api-client'
-import { ApiResponse, OffsetPaginationMeta } from '@/types/api.types'
-import { get } from 'http'
+import { ApiResponse, CursorPaginationMeta, OffsetPaginationMeta } from '@/types/api.types'
 
 export const productService = {
-  getProducts(
+  getProductsOffset(
     params?: FindAllProductsQueryParams
   ): Promise<ApiResponse<Product[], OffsetPaginationMeta>> {
-    return apiClient.get<Product[], OffsetPaginationMeta>(API_ENDPOINTS.PRODUCTS.LIST, { params })
+    return apiClient.get<Product[], OffsetPaginationMeta>(API_ENDPOINTS.PRODUCTS.LIST, {
+      params: { ...params, paginationType: PaginationType.OFFSET }
+    })
+  },
+
+  getProductsCursor(
+    params?: FindAllProductsQueryParams
+  ): Promise<ApiResponse<Product[], CursorPaginationMeta>> {
+    return apiClient.get<Product[], CursorPaginationMeta>(API_ENDPOINTS.PRODUCTS.LIST, {
+      params: { ...params, paginationType: PaginationType.CURSOR }
+    })
   },
 
   async getProductById(id: string): Promise<Product> {

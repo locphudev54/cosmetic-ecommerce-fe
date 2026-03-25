@@ -15,8 +15,11 @@ import React, { Suspense } from 'react'
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   React.useEffect(() => {
     document.body.classList.add('admin-font')
+    document.body.classList.add('font-normal')
+
     return () => {
       document.body.classList.remove('admin-font')
+      document.body.classList.remove('font-normal')
     }
   }, [])
 

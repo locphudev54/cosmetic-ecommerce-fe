@@ -41,7 +41,7 @@ export default function Page() {
     limit: perPage,
     sortBy,
     sortOrder,
-    search,
+    searchQuery: search,
     status,
     startDate,
     endDate,

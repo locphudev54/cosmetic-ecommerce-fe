@@ -8,6 +8,7 @@ import { Package, Star, X } from 'lucide-react'
 interface SelectedCategoryItemProps {
   node: CategoryTreeNodeType
   ancestorCategories?: CategoryTreeNodeType[]
+  canSelectPrimaryCategory?: boolean
   onClick?: () => void
   onRemove?: () => void
 }
@@ -16,7 +17,8 @@ export default function SelectedCategoryItem({
   node,
   onClick,
   onRemove,
-  ancestorCategories = []
+  ancestorCategories = [],
+  canSelectPrimaryCategory = true
 }: SelectedCategoryItemProps) {
   const primaryCategoryId = useCategoryTreeStore((state) => state.primaryCategoryId)
   const setPrimaryCategoryId = useCategoryTreeStore((state) => state.setPrimaryCategoryId)
@@ -56,19 +58,21 @@ export default function SelectedCategoryItem({
               return (
                 <span key={cat.id} className='flex items-center gap-x-1'>
                   <span className='max-w-18 truncate'>{cat.name}</span>
-                  <Button
-                    type='button'
-                    variant='ghost'
-                    className='cursor-pointer'
-                    size='xs'
-                    onClick={handleSelectPrimaryCategory(cat.id)}
-                  >
-                    {isPrimary ? (
-                      <Star className='h-3 w-3 fill-current text-yellow-500' />
-                    ) : (
-                      <Star className='h-3 w-3' />
-                    )}
-                  </Button>
+                  {canSelectPrimaryCategory && (
+                    <Button
+                      type='button'
+                      variant='ghost'
+                      className='cursor-pointer'
+                      size='xs'
+                      onClick={handleSelectPrimaryCategory(cat.id)}
+                    >
+                      {isPrimary ? (
+                        <Star className='h-3 w-3 fill-current text-yellow-500' />
+                      ) : (
+                        <Star className='h-3 w-3' />
+                      )}
+                    </Button>
+                  )}
                   <span className='text-muted-foreground select-none'>/</span>
                 </span>
               )
@@ -78,7 +82,7 @@ export default function SelectedCategoryItem({
           <div className='flex w-full items-center justify-between'>
             <span className='line-clamp-2 font-medium'>{node.name}</span>
             <div className='flex items-center'>
-              {multiSelect && (
+              {multiSelect && canSelectPrimaryCategory && (
                 <Button
                   type='button'
                   variant='ghost'
