@@ -621,7 +621,7 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
         <Button
           type='button'
           variant={'link'}
-          className='mt-2 cursor-pointer font-medium text-blue-600 hover:text-blue-700 hover:no-underline'
+          className='mt-2 cursor-pointer text-blue-600 hover:text-blue-700 hover:no-underline'
           onClick={handleAddNewAttributeName}
         >
           <Plus />

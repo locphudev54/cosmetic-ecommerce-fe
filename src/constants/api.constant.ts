@@ -45,6 +45,15 @@ export const API_ENDPOINTS = {
     BY_SLUG: (slug: string) => `/products/by-slug/${slug}`
   },
 
+  // Collections
+  COLLECTIONS: {
+    LIST: '/collections',
+    DETAIL: (id: string) => `/collections/${id}`,
+    CREATE: '/collections',
+    UPDATE: (id: string) => `/collections/${id}`,
+    DELETE: (id: string) => `/collections/${id}`
+  },
+
   // Categories
   CATEGORIES: {
     LIST: '/categories',
@@ -85,7 +94,12 @@ export const API_ENDPOINTS = {
   },
 
   // Health check
-  HEALTH: '/health'
+  HEALTH: '/health',
+
+  // Search
+  SEARCH: {
+    PRODUCTS: '/search/products'
+  }
 } as const
 
 export const EXPIRED_ACCESS_TOKEN_MESSAGE = 'Access token has expired'

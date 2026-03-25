@@ -1,4 +1,5 @@
 import slugify from 'slugify'
+import { isClient } from '@/lib/utils'
 
 export function slugifyString(text: string): string {
   return slugify(text, { lower: true, strict: true })
@@ -52,10 +53,31 @@ export function generateVariantSku(
   return `${productCode}-${attributePart}`
 }
 
+export function getSearchHistory(): string[] {
+  if (!isClient) return []
+  try {
+    const saved = localStorage.getItem('searchHistory')
+    return saved ? JSON.parse(saved) : []
+  } catch (e) {
+    console.error('Failed to parse search history', e)
+    return []
+  }
+}
+
+export function saveSearchHistory(history: string[]): void {
+  if (!isClient) return
+  localStorage.setItem('searchHistory', JSON.stringify(history))
+}
+
 export const formatNumberToVnCurrency = (number: number) => {
   return formatNumberWithCommas(number) + ' VNĐ'
 }
 
 export function formatNumberWithCommas(number: number): string {
   return number.toLocaleString('en-US')
+}
+
+export function capitalizeString(str: string): string {
+  if (str.length === 0) return str
+  return str.charAt(0).toUpperCase() + str.slice(1)
 }

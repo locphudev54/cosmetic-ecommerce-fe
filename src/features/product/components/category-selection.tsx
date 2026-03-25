@@ -15,6 +15,7 @@ interface CategorySelectionProps {
   initialParentCategoryIds?: string[]
   multiSelect?: boolean
   showProductCount?: boolean
+  canSelectPrimaryCategory?: boolean
   onChange?: (categories: Array<{ categoryId: string; isPrimary: boolean }>) => void
   error?: { message?: string }
 }
@@ -23,6 +24,7 @@ function CategorySelection({
   initialParentCategoryIds,
   multiSelect = false,
   showProductCount = false,
+  canSelectPrimaryCategory = true,
   onChange,
   error
 }: CategorySelectionProps) {
@@ -206,11 +208,18 @@ function CategorySelection({
       if (selectedLeafCategoryList.length > 0) {
         // Only set the primary category if there is at least one selected leaf category
         const leafCategory = selectedLeafCategoryList[selectedLeafCategoryList.length - 1]
-        setPrimaryCategoryId(leafCategory.id)
+
         setSelectedLeafCategories(selectedLeafCategoryList)
+
+        if (canSelectPrimaryCategory) {
+          setPrimaryCategoryId(leafCategory.id)
+        }
       } else {
         // Otherwise clear the primary category selection
-        setPrimaryCategoryId(null)
+        if (canSelectPrimaryCategory) {
+          setPrimaryCategoryId(null)
+        }
+
         setSelectedLeafCategories([])
       }
     } else {
@@ -305,6 +314,7 @@ function CategorySelection({
               <SelectedCategoryItem
                 key={leafCat.id}
                 node={leafCat}
+                canSelectPrimaryCategory={canSelectPrimaryCategory}
                 ancestorCategories={ancestorCategories}
                 onClick={() => setOpen(true)}
                 onRemove={() => {
@@ -327,7 +337,7 @@ function CategorySelection({
                   const immediatelyAfterRemovingCategoryLeaf =
                     selectedLeafCategories[selectedLeafCategories.length - 2].id ?? null
 
-                  if (primaryCategoryId === leafCat.id) {
+                  if (canSelectPrimaryCategory && primaryCategoryId === leafCat.id) {
                     setPrimaryCategoryId(
                       shouldDisplayBackNearestAncestor
                         ? nearestAncestorCategory.id

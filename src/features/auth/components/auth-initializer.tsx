@@ -32,7 +32,6 @@ export function AuthInitializer({ accessToken, refreshToken }: AuthInitializerPr
         // Set this access token to auth store
 
         if (accessToken) {
-          debugger
           const user = await authService.getMe(accessToken).catch((error) => {
             console.log('Failed to fetch user with existing access token:', error)
             clearAuth()
@@ -54,7 +53,6 @@ export function AuthInitializer({ accessToken, refreshToken }: AuthInitializerPr
           return
 
         try {
-          debugger
           const response = await internalApiClient.post<RefreshTokenClientResponse>(
             API_ENDPOINTS.AUTH.REFRESH
           )

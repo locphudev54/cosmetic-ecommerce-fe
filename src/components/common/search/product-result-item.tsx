@@ -3,11 +3,12 @@ import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { HighlightedText } from './highlighted-text'
 import { Product } from '@/features/product/types'
+import { ProductDocument } from '@/features/search/types/search.types'
 
 interface ProductResultItemProps {
-  product: Product
+  product: ProductDocument
   query: string
-  onSelect: (product: Product) => void
+  onSelect: (product: ProductDocument) => void
   isHovered: boolean
 }
 
@@ -17,7 +18,7 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
   onSelect,
   isHovered
 }) => {
-  const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
+  // const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
   const displayPrice =
     typeof product.basePrice === 'string' ? parseFloat(product.basePrice) : product.basePrice
 
@@ -30,7 +31,7 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
       )}
     >
       <div className='flex gap-3'>
-        {primaryImage && (
+        {/* {primaryImage && (
           <div className='h-12 w-12 flex-shrink-0 rounded border bg-slate-200'>
             <Image
               src={primaryImage.url}
@@ -40,7 +41,7 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
               height={48}
             />
           </div>
-        )}
+        )} */}
         <div className='min-w-0 flex-1'>
           <p className='truncate text-sm font-semibold text-gray-900'>
             <HighlightedText text={product.name} query={query} />

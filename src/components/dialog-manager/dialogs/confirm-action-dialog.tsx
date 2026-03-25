@@ -10,7 +10,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle
 } from '@/components/ui/alert-dialog'
-import type { ConfirmActionDialogData, DialogWrapperProps } from '@/types/dialog.types'
+import { cn } from '@/lib/utils'
+import type { DialogWrapperProps } from '@/types/dialog.types'
 
 export function ConfirmActionDialog({ config, onClose }: DialogWrapperProps<'confirm-action'>) {
   const {
@@ -19,7 +20,7 @@ export function ConfirmActionDialog({ config, onClose }: DialogWrapperProps<'con
     confirmLabel = 'Xác nhận',
     cancelLabel = 'Hủy',
     variant = 'default'
-  } = config.data as ConfirmActionDialogData
+  } = config.data
 
   return (
     <AlertDialog open onOpenChange={() => onClose({ confirmed: false })}>
@@ -29,7 +30,10 @@ export function ConfirmActionDialog({ config, onClose }: DialogWrapperProps<'con
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel onClick={() => onClose({ confirmed: false })}>
+          <AlertDialogCancel
+            className='cursor-pointer'
+            onClick={() => onClose({ confirmed: false })}
+          >
             {cancelLabel}
           </AlertDialogCancel>
           <AlertDialogAction
@@ -37,9 +41,10 @@ export function ConfirmActionDialog({ config, onClose }: DialogWrapperProps<'con
             variant={variant === 'destructive' ? 'destructive' : 'default'}
             onClick={() => onClose({ confirmed: true })}
             className={
-              variant === 'destructive'
-                ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'
-                : undefined
+              cn(
+                'cursor-pointer',
+                variant === 'destructive' ? 'bg-red-600 text-white hover:bg-red-700' : ''
+              ) || undefined
             }
           >
             {confirmLabel}

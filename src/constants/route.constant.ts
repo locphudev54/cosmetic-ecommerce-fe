@@ -27,6 +27,11 @@ export const ROUTES = {
       NEW: '/admin/products/new',
       EDIT: (id: string) => `/admin/products/${id}`
     },
+    COLLECTION: {
+      HOME: '/admin/collections',
+      NEW: '/admin/collections/new',
+      EDIT: (id: string) => `/admin/collections/${id}`
+    },
     CATEGORY: {
       HOME: '/admin/categories',
       NEW: '/admin/categories/new',

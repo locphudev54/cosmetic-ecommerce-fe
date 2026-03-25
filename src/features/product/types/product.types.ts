@@ -84,11 +84,28 @@ export interface ProductImage {
 }
 
 export interface FindAllProductsQueryParams extends PaginationQueryParams {
-  search?: string
+  searchQuery?: string
   status?: ProductStatus[]
-  brandId?: string
-  categoryId?: string
+  categoryIds?: string[]
+  categorySlug?: string
+  categoryPath?: string
+  brandIds?: string[]
+  countryIds?: string[]
+  minPrice?: number
+  maxPrice?: number
+  attributes?: Record<string, string>
+  inStock?: boolean
+  minStock?: number
+  maxStock?: number
+  hasActiveVariants?: boolean
+  minVariantPrice?: number
+  maxVariantPrice?: number
+  sku?: string
   includeImages?: boolean
+  includeVariants?: boolean
+  includeAttributes?: boolean
+  includeBrandAndCountry?: boolean
+  includeCategories?: boolean
 }
 
 export interface FindAllAttributesQueryParams extends PaginationQueryParams {

@@ -2,12 +2,13 @@
 
 import type { ComponentType } from 'react'
 
-import type { DialogId, DialogWrapperProps } from '@/types/dialog.types'
+import { ConfirmActionDialog } from '@/components/dialog-manager/dialogs/confirm-action-dialog'
+import { DeleteAlertDialogWrapper } from '@/components/dialog-manager/dialogs/delete-alert-dialog-wrapper'
 import { UpsertAttributeDialog } from '@/components/dialog-manager/dialogs/upsert-attribute-dialog'
 import { UpsertBrandDialog } from '@/components/dialog-manager/dialogs/upsert-brand-dialog'
 import { UpsertCountryOfOriginDialog } from '@/components/dialog-manager/dialogs/upsert-country-of-origin-dialog'
-import { DeleteAlertDialogWrapper } from '@/components/dialog-manager/dialogs/delete-alert-dialog-wrapper'
-import { ConfirmActionDialog } from '@/components/dialog-manager/dialogs/confirm-action-dialog'
+import type { DialogId, DialogWrapperProps } from '@/types/dialog.types'
+import { BrowseProductDialog } from '@/components/dialog-manager/dialogs/browse-products-dialog'
 
 /**
  * Central mapping from DialogId → wrapper component.
@@ -24,5 +25,6 @@ export const dialogRegistry: Record<DialogId, ComponentType<DialogWrapperProps<a
   'upsert-brand': UpsertBrandDialog,
   'upsert-country-of-origin': UpsertCountryOfOriginDialog,
   'delete-alert': DeleteAlertDialogWrapper,
-  'confirm-action': ConfirmActionDialog
+  'confirm-action': ConfirmActionDialog,
+  'browse-products': BrowseProductDialog
 }
