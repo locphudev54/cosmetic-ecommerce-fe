@@ -1,15 +1,15 @@
 'use client'
 
-import React, { useRef, useState, useCallback } from 'react'
-import { Upload, X, Loader2, PictureInPicture } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { toast } from 'sonner'
 import { TypographyMuted } from '@/components/common/typography'
+import { Button } from '@/components/ui/button'
+import { Spinner } from '@/components/ui/spinner'
+import { cn } from '@/lib/utils'
+import { Loader2, Upload, X } from 'lucide-react'
 import Image from 'next/image'
-import { set } from 'zod'
+import React, { useCallback, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
-export type UploadMode = 'immediate' | 'preview' | 'default'
+export type UploadMode = 'immediate' | 'preview'
 
 export interface ImageUploadButtonProps {
   mode?: UploadMode
@@ -24,7 +24,7 @@ export interface ImageUploadButtonProps {
 }
 
 export const ImageUploadButton = ({
-  mode = 'default',
+  mode = 'preview',
   multiple = false,
   onUpload,
   onChange,
@@ -46,6 +46,13 @@ export const ImageUploadButton = ({
       previews.forEach((preview) => URL.revokeObjectURL(preview))
     }
   }, [previews])
+
+  // Sync uploadedImageUrls to previews in preview mode
+  React.useEffect(() => {
+    if (mode === 'preview' && uploadedImageUrls && uploadedImageUrls.length > 0) {
+      setPreviews(uploadedImageUrls)
+    }
+  }, [uploadedImageUrls, mode])
 
   const generatePreviewUrl = useCallback((file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -74,6 +81,11 @@ export const ImageUploadButton = ({
         return
       }
 
+      if (maxFiles && imageFiles.length > maxFiles) {
+        toast.error(`You can only upload up to ${maxFiles} images`)
+        return
+      }
+
       try {
         if (mode === 'immediate') {
           setIsUploading(true)
@@ -82,7 +94,7 @@ export const ImageUploadButton = ({
           toast.success(
             `${imageFiles.length} image${imageFiles.length > 1 ? 's' : ''} uploaded successfully`
           )
-        } else if (mode === 'preview') {
+        } else {
           // Preview mode
           const previewUrls = await Promise.all(imageFiles.map((file) => generatePreviewUrl(file)))
 
@@ -97,9 +109,6 @@ export const ImageUploadButton = ({
           onChange?.(imageFiles)
           // onChange?.(multiple ? [...selectedFiles, ...imageFiles] : imageFiles)
           toast.success('Images added to preview')
-        } else {
-          // default mode (just trigger onChange without preview or upload)
-          onChange?.(imageFiles)
         }
       } catch (error) {
         toast.error('Failed to process images')
@@ -109,19 +118,11 @@ export const ImageUploadButton = ({
       }
 
       // Reset input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      // if (fileInputRef.current) {
+      //   fileInputRef.current.value = ''
+      // }
     },
-    [
-      mode,
-      multiple,
-      onUpload,
-      onChange,
-      ,
-      //  selectedFiles
-      generatePreviewUrl
-    ]
+    [generatePreviewUrl, maxFiles, mode, multiple, onChange, onUpload]
   )
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -148,6 +149,10 @@ export const ImageUploadButton = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     handleFiles(e.target.files)
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ''
+    }
   }
 
   const handleRemovePreview = (index: number) => {
@@ -165,13 +170,7 @@ export const ImageUploadButton = ({
   }
 
   return (
-    <div
-      className={cn(
-        // 'aspect-square size-20 space-y-4',
-        'aspect-square w-full',
-        className
-      )}
-    >
+    <div className={cn('aspect-square w-full', className)}>
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
@@ -186,6 +185,7 @@ export const ImageUploadButton = ({
         <input
           ref={fileInputRef}
           type='file'
+          max={maxFiles}
           multiple={multiple}
           accept='image/*'
           onChange={handleInputChange}
@@ -195,7 +195,7 @@ export const ImageUploadButton = ({
 
         {isUploading ? (
           <>
-            <Loader2 className='h-4 w-4 animate-spin' />
+            <Spinner className='h-4 w-4' />
             <span>
               <TypographyMuted>Uploading...</TypographyMuted>
             </span>

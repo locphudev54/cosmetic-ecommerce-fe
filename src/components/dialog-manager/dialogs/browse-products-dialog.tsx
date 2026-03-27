@@ -1,5 +1,7 @@
 'use client'
 
+import { VirtualGrid } from '@/components/common/virtual-grid'
+import { VirtualList } from '@/components/common/virtual-list'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -24,16 +26,22 @@ import { ProductStatus } from '@/enums'
 import { useBrands } from '@/features/brands'
 import { useCategories } from '@/features/categories/hooks'
 import { useCountriesOfOrigin } from '@/features/country-of-origin'
-import { useProductsInfiniteScroll } from '@/features/product/hooks/use-products'
-import { FindAllProductsQueryParams } from '@/features/product/types/product.types'
+import BrowseProductCard from '@/features/product/components/browse-product-card'
+import BrowseProductListRow from '@/features/product/components/browse-product-list-row'
+import { useProductsVirtualInfiniteScroll } from '@/features/product/hooks/use-products'
+import { FindAllProductsQueryParams, Product } from '@/features/product/types/product.types'
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback'
 import { cn } from '@/lib/utils'
 import { InfiniteFetchingMode, LayoutMode } from '@/types'
 import type { DialogWrapperProps } from '@/types/dialog.types'
 import { capitalizeString } from '@/utilts/client.utils'
 import { Check, ChevronDown, Hand, LayoutGrid, List, Plus, Scroll, Search, X } from 'lucide-react'
-import Image from 'next/image'
 import React from 'react'
+
+const COLUMNS = 3
+const ITEM_HEIGHT = 96 // estimated height for a list row (px)
+const ROW_HEIGHT = 220 // estimated height for a grid row (px)
+const CONTAINER_HEIGHT = '640px'
 
 interface ObjectFilterType<NameType = string> {
   key: string
@@ -57,65 +65,15 @@ const productFilterSelectOptions: { value: keyof ProductFilters; label: string }
 
 const MAX_DISPLAYING_FILTER_VALUES = 2
 
-interface ProductListRowProps {
-  product: any
-  isSelected: boolean
-  onToggleSelect: () => void
-}
-
-const ProductListRow = ({ product, isSelected, onToggleSelect }: ProductListRowProps) => (
-  <div className='flex items-center gap-4 border-b p-4 hover:bg-gray-50' onClick={onToggleSelect}>
-    <Checkbox checked={isSelected} />
-    <div className='aspect-square w-10 shrink-0'>
-      {product.images && product.images.length > 0 && (
-        <Image
-          width={0}
-          height={0}
-          sizes='100vw'
-          src={product.images[0].url}
-          alt={product.name}
-          className='aspect-square h-full w-full rounded-md object-cover'
-        />
-      )}
-    </div>
-    <div className='line-clamp-2 flex-1 text-sm'>{product.name}</div>
-  </div>
-)
-
-interface ProductCardProps {
-  product: any
-  isSelected: boolean
-  onToggleSelect: () => void
-}
-
-const ProductCard = ({ product, isSelected, onToggleSelect }: ProductCardProps) => (
-  <div
-    className='relative flex flex-col items-center gap-2 rounded-lg border p-4 hover:bg-gray-50'
-    onClick={onToggleSelect}
-  >
-    <div className='aspect-square w-20 shrink-0'>
-      {product.images && product.images.length > 0 && (
-        <Image
-          width={0}
-          height={0}
-          sizes='100vw'
-          src={product.images[0].url}
-          alt={product.name}
-          className='aspect-square h-full w-full rounded-md object-cover'
-        />
-      )}
-    </div>
-    <Checkbox checked={isSelected} className='absolute top-3 right-3' />
-    <div className='line-clamp-2 text-center text-sm'>{product.name}</div>
-  </div>
-)
-
 export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'browse-products'>) {
   // These below states is used for rendering the UI
   const [productFilters, setProductFilters] = React.useState<ProductFilters>({})
   const [selectedProductFilterOption, setSelectedProductFilterOption] = React.useState<
     { value: keyof ProductFilters; label: string }[]
   >([])
+  const [selectedProductIds, setSelectedProductIds] = React.useState<string[]>(
+    config.data.selectedProductIds
+  )
 
   // Filter state - The below state is used for storing the actual filter values that will be sent to the API
   // We separate it from the UI state to avoid unnecessary API calls when the user is still selecting filter options/values.
@@ -126,31 +84,55 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
   const [layout, setLayout] = React.useState<LayoutMode>('list')
   const [infiniteFetchingMode, setInfiniteFetchingMode] =
     React.useState<InfiniteFetchingMode>('manual')
-  const [selectedProducts, setSelectedProducts] = React.useState<string[]>([])
 
   const { data: categoriesData } = useCategories()
   const { data: brandsData } = useBrands()
   const { data: countriesOfOriginData } = useCountriesOfOrigin()
 
-  // const { data: productsData, isFetching: isProductsFetching } = useProducts(productQueryParams)
+  const isGrid = layout === 'grid'
 
+  // Virtualization and infinite scrolling logic
   const {
     items: productList,
-    sentinelRef,
+    rows,
+    scrollContainerRef,
+    virtualizer,
+    totalSize,
+    isVirtualizerReady,
     isLoading: isProductListLoading,
-    isFetchingNextPage,
     isFetching,
+    isFetchingNextPage,
     hasNextPage,
-    fetchNextPage,
     isError,
-    error
-  } = useProductsInfiniteScroll({
+    error,
+    fetchNextPage
+  } = useProductsVirtualInfiniteScroll({
     params: productQueryParams,
-    mode: infiniteFetchingMode
-    // enabled: Object.keys(productQueryParams).length > 0 // Only enable the infinite scroll when there are query params to avoid loading all products at once
+    mode: infiniteFetchingMode,
+    columns: isGrid ? COLUMNS : 1,
+    estimateSize: isGrid ? ROW_HEIGHT : ITEM_HEIGHT,
+    overscan: 5
+    // enabled: Object.keys(productQueryParams).length > 1, // Only enable the infinite scroll when there are query params to avoid loading all products at once,
   })
 
-  // Duplicate the products data to simulate a larger dataset for testing the table's performance and UI with more items. In a real application, you would implement pagination or infinite scrolling instead of loading all products at once.
+  // Infinite scrolling feature with cursor-based pagination
+  // const {
+  //   items: productList,
+  //   sentinelRef,
+  //   isLoading: isProductListLoading,
+  //   isFetchingNextPage,
+  //   isFetching,
+  //   hasNextPage,
+  //   fetchNextPage,
+  //   isError,
+  //   error
+  // } = useProductsInfiniteScroll({
+  //   params: productQueryParams,
+  //   mode: infiniteFetchingMode
+  //   // enabled: Object.keys(productQueryParams).length > 0 // Only enable the infinite scroll when there are query params to avoid loading all products at once
+  // })
+
+  // Offset-based pagination
   // const productList = React.useMemo(() => {
   //   if (!productsData?.data) return []
   //   const duplicatedProducts = []
@@ -266,8 +248,19 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
     setInfiniteFetchingMode(mode)
   }
 
+  const toggleProductSelection = (productId: string) => {
+    setSelectedProductIds((prev) =>
+      prev.includes(productId) ? prev.filter((id) => id !== productId) : [...prev, productId]
+    )
+  }
+
+  const handleSubmit = () => {
+    const selectedProductData = productList.filter((p) => selectedProductIds.includes(p.id))
+    onClose({ data: selectedProductData })
+  }
+
   return (
-    <Dialog open onOpenChange={() => onClose()}>
+    <Dialog open onOpenChange={() => onClose({ data: [] })}>
       <DialogContent
         className='max-w-3xl!'
         onCloseAutoFocus={(e) => {
@@ -316,11 +309,7 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant='outline' className='gap-x-0.5'>
-                    {layout === 'grid' ? (
-                      <LayoutGrid className='h-4 w-4' />
-                    ) : (
-                      <List className='h-4 w-4' />
-                    )}
+                    {!isGrid ? <LayoutGrid className='h-4 w-4' /> : <List className='h-4 w-4' />}
                     <ChevronDown className='h-2 w-2' />
                   </Button>
                 </DropdownMenuTrigger>
@@ -432,7 +421,6 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
                       ) : (
                         <span
                           onClick={(e) => {
-                            // e.stopPropagation()
                             e.preventDefault()
 
                             handleRemoveProductFilterOption(option.value)
@@ -599,59 +587,108 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
                 </div>
               ) : (
                 <React.Fragment>
-                  {productList.length === 0 ? (
-                    <div className='flex h-full items-center justify-center'>
-                      Không tìm thấy sản phẩm
-                    </div>
-                  ) : layout === 'list' ? (
-                    <div className='space-y-0'>
-                      {productList.map((product) => (
-                        <ProductListRow
-                          key={product.id}
-                          product={product}
-                          isSelected={selectedProducts.includes(product.id)}
-                          onToggleSelect={() => {
-                            setSelectedProducts((prev) =>
-                              prev.includes(product.id)
-                                ? prev.filter((id) => id !== product.id)
-                                : [...prev, product.id]
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
-                  ) : (
-                    <div className='grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4'>
-                      {productList.map((product) => (
-                        <ProductCard
-                          key={product.id}
-                          product={product}
-                          isSelected={selectedProducts.includes(product.id)}
-                          onToggleSelect={() => {
-                            setSelectedProducts((prev) =>
-                              prev.includes(product.id)
-                                ? prev.filter((id) => id !== product.id)
-                                : [...prev, product.id]
-                            )
-                          }}
-                        />
-                      ))}
-                    </div>
-                  )}
+                  {
+                    productList.length === 0 ? (
+                      <div className='flex h-full items-center justify-center'>
+                        Không tìm thấy sản phẩm
+                      </div>
+                    ) : isGrid ? (
+                      <VirtualGrid<Product>
+                        items={productList}
+                        isVirtualizerReady={isVirtualizerReady}
+                        rows={rows}
+                        columns={COLUMNS}
+                        scrollContainerRef={scrollContainerRef}
+                        virtualizer={virtualizer}
+                        totalSize={totalSize}
+                        renderItem={(product) => (
+                          <BrowseProductCard
+                            product={product}
+                            isSelected={selectedProductIds.includes(product.id)}
+                            onToggleSelect={() => toggleProductSelection(product.id)}
+                          />
+                        )}
+                        isLoading={isProductListLoading}
+                        isFetchingNextPage={isFetchingNextPage}
+                        hasNextPage={hasNextPage}
+                        isError={isError}
+                        error={error}
+                        fetchNextPage={fetchNextPage}
+                        mode={infiniteFetchingMode}
+                        gap={16}
+                        containerHeight={CONTAINER_HEIGHT}
+                        // emptyState={emptyState}
+                      />
+                    ) : (
+                      <VirtualList<Product>
+                        items={productList}
+                        rows={rows}
+                        isVirtualizerReady={isVirtualizerReady}
+                        scrollContainerRef={scrollContainerRef}
+                        virtualizer={virtualizer}
+                        totalSize={totalSize}
+                        renderItem={(product) => (
+                          <BrowseProductListRow
+                            product={product}
+                            isSelected={selectedProductIds.includes(product.id)}
+                            onToggleSelect={() => toggleProductSelection(product.id)}
+                          />
+                        )}
+                        isLoading={isProductListLoading}
+                        isFetchingNextPage={isFetchingNextPage}
+                        hasNextPage={hasNextPage}
+                        isError={isError}
+                        error={error}
+                        fetchNextPage={fetchNextPage}
+                        mode={infiniteFetchingMode}
+                        containerHeight={CONTAINER_HEIGHT}
+                      />
+                    )
+
+                    // !isGrid ? (
+                    //   <div className='space-y-0'>
+                    //     {productList.map((product) => (
+                    //       <ProductListRow
+                    //         key={product.id}
+                    //         product={product}
+                    // isSelected={selectedProductIds.includes(product.id)}
+                    // onToggleSelect={() => toggleProductSelection(product.id)}
+                    //   )
+                    // }}
+                    //       />
+                    //     ))}
+                    //   </div>
+                    // ) : (
+                    //   <div className='grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4'>
+                    //     {productList.map((product) => (
+                    //       <ProductCard
+                    //         key={product.id}
+                    //         product={product}
+                    //         isSelected={selectedProductIds.includes(product.id)}
+                    //         onToggleSelect={() => {
+                    //           setSelectedProductIds((prev) =>
+                    //             prev.includes(product.id)
+                    //               ? prev.filter((id) => id !== product.id)
+                    //               : [...prev, product.id]
+                    //           )
+                    //         }}
+                    //       />
+                    //     ))}
+                    //   </div>
+                    // )
+                  }
 
                   {/* Scroll mode or Manual mode based on infiniteFetchingMode */}
-                  {infiniteFetchingMode === 'scroll' ? (
+                  {/* {infiniteFetchingMode === 'scroll' ? (
                     <>
-                      {/* Sentinel observed by IntersectionObserver inside useInfiniteScroll */}
-                      <div ref={sentinelRef} aria-hidden='true' />
-
+                      <div ref={sentinelRef} aria-hidden='true' />{' '}
+                      
                       {isFetchingNextPage && (
                         <div className='text-muted-foreground flex items-center justify-center gap-2 py-6 text-sm'>
                           <Spinner className='h-4 w-4' />
                           Loading more…
                         </div>
                       )}
-
                       {!hasNextPage && !isFetchingNextPage && productList.length > 0 && (
                         <p className='text-muted-foreground py-6 text-center text-sm'>
                           Đã hiển thị tất cả sản phẩm
@@ -660,7 +697,6 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
                     </>
                   ) : (
                     <>
-                      {/* View more button */}
                       {hasNextPage && (
                         <div className='mt-8 flex justify-center'>
                           <Button
@@ -691,7 +727,7 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
                         </p>
                       )}
                     </>
-                  )}
+                  )} */}
                 </React.Fragment>
               )}
             </React.Fragment>
@@ -704,7 +740,7 @@ export function BrowseProductDialog({ config, onClose }: DialogWrapperProps<'bro
               Hủy
             </Button>
           </DialogClose>
-          <Button>Lưu ({selectedProducts.length})</Button>
+          <Button onClick={handleSubmit}>Lưu ({selectedProductIds.length})</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

@@ -7,7 +7,7 @@ import serverFetchClient from '@/lib/server-fetch'
 import { OffsetPaginationMeta } from '@/types/api.types'
 import { dehydrate, HydrationBoundary } from '@tanstack/react-query'
 
-export default async function HomePage() {
+export default async function Page() {
   const queryClient = getServerQueryClient()
 
   await queryClient.fetchQuery({

@@ -8,7 +8,7 @@ import 'quill/dist/quill.snow.css'
 // Quill's default image is an inline Embed, so block-level alignment
 // (center, right) has no effect on it. We register a BlockEmbed-based
 // image blot so the alignment toolbar buttons work on images.
-const BlockEmbed = Quill.import('blots/block/embed') as typeof import('parchment').EmbedBlot
+const BlockEmbed = Quill.import('blots/block/embed') as any
 
 class ImageBlot extends BlockEmbed {
   static blotName = 'image'
@@ -211,7 +211,8 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
       })
 
       // Style the custom toolbar button
-      const toolbar = containerRef.current.closest('.ql-toolbar') ?? containerRef.current.previousElementSibling
+      const toolbar =
+        containerRef.current.closest('.ql-toolbar') ?? containerRef.current.previousElementSibling
       if (toolbar) {
         const customImageBtn = toolbar.querySelector('.ql-custom-image')
         if (customImageBtn) {
@@ -223,7 +224,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
       return () => {
         quillRef.current = quillRef.current
       }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     // Sync Quill content when defaultValue changes after initialization
@@ -233,7 +234,10 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
       if (!defaultValueAppliedRef.current && defaultValue) {
         quillRef.current.root.innerHTML = defaultValue
         defaultValueAppliedRef.current = true
-      } else if (defaultValueAppliedRef.current && defaultValue !== quillRef.current.root.innerHTML) {
+      } else if (
+        defaultValueAppliedRef.current &&
+        defaultValue !== quillRef.current.root.innerHTML
+      ) {
         quillRef.current.root.innerHTML = defaultValue
       }
     }, [defaultValue])
@@ -322,19 +326,17 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
             <div className='flex flex-col items-center gap-4 py-4'>
               <label
                 htmlFor='rte-image-upload'
-                className='flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:bg-muted'
+                className='border-border hover:bg-muted flex h-32 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed transition-colors'
               >
                 {uploadMutation.isPending ? (
                   <div className='flex flex-col items-center gap-2'>
-                    <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
-                    <span className='text-sm text-muted-foreground'>Đang tải lên...</span>
+                    <Loader2 className='text-muted-foreground h-8 w-8 animate-spin' />
+                    <span className='text-muted-foreground text-sm'>Đang tải lên...</span>
                   </div>
                 ) : (
                   <div className='flex flex-col items-center gap-2'>
-                    <Upload className='h-8 w-8 text-muted-foreground' />
-                    <span className='text-sm text-muted-foreground'>
-                      Nhấn để chọn hình ảnh
-                    </span>
+                    <Upload className='text-muted-foreground h-8 w-8' />
+                    <span className='text-muted-foreground text-sm'>Nhấn để chọn hình ảnh</span>
                   </div>
                 )}
                 <input
@@ -368,7 +370,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
             {editingImage && (
               <div className='flex flex-col gap-4 py-2'>
                 {/* Preview */}
-                <div className='flex justify-center rounded-md border bg-muted/30 p-2'>
+                <div className='bg-muted/30 flex justify-center rounded-md border p-2'>
                   <img
                     src={editingImage.src}
                     alt={editAlt}
@@ -423,7 +425,7 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
                     value={editAlt}
                     onChange={(e) => setEditAlt(e.target.value)}
                   />
-                  <p className='text-xs text-muted-foreground'>
+                  <p className='text-muted-foreground text-xs'>
                     Alt text giúp mô tả hình ảnh cho SEO và khả năng tiếp cận.
                   </p>
                 </div>
@@ -440,7 +442,9 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
         </Dialog>
 
         {/* Scoped styles for image hover indicator */}
-        <style dangerouslySetInnerHTML={{ __html: `
+        <style
+          dangerouslySetInnerHTML={{
+            __html: `
           .rich-text-editor-wrapper .ql-editor img {
             cursor: pointer;
             transition: outline 0.15s ease, box-shadow 0.15s ease;
@@ -451,7 +455,9 @@ const RichTextEditor = forwardRef<RichTextEditorHandle, Props>(
             outline-offset: 2px;
             box-shadow: 0 0 0 4px hsl(var(--primary) / 0.1);
           }
-        `}} />
+        `
+          }}
+        />
       </>
     )
   }

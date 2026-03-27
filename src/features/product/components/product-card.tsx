@@ -42,7 +42,7 @@ export default function ProductCard(props: Props) {
         )} */}
 
         {/* Brand */}
-        <span className='mt-4 line-clamp-1 min-h-5 text-[13px] font-medium text-gray-400'>
+        <span className='text-tiny mt-4 line-clamp-1 min-h-5 font-medium text-gray-400'>
           {product.brand?.name}
         </span>
 

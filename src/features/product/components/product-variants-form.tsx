@@ -111,7 +111,7 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
       .filter((values) => values.length > 0)
 
     if (attributeValuesList.length === 0) {
-      // setProductVariantList([])
+      setProductVariantList([])
       return
     }
 
@@ -350,7 +350,7 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
     })
   }
 
-  const handleImmediateUpload = (productVariantIndex: number) => async (files: File[]) => {
+  const handleImmediatelyUpload = (productVariantIndex: number) => async (files: File[]) => {
     const file = files[0]
     const res = await uploadSingleImageMutation.mutateAsync({
       file,
@@ -404,11 +404,22 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
     toast.success('Đã tạo nhanh biến thể dựa trên thuộc tính của danh mục chính!')
   }
 
-  // function onSubmit() {
-  //   setAttributes([{ name: '', values: [] }])
-  //   setProductVariantList([])
-  //   props.onSubmit?.({ productVariants: productVariantList, attributes })
-  // }
+  const handleRemoveAllAttributeAndVariants = async () => {
+    const result = await dialog.open('confirm-action', {
+      title: 'Xác nhận xóa tất cả biến thể',
+      description:
+        'Hành động này sẽ xóa tất cả biến thể và thuộc tính của sản phẩm. Bạn có chắc chắn muốn tiếp tục?',
+      confirmLabel: 'Xác nhận',
+      cancelLabel: 'Hủy'
+    })
+
+    if (result && !result.confirmed) {
+      return
+    }
+
+    setAttributes([{ id: '', name: '', values: [] }])
+    // setProductVariantList([])
+  }
 
   return (
     <div>
@@ -633,9 +644,7 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
             type='button'
             variant={'link'}
             className='mt-2 cursor-pointer font-medium text-red-600 hover:text-red-600 hover:no-underline'
-            onClick={() => {
-              setAttributes([{ id: '', name: '', values: [] }])
-            }}
+            onClick={handleRemoveAllAttributeAndVariants}
           >
             <Minus />
             <span>Xóa tất cả ({productVariantList.length})</span>
@@ -694,14 +703,14 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
                   {/* Image */}
                   <div className='aspect-square w-16 shrink-0'>
                     {prodVariant.imageUrl ? (
-                      <div className='group relative h-full rounded-md border border-gray-200 bg-gray-50'>
+                      <div className='group relative rounded-md border border-gray-200 bg-gray-50'>
                         <Image
                           width={0}
                           height={0}
                           sizes='100vw'
                           src={prodVariant.imageUrl}
                           alt={`Product Variant ${prodVariantIdx + 1}`}
-                          className='aspect-square h-full w-full rounded-md object-cover transition-transform duration-200 group-hover:scale-105'
+                          className='h-full w-full rounded-md object-cover transition-transform duration-200 group-hover:scale-125'
                         />
                         <Button
                           type='button'
@@ -716,7 +725,8 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
                     ) : (
                       <ImageUploadButton
                         mode='immediate'
-                        onUpload={handleImmediateUpload(prodVariantIdx)}
+                        maxFiles={1}
+                        onUpload={handleImmediatelyUpload(prodVariantIdx)}
                       />
                     )}
                   </div>

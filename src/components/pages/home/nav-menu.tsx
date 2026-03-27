@@ -253,7 +253,7 @@ export default function NavMenu() {
 
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
-            <Link href='#'>
+            <Link href='/collections/sua-rua-mat-nam-gioi'>
               <span
                 className={navigationMenuTriggerStyle({
                   className:

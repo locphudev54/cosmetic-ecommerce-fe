@@ -22,7 +22,6 @@ export default function Page() {
   const syncTokensMutation = useSyncTokensMutation()
 
   const handleSyncTokens = async () => {
-    debugger
     try {
       if (accessToken && refreshToken) {
         const [user] = await Promise.all([
@@ -49,7 +48,6 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  debugger
   return (
     <div className='flex h-screen w-full items-center justify-center'>
       <p className='text-center text-lg'>Processing authentication...</p>

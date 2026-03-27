@@ -16,7 +16,14 @@ export const ROUTES = {
 
   // Products
   PRODUCTS: {
+    HOME: '/products',
     DETAIL: (slug: string) => `/products/${slug}`
+  },
+
+  // Collections
+  COLLECTIONS: {
+    HOME: '/collections',
+    DETAIL: (slug: string) => `/collections/${slug}`
   },
 
   // Dashboard

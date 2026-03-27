@@ -116,6 +116,11 @@ export function AttributeSelector({
     onChange?.(attributes)
   }
 
+  const handleRemoveAllAttributes = () => {
+    setSelectedAttributes([])
+    onChange?.([])
+  }
+
   return (
     <React.Fragment>
       <div className='flex items-center justify-between'>
@@ -196,9 +201,7 @@ export function AttributeSelector({
             </h5>
             <div
               className='cursor-pointer text-sm font-normal text-red-600 hover:text-red-600'
-              onClick={() => {
-                setSelectedAttributes([])
-              }}
+              onClick={handleRemoveAllAttributes}
             >
               Xóa tất cả ({selectedAttributes.length})
             </div>

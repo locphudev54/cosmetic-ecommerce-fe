@@ -1,4 +1,4 @@
-import { ProductStatus } from '@/enums'
+import { ProductSortBy, ProductStatus } from '@/enums'
 import { Brand } from '@/features/brands'
 import { Category } from '@/features/categories/types/category.types'
 import { CountryOfOrigin } from '@/features/country-of-origin'
@@ -12,7 +12,7 @@ export interface Product {
   name: string
   slug: string
   description: string | null
-  status: ProductStatus | null
+  status: ProductStatus
   basePrice: string | number // using string to handle large numbers from backend
   views: number | null
   brand?: Brand
@@ -22,6 +22,13 @@ export interface Product {
   images?: ProductImage[]
   createdAt: string | Date
   updatedAt: string | Date | null
+}
+
+export interface PartialProduct extends Pick<
+  Product,
+  'id' | 'name' | 'slug' | 'basePrice' | 'status'
+> {
+  images: { url: string; alt: string }[]
 }
 
 export interface ProductCategory {
@@ -83,6 +90,11 @@ export interface ProductImage {
   updatedAt: string | Date | null
 }
 
+export interface AttributeFilter {
+  attributeId: string
+  valueIds: string[]
+}
+
 export interface FindAllProductsQueryParams extends PaginationQueryParams {
   searchQuery?: string
   status?: ProductStatus[]
@@ -93,7 +105,7 @@ export interface FindAllProductsQueryParams extends PaginationQueryParams {
   countryIds?: string[]
   minPrice?: number
   maxPrice?: number
-  attributes?: Record<string, string>
+  attributes?: AttributeFilter[]
   inStock?: boolean
   minStock?: number
   maxStock?: number
@@ -101,11 +113,12 @@ export interface FindAllProductsQueryParams extends PaginationQueryParams {
   minVariantPrice?: number
   maxVariantPrice?: number
   sku?: string
-  includeImages?: boolean
-  includeVariants?: boolean
-  includeAttributes?: boolean
-  includeBrandAndCountry?: boolean
-  includeCategories?: boolean
+  sortBy?: ProductSortBy
+  // includeImages?: boolean
+  // includeVariants?: boolean
+  // includeAttributes?: boolean
+  // includeBrandAndCountry?: boolean
+  // includeCategories?: boolean
 }
 
 export interface FindAllAttributesQueryParams extends PaginationQueryParams {
