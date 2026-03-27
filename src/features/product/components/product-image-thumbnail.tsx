@@ -90,10 +90,10 @@ export default function ProductImageThumbnail({
         }}
         className={cn(
           'absolute top-[50%] left-[50%] z-20 translate-x-[-50%] translate-y-[-50%] cursor-pointer rounded-full bg-white p-3 opacity-0 transition-opacity group-hover:opacity-100',
-          { 'p-5': isPrimary }
+          { 'p-3': isPrimary }
         )}
       >
-        <ScanSearch className={cn('size-5 text-gray-400', { 'size-6': isPrimary })} />
+        <ScanSearch className={cn('size-3 text-gray-500', { 'size-4': isPrimary })} />
       </button>
     </div>
   )

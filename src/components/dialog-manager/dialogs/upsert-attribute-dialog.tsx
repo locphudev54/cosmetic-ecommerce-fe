@@ -6,7 +6,7 @@ import { Attribute } from '@/features/attributes/types/attribute.types'
 import type { DialogWrapperProps, UpsertAttributeDialogData } from '@/types/dialog.types'
 
 export function UpsertAttributeDialog({ config, onClose }: DialogWrapperProps<'upsert-attribute'>) {
-  const { attribute } = config.data as UpsertAttributeDialogData
+  const { attribute } = config.data
   // const dialog = useDialog()
   // const deleteAttributeMutation = useDeleteAttribute()
 

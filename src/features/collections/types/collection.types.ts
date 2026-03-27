@@ -1,6 +1,7 @@
+import { PartialProduct } from '@/features/product/types'
 import { PaginationQueryParams } from '@/types'
 
-export interface CollectionProductItemDto {
+export interface PartialProductDto {
   productId: string
   displayOrder?: number
 }
@@ -23,8 +24,61 @@ export interface Collection {
   isActive: boolean
   metaTitle?: string
   metaDescription?: string
+  products?: CollectionProduct[]
+  categories?: CollectionCategory[]
   createdAt: string | Date
   updatedAt?: string | Date | null
+}
+
+export interface CollectionProductItem {
+  productId: string
+  displayOrder: number
+}
+
+export interface CollectionAttributeValue {
+  id: string
+  value: string
+}
+
+export interface CollectionAttributeItem {
+  id: string
+  name: string
+  displayName: string
+  values: CollectionAttributeValue[]
+}
+
+export interface CollectionAttribute {
+  attribute: CollectionAttributeItem
+}
+
+export interface CollectionCategoryItem {
+  id: string
+  name: string
+}
+
+export interface CollectionCategoryDetail {
+  category: CollectionCategoryItem
+}
+
+export interface CollectionDetailBySlug extends Pick<
+  Collection,
+  'id' | 'title' | 'slug' | 'description' | 'imageUrl' | 'metaTitle' | 'metaDescription'
+> {
+  products: CollectionProductItem[]
+  attributes: CollectionAttribute[]
+  categories: CollectionCategoryDetail[]
+}
+
+export interface CollectionProduct {
+  collectionId: string
+  displayOrder: number
+  productId: string
+  product: PartialProduct
+}
+
+export interface CollectionCategory {
+  collectionId: string
+  categoryId: string
 }
 
 export interface CreateCollectionDto {
@@ -35,7 +89,7 @@ export interface CreateCollectionDto {
   isActive?: boolean
   metaTitle?: string
   metaDescription?: string
-  products?: CollectionProductItemDto[]
+  products?: PartialProductDto[]
   attributes?: CollectionAttributeItemDto[]
   categories?: CollectionCategoryItemDto[]
 }
@@ -49,4 +103,8 @@ export interface FindAllCollectionsQueryParams extends PaginationQueryParams {
   includeProducts?: boolean
   includeAttributes?: boolean
   includeCategories?: boolean
+}
+
+export interface DeriveFromProductsDto {
+  productIds: string[]
 }

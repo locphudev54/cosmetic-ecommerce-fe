@@ -9,7 +9,6 @@ type SyncTokensBody = {
 }
 
 export async function POST(request: NextRequest) {
-  debugger
   try {
     const cookieStore = await cookies()
     const { accessToken, refreshToken }: SyncTokensBody = await request.json()

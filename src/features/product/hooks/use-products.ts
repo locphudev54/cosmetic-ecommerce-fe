@@ -5,6 +5,7 @@ import {
   UpdateProductDto
 } from '@/features/product/types'
 import { InfiniteScrollMode, useInfiniteScroll } from '@/hooks/use-infinite-scroll'
+import { useVirtualInfiniteScroll } from '@/hooks/use-virtual-infinite-scroll'
 import { DateRangeQueryParams } from '@/types'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 
@@ -15,7 +16,9 @@ export const PRODUCT_QUERY_KEYS = {
   details: () => [...PRODUCT_QUERY_KEYS.all, 'detail'] as const,
   detail: (id: string) => [...PRODUCT_QUERY_KEYS.details(), id] as const,
   infiniteCursor: (params?: FindAllProductsQueryParams) =>
-    [...PRODUCT_QUERY_KEYS.all, 'infinite-cursor', params] as const
+    [...PRODUCT_QUERY_KEYS.all, 'infinite-cursor', params] as const,
+  virtualInfinite: (params?: FindAllProductsQueryParams) =>
+    [...PRODUCT_QUERY_KEYS.all, 'virtual-infinite', params] as const
 }
 
 export const useProducts = (params?: FindAllProductsQueryParams & DateRangeQueryParams) => {
@@ -47,6 +50,33 @@ export function useProductsInfiniteScroll({
     queryFn: (cursor) =>
       productService.getProductsCursor({ ...params, cursor: cursor ?? undefined }),
     queryOptions: { enabled }
+  })
+}
+
+export function useProductsVirtualInfiniteScroll({
+  params,
+  mode = 'scroll',
+  enabled = true,
+  columns = 1,
+  estimateSize = 80,
+  overscan = 5
+}: {
+  params?: Omit<FindAllProductsQueryParams, 'cursor'>
+  mode?: InfiniteScrollMode
+  enabled?: boolean
+  columns?: number
+  estimateSize?: number
+  overscan?: number
+} = {}) {
+  return useVirtualInfiniteScroll({
+    queryKey: PRODUCT_QUERY_KEYS.virtualInfinite(params),
+    queryFn: (cursor) =>
+      productService.getProductsCursor({ ...params, cursor: cursor ?? undefined }),
+    mode,
+    columns,
+    estimateSize,
+    overscan,
+    enabled
   })
 }
 

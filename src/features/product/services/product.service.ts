@@ -32,7 +32,7 @@ export const productService = {
   },
 
   async getProductBySlug(slug: string): Promise<Product> {
-    const response = await apiClient.get<Product>(API_ENDPOINTS.PRODUCTS.BY_SLUG(slug))
+    const response = await apiClient.get<Product>(API_ENDPOINTS.PRODUCTS.DETAIL_BY_SLUG(slug))
     return response.data
   },
 

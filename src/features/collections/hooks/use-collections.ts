@@ -31,6 +31,14 @@ export const useCollection = (id?: string) => {
   })
 }
 
+export const useCollectionDetailBySlug = (slug?: string) => {
+  return useQuery({
+    queryKey: COLLECTION_QUERY_KEYS.detail(slug!),
+    queryFn: () => collectionService.getCollectionBySlug(slug!),
+    enabled: !!slug
+  })
+}
+
 export const useCreateCollection = () => {
   const queryClient = useQueryClient()
 

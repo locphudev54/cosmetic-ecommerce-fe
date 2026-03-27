@@ -12,7 +12,7 @@ import React, { useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 
 interface CategorySelectionProps {
-  initialParentCategoryIds?: string[]
+  initialSelectedParentCategoryIds?: string[]
   multiSelect?: boolean
   showProductCount?: boolean
   canSelectPrimaryCategory?: boolean
@@ -21,7 +21,7 @@ interface CategorySelectionProps {
 }
 
 function CategorySelection({
-  initialParentCategoryIds,
+  initialSelectedParentCategoryIds,
   multiSelect = false,
   showProductCount = false,
   canSelectPrimaryCategory = true,
@@ -86,31 +86,33 @@ function CategorySelection({
     }
   }, [categoryTreeNodeList, setCategories])
 
+  // Initialize the selection based on the initialSelectedParentCategoryIds prop
+  // Expand the nodes in the tree based on the initialSelectedParentCategoryIds a
   React.useEffect(() => {
     if (hasInitializedRef.current) return
 
     // Case 1: Always mark the initialized flag as True even though the selected Category doesn't have any parent category
     if (
       categoryTreeNodeList.length > 0 &&
-      initialParentCategoryIds &&
-      initialParentCategoryIds.length === 0
+      initialSelectedParentCategoryIds &&
+      initialSelectedParentCategoryIds.length === 0
     ) {
       hasInitializedRef.current = true
     }
 
     // Case 2: The selected Category has parent category, we need to expand the tree to the parent category and select it
     if (
-      initialParentCategoryIds &&
-      initialParentCategoryIds.length > 0 &&
+      initialSelectedParentCategoryIds &&
+      initialSelectedParentCategoryIds.length > 0 &&
       categoryTreeNodeList.length > 0
     ) {
       const ancestorIds: string[] = []
 
-      initialParentCategoryIds.forEach((id) => {
+      initialSelectedParentCategoryIds.forEach((id) => {
         const category = findCategory(categoryTreeNodeList, id)
 
         // Prevent duplicate selection in case of the parent component of CategorySelection re-rendering
-        // with the same initialParentCategoryIds
+        // with the same initialSelectedParentCategoryIds
         const isSelected = selectedCategories.some((cat) => cat.id === id)
 
         if (category && !isSelected) {
@@ -134,7 +136,7 @@ function CategorySelection({
   }, [
     categoryTreeNodeList,
     hasInitializedRef,
-    initialParentCategoryIds,
+    initialSelectedParentCategoryIds,
     toggleSelect,
     expandNodes,
     selectedCategories
@@ -158,10 +160,16 @@ function CategorySelection({
   React.useEffect(() => {
     if (!onChange) return
 
-    const payload = selectedLeafCategories.map((cat) => ({
+    // const payload = selectedLeafCategories.map((cat) => ({
+    //   categoryId: cat.id,
+    //   isPrimary: cat.id === primaryCategoryId
+    // }))
+
+    const payload = selectedCategories.map((cat) => ({
       categoryId: cat.id,
       isPrimary: cat.id === primaryCategoryId
     }))
+
     onChange(payload)
 
     // because onChange callback is a prop from the parent component, we should not include it in the dependency array to avoid unnecessary re-renders and potential infinite loops,
@@ -173,7 +181,7 @@ function CategorySelection({
     // which are the relevant pieces of state for determining when to call onChange.
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedLeafCategories, primaryCategoryId])
+  }, [primaryCategoryId, selectedCategories])
 
   const handleClose = React.useCallback(() => {
     // Use getState() to guarantee a non-stale snapshot at the moment of closing,
@@ -228,14 +236,14 @@ function CategorySelection({
 
     // setSelectedCategories(selectedCategories)
     // Use the selected categories instead of leafCategories beacuse it's full and correct than leaf categories -> Use for displaying in the UI
-    onChange?.(
-      selectedCategories.map((cat) => ({
-        categoryId: cat.id,
-        isPrimary: cat.id === primaryCategoryId
-      }))
-    )
+    // onChange?.(
+    //   selectedCategories.map((cat) => ({
+    //     categoryId: cat.id,
+    //     isPrimary: cat.id === primaryCategoryId
+    //   }))
+    // )
     setOpen(false)
-  }, [multiSelect, onChange, primaryCategoryId, selectedCategories, setPrimaryCategoryId])
+  }, [canSelectPrimaryCategory, multiSelect, selectedCategories, setPrimaryCategoryId])
 
   // Sync selection changes to the store
   // React.useEffect(() => {

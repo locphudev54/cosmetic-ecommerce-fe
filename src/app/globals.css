@@ -157,31 +157,40 @@
     font-size: 18px; /* same as your "large" */
   }
 
-  /* Custom scrollbar */
   .custom-scrollbar {
-    overflow: auto;
-
-    /* Firefox */
-    scrollbar-width: thin;
-    scrollbar-color: rgba(100, 116, 139, 0.5) transparent; /* slate-500 */
+    @apply overflow-y-auto;
   }
 
-  /* WebKit */
+  /* Light mode */
   .custom-scrollbar::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 0.25rem; /* w-2 */
   }
 
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: transparent;
+    background-color: #f3f4f6; /* gray-100 */
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, rgba(148, 163, 184, 0.9), rgba(71, 85, 105, 0.9));
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #b5b8ba; /* gray-300 */
   }
 
-  .custom-scrollbar::-webkit-scrollbar-thumb:active {
-    background: rgba(71, 85, 105, 1);
+  /* Dark mode */
+  .dark .custom-scrollbar::-webkit-scrollbar-track {
+    background-color: #404040; /* neutral-700 */
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #737373; /* neutral-500 */
+  }
+
+  /* Hide scrollbar but keep scrolling */
+  .hidden-scrollbar::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
+  }
+
+  .hidden-scrollbar {
+    -ms-overflow-style: none; /* IE, old Edge */
+    scrollbar-width: none; /* Firefox */
   }
 
   .admin-font {

@@ -13,7 +13,9 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
   await queryClient.fetchQuery({
     queryKey: PRODUCT_QUERY_KEYS.detail(slug),
     queryFn: async () => {
-      const response = await serverFetchClient.get<Product>(API_ENDPOINTS.PRODUCTS.BY_SLUG(slug))
+      const response = await serverFetchClient.get<Product>(
+        API_ENDPOINTS.PRODUCTS.DETAIL_BY_SLUG(slug)
+      )
       return response.data
     }
   })

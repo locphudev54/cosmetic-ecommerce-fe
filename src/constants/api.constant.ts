@@ -28,7 +28,7 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string | number) => `/users/${id}`,
     CREATE: '/users',
     UPDATE: (id: string | number) => `/users/${id}`,
-    DELETE: (id: string | number) => `/users/${id}`,
+    DELETE: (id: string | number) => `/users/${id}/soft`,
     BULK_DELETE: '/users/bulk-delete',
     EXPORT: '/users/export',
     IMPORT: '/users/import'
@@ -40,18 +40,20 @@ export const API_ENDPOINTS = {
     DETAIL: (id: string) => `/products/${id}`,
     CREATE: '/products',
     UPDATE: (id: string) => `/products/${id}`,
-    DELETE: (id: string) => `/products/${id}`,
+    DELETE: (id: string) => `/products/${id}/soft`,
     BULK_DELETE: '/products/bulk-delete',
-    BY_SLUG: (slug: string) => `/products/by-slug/${slug}`
+    DETAIL_BY_SLUG: (slug: string) => `/products/by-slug/${slug}`
   },
 
   // Collections
   COLLECTIONS: {
     LIST: '/collections',
     DETAIL: (id: string) => `/collections/${id}`,
+    DETAIL_BY_SLUG: (slug: string) => `/collections/slug/${slug}`,
     CREATE: '/collections',
     UPDATE: (id: string) => `/collections/${id}`,
-    DELETE: (id: string) => `/collections/${id}`
+    DELETE: (id: string) => `/collections/${id}/soft`,
+    DERIVE_FROM_PRODUCTS: '/collections/derive-from-products'
   },
 
   // Categories

@@ -33,6 +33,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
   const dialog = useDialog()
 
   const [parentAttributes, setParentAttributes] = React.useState<Attribute[]>([])
+  const isFirstlyInit = React.useRef(true)
 
   const form = useForm<UpsertCategoryFormValues>({
     resolver: zodResolver(createCategorySchema),
@@ -118,7 +119,12 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
 
   const handleSelectParentCategory = React.useCallback(
     async (selectedCategories: Array<{ categoryId: string; isPrimary: boolean }>) => {
-      // Select single parent category
+      if (isFirstlyInit.current && selectedCategories.length > 0) {
+        isFirstlyInit.current = false
+        return
+      }
+
+      // Select single parent category as a primary category
       const selectedId = selectedCategories.length > 0 ? selectedCategories[0].categoryId : null
       form.setValue('parentId', selectedId)
 
@@ -300,7 +306,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                           <TypographyMuted>Danh mục cha</TypographyMuted>
                         </FieldLabel>
                         <CategorySelection
-                          initialParentCategoryIds={initialParentIds}
+                          initialSelectedParentCategoryIds={initialParentIds}
                           onChange={handleSelectParentCategory}
                         />
                         {fieldState.invalid && <FieldError errors={[fieldState.error]} />}

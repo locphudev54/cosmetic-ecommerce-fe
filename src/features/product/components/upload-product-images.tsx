@@ -42,7 +42,7 @@ export interface UploadedImage {
 }
 
 interface ImageUploadProps {
-  maxImages?: number
+  maxFiles?: number
   onChange?: (images: Array<{ url: string; displayOrder?: number; altText?: string }>) => void
   error?: { message?: string }
   initialImages?: Array<{ url: string; altText?: string | null; displayOrder?: number }>
@@ -52,7 +52,7 @@ const ORIGINAL_FIRST_ROW_IMAGES_QUANTITY = 5
 const MAX_FIRST_ROW_IMAGES_QUANTITY = 7
 
 export default function UploadProductImages({
-  maxImages = 5,
+  maxFiles = 5,
   onChange,
   error,
   initialImages
@@ -131,8 +131,8 @@ export default function UploadProductImages({
   const handleImmediateUpload = async (files: File[]) => {
     if (!files || files.length === 0) return
 
-    if (images.length + files.length > maxImages) {
-      toast.error(`You can only upload up to ${maxImages} images.`)
+    if (images.length + files.length > maxFiles) {
+      toast.error(`You can only upload up to ${maxFiles} images.`)
       return
     }
 
@@ -182,7 +182,7 @@ export default function UploadProductImages({
     )
   }, [images, onChange])
 
-  const hasMaxImages = images.length >= maxImages
+  const hasMaxImages = images.length >= maxFiles
   const hasMoreImage = images.length > ORIGINAL_FIRST_ROW_IMAGES_QUANTITY
   const imageIds = images.map((img) => img.id)
   const primaryImage = images[0] // Always show the first image as the featured image
@@ -198,19 +198,6 @@ export default function UploadProductImages({
 
   return (
     <div>
-      {/* <input
-        id='product_images'
-        ref={inputRef}
-        type='file'
-        multiple
-        accept='image/*'
-        onChange={(e) => {
-          handleFileSelect(e.target.files ? Array.from(e.target.files) : null)
-          e.target.value = '' // Reset the input so the same file can be uploaded again if needed
-        }}
-        className='hidden'
-      /> */}
-
       <div className='mb-3 h-5'>
         {selectImageIds.length === 0 ? (
           <FieldLabel htmlFor='product_images'>
@@ -334,6 +321,7 @@ export default function UploadProductImages({
                           multiple
                           label='Upload Images'
                           mode='immediate'
+                          maxFiles={maxFiles - images.length}
                           onUpload={handleImmediateUpload}
                         />
                       </div>
@@ -387,7 +375,8 @@ export default function UploadProductImages({
                       <ImageUploadButton
                         label='Upload Images'
                         multiple
-                        mode='default'
+                        mode='immediate'
+                        maxFiles={maxFiles - images.length}
                         onChange={handleImmediateUpload}
                       />
                     </div>
@@ -432,6 +421,7 @@ export default function UploadProductImages({
         <ImageUploadButton
           label='Upload Images'
           multiple
+          maxFiles={maxFiles - images.length}
           className='h-36'
           mode='immediate'
           onUpload={handleImmediateUpload}

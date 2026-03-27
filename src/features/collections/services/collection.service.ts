@@ -1,7 +1,9 @@
 import { API_ENDPOINTS } from '@/constants/api.constant'
 import {
   Collection,
+  CollectionDetailBySlug,
   CreateCollectionDto,
+  DeriveFromProductsDto,
   FindAllCollectionsQueryParams,
   UpdateCollectionDto
 } from '@/features/collections/types'
@@ -22,6 +24,13 @@ export const collectionService = {
     return response.data
   },
 
+  async getCollectionBySlug(slug: string): Promise<CollectionDetailBySlug> {
+    const response = await apiClient.get<CollectionDetailBySlug>(
+      API_ENDPOINTS.COLLECTIONS.DETAIL_BY_SLUG(slug)
+    )
+    return response.data
+  },
+
   async createCollection(data: CreateCollectionDto): Promise<Collection> {
     const response = await apiClient.post<Collection>(API_ENDPOINTS.COLLECTIONS.CREATE, data)
     return response.data
@@ -38,5 +47,13 @@ export const collectionService = {
 
   async bulkDeleteCollections(ids: string[]): Promise<void> {
     await Promise.all(ids.map((id) => apiClient.delete(API_ENDPOINTS.COLLECTIONS.DELETE(id))))
+  },
+
+  async deriveFromProducts(dto: DeriveFromProductsDto): Promise<{
+    attributes: { id: string; name: string; slug: string; displayName: string | null }[]
+    categories: { id: string; name: string; slug: string; parentId: string | null; depth: number }[]
+  }> {
+    const response = await apiClient.post(API_ENDPOINTS.COLLECTIONS.DERIVE_FROM_PRODUCTS, dto)
+    return response.data
   }
 }

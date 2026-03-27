@@ -91,7 +91,7 @@ export const productSchema = z
     brandId: z.uuid('ID thương hiệu không hợp lệ'),
     countryOriginId: z.uuid('ID quốc gia xuất xứ không hợp lệ'),
     categories: z.array(productCategorySchema).min(1, { error: 'Phải có ít nhất một danh mục' }),
-    images: z.array(productImageSchema).optional(),
+    images: z.array(productImageSchema).min(1, { error: 'Phải có ít nhất một hình ảnh' }),
     variants: z.array(productVariantSchema).optional()
   })
   .refine(

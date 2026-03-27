@@ -35,7 +35,7 @@ import { useDialog } from '@/hooks/use-dialog'
 import { handleApiError } from '@/lib/utils'
 import { generateProductCode } from '@/utilts/client.utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { CirclePlus, Eye } from 'lucide-react'
+import { CirclePlus, Edit, Eye, Plus } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import React from 'react'
@@ -61,8 +61,7 @@ export default function UpsertProductForm({ productId }: { productId?: string })
       name: '',
       description: '',
       status: ProductStatus.PUBLISHED,
-      basePrice: 0,
-      categories: []
+      basePrice: 0
     }
   })
 
@@ -463,7 +462,7 @@ export default function UpsertProductForm({ productId }: { productId?: string })
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <UploadProductImages
-                      maxImages={10}
+                      // maxFiles={10}
                       onChange={field.onChange}
                       error={fieldState.error}
                       initialImages={initialImages}
@@ -488,7 +487,7 @@ export default function UpsertProductForm({ productId }: { productId?: string })
                       multiSelect
                       onChange={field.onChange}
                       error={fieldState.error}
-                      initialParentCategoryIds={initialCategoryIds}
+                      initialSelectedParentCategoryIds={initialCategoryIds}
                     />
                   </Field>
                 )}
@@ -523,14 +522,34 @@ export default function UpsertProductForm({ productId }: { productId?: string })
         <div className='col-span-3'>
           <div className='sticky top-3'>
             {/* Action buttons */}
-            <div className='inline-flex flex-col items-center justify-center gap-x-2 md:flex-row'>
-              <Button type='button' variant={'outline'}>
-                <Eye />
-                View
-              </Button>
-              <Button type='submit' variant={'blue_gradient'}>
-                {isEditMode ? 'Cập nhật' : 'Tạo mới'}
-              </Button>
+            <div className='flex flex-col items-center justify-end gap-x-2 md:flex-row'>
+              {isEditMode && (
+                <Button type='button' variant={'outline'}>
+                  <Eye />
+                  View
+                </Button>
+              )}
+              {isEditMode ? (
+                <Button
+                  type='submit'
+                  variant={'blue_gradient'}
+                  disabled={isSubmitting}
+                  className='min-w-24'
+                >
+                  <Edit />
+                  {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
+                </Button>
+              ) : (
+                <Button
+                  type='submit'
+                  variant={'blue_gradient'}
+                  disabled={isSubmitting}
+                  className='min-w-24'
+                >
+                  <Plus />
+                  {isSubmitting ? 'Đang tạo...' : 'Tạo mới'}
+                </Button>
+              )}
             </div>
 
             <Card className='mt-3'>

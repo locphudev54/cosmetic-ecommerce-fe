@@ -83,7 +83,7 @@ export const getCollectionColumns = (
     id: 'slug',
     accessorKey: 'slug',
     header: ({ column }) => <DataTableColumnHeader label='Slug' column={column} />,
-    cell: ({ row }) => <div className='max-w-32 truncate'>{row.original.slug}</div>,
+    cell: ({ row }) => <div className='truncate'>{row.original.slug}</div>,
     meta: {
       label: 'Slug',
       placeholder: 'Tìm theo slug...',

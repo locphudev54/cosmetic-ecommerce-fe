@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from '@/constants/api.constant'
+import { JSON_WEB_TOKEN_KEYS } from '@/constants/cookies.constant'
 import { Attribute, ATTRIBUTE_QUERY_KEYS } from '@/features/attributes'
 import UpsertCategoryForm from '@/features/categories/components/upsert-category-form'
 import { getServerQueryClient } from '@/lib/query-client'
@@ -9,7 +10,7 @@ import { cookies } from 'next/headers'
 
 export default async function Page() {
   const cookieStore = await cookies()
-  const accessToken = cookieStore.get('accessToken')?.value
+  const accessToken = cookieStore.get(JSON_WEB_TOKEN_KEYS.ACCESS_TOKEN)?.value
   const queryClient = getServerQueryClient()
 
   await queryClient.fetchQuery({

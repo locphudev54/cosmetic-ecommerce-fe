@@ -1,40 +1,30 @@
 'use client'
 
 import { AdvancedSearchBar } from '@/components/common/advanced-search-bar'
+import { ImageUploadButton } from '@/components/common/image-upload-button'
 import ReturnBack from '@/components/common/return-back'
 import { TypographyH3, TypographyMuted } from '@/components/common/typography'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import { Dialog } from '@/components/ui/dialog'
 import {
   Field,
   FieldContent,
   FieldDescription,
   FieldError,
-  FieldGroup,
   FieldLabel
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog'
-import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
+import { Separator } from '@/components/ui/separator'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { ROUTES } from '@/constants/route.constant'
@@ -44,17 +34,24 @@ import {
   useCreateCollection,
   useUpdateCollection
 } from '@/features/collections/hooks'
-import { UpsertCollectionFormValues, createCollectionSchema } from '@/features/collections/schemas'
+import { UpsertCollectionFormValues, upsertCollectionSchema } from '@/features/collections/schemas'
 import CategorySelection from '@/features/product/components/category-selection'
+import VerticallySortableProductList from '@/features/product/components/vertically-sortable-product-list'
+import { useProducts } from '@/features/product/hooks'
+import { productService } from '@/features/product/services'
+import { PartialProduct, Product } from '@/features/product/types'
+import { useUploadSingleImage } from '@/features/upload/hooks/use-upload'
+import { useDebouncedCallback } from '@/hooks/use-debounced-callback'
+import { useDialog } from '@/hooks/use-dialog'
 import { handleApiError } from '@/lib/utils'
 import { slugifyString } from '@/utilts/client.utils'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { Edit, Plus } from 'lucide-react'
+import { Edit, Eye, Plus, Zap } from 'lucide-react'
+import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'sonner'
-import { useDialog } from '@/hooks/use-dialog'
 
 interface UpsertCollectionFormProps {
   collectionId?: string
@@ -63,25 +60,34 @@ interface UpsertCollectionFormProps {
 export default function UpsertCollectionForm({ collectionId }: UpsertCollectionFormProps) {
   const router = useRouter()
   const dialog = useDialog()
+
+  // local state
   const [collectionType, setCollectionType] = React.useState<CollectionType>(CollectionType.MANUAL)
+  const [selectedProducts, setSelectedProducts] = React.useState<PartialProduct[]>([])
+  const [collectionThumbnailFile, setCollectionThumbnailFile] = React.useState<File | null>(null)
 
   const form = useForm<UpsertCollectionFormValues>({
-    resolver: zodResolver(createCollectionSchema),
+    resolver: zodResolver(upsertCollectionSchema),
     defaultValues: {
       title: '',
       slug: '',
       description: '',
-      imageUrl: '',
+      imageUrl: undefined,
       isActive: true,
       metaTitle: '',
       metaDescription: ''
     }
   })
 
-  const { data: collectionData } = useCollection(collectionId)
+  const { data: collectionData, error } = useCollection(collectionId)
+  const initialCategoryIds = React.useMemo(
+    () => (collectionData?.categories || []).map((c) => c.categoryId),
+    [collectionData]
+  )
 
   const createCollectionMutation = useCreateCollection()
   const updateCollectionMutation = useUpdateCollection()
+  const uploadSingleImageMutation = useUploadSingleImage()
   const isSubmitting = createCollectionMutation.isPending || updateCollectionMutation.isPending
 
   React.useEffect(() => {
@@ -90,11 +96,28 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
         title: collectionData.title,
         slug: collectionData.slug,
         description: collectionData.description || '',
-        imageUrl: collectionData.imageUrl || '',
+        imageUrl: collectionData.imageUrl || undefined,
         isActive: collectionData.isActive,
         metaTitle: collectionData.metaTitle || '',
-        metaDescription: collectionData.metaDescription || ''
+        metaDescription: collectionData.metaDescription || '',
+        products: collectionData.products?.map((p) => ({
+          productId: p.product.id,
+          displayOrder: p.displayOrder
+        }))
       })
+
+      if (collectionData.products?.length) {
+        // sync initial product list to the state for the drag-and-drop list component
+        const initialProducts: PartialProduct[] = collectionData.products.map((p) => ({
+          id: p.product.id,
+          basePrice: p.product.basePrice,
+          images: p.product.images,
+          name: p.product.name,
+          slug: p.product.slug,
+          status: p.product.status
+        }))
+        setSelectedProducts(initialProducts)
+      }
     }
   }, [collectionData, form])
 
@@ -105,12 +128,115 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
     }
   }
 
+  const handleBrowseProducts = async () => {
+    const selectedProductIds = form.getValues('products')?.map((p) => p.productId) || []
+    const result = await dialog.open('browse-products', { selectedProductIds })
+
+    if (result && result.data.length > 0) {
+      const selectedProducts = result.data
+
+      setSelectedProducts(
+        selectedProducts.map((p: Product) => ({
+          id: p.id,
+          basePrice: +p.basePrice,
+          images: (p.images || []).map((img) => ({ url: img.url, alt: img.altText || '' })),
+          name: p.name,
+          slug: p.slug,
+          status: p.status
+        }))
+      )
+
+      form.setValue(
+        'products',
+        selectedProducts.map((p: Product, index: number) => ({
+          productId: p.id,
+          displayOrder: index + 1
+        }))
+      )
+    }
+  }
+
   const handleChangeCollectionType = (value: string) => {
     setCollectionType(value as CollectionType)
   }
 
+  const handleFileChange = (files: File[]) => {
+    const file = files[0]
+    setCollectionThumbnailFile(file)
+  }
+
+  const handleDragProducts = (sortedProducts: PartialProduct[]) => {
+    setSelectedProducts(sortedProducts)
+    form.setValue(
+      'products',
+      sortedProducts.map((p: PartialProduct, index: number) => ({
+        productId: p.id,
+        displayOrder: index + 1
+      }))
+    )
+  }
+
+  const fetchAndSetProductsByCategoryIds = useDebouncedCallback(async (categoryIds: string[]) => {
+    if (categoryIds.length === 0) {
+      setSelectedProducts([])
+      form.setValue('products', [])
+      return
+    }
+
+    const { data: products } = await productService.getProductsOffset({ categoryIds, limit: 100 }) // TODO: handle pagination if there are more than 100 products
+
+    const newSelectedProducts: PartialProduct[] = products.map((p) => ({
+      id: p.id,
+      basePrice: +p.basePrice,
+      images: (p.images || []).map((img) => ({ url: img.url, alt: img.altText || '' })),
+      name: p.name,
+      slug: p.slug,
+      status: p.status
+    }))
+
+    const currentProductIdsInForm = form.getValues('products')?.map((p) => p.productId) || []
+
+    const hasIncluedAllProductsInForm =
+      currentProductIdsInForm.length > 0 &&
+      currentProductIdsInForm.every((currentProductId) =>
+        newSelectedProducts.some((newProduct) => newProduct.id === currentProductId)
+      )
+
+    if (hasIncluedAllProductsInForm) {
+      toast('Các sản phẩm trong bộ sưu tập đã được cập nhật dựa trên danh mục đã chọn.', {
+        icon: <Zap />
+      })
+      return
+    }
+
+    setSelectedProducts(newSelectedProducts)
+    form.setValue(
+      'products',
+      newSelectedProducts.map((p: PartialProduct, index: number) => ({
+        productId: p.id,
+        displayOrder: index + 1
+      }))
+    )
+  }, 800)
+
+  const handleSelectCategories = React.useCallback(
+    async (categories: Array<{ categoryId: string; isPrimary: boolean }>) => {
+      const categoryIds = categories.map((c) => c.categoryId)
+      fetchAndSetProductsByCategoryIds(categoryIds)
+    },
+    [fetchAndSetProductsByCategoryIds]
+  )
+
   const onSubmit = async (data: UpsertCollectionFormValues) => {
     try {
+      if (collectionThumbnailFile) {
+        const uploadResult = await uploadSingleImageMutation.mutateAsync({
+          file: collectionThumbnailFile,
+          params: { folder: 'collection-thumbnails' }
+        })
+        data.imageUrl = uploadResult.url
+      }
+
       if (collectionId) {
         await updateCollectionMutation.mutateAsync({ id: collectionId, data })
       } else {
@@ -124,13 +250,17 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
     }
   }
 
+  if (error) {
+    throw error
+  }
+
   return (
     <form onSubmit={form.handleSubmit(onSubmit, console.error)} className='pb-10'>
       <ReturnBack />
       <div className='grid grid-cols-12 gap-x-4'>
-        <div className='col-span-9'>
+        <div className='col-span-8'>
           <TypographyH3>Bộ sưu tập</TypographyH3>
-          <div className='flex flex-col gap-y-4'>
+          <div className='mt-4 flex flex-col gap-y-4'>
             <Card className=''>
               <CardContent className='flex flex-col gap-y-4'>
                 <div className='grid grid-cols-1 gap-x-4 md:grid-cols-3 lg:grid-cols-5'>
@@ -217,7 +347,7 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
             </Card>
 
             {/* Collection Type */}
-            <Card className=''>
+            <Card>
               <CardContent className='flex flex-col gap-y-4'>
                 <RadioGroup
                   value={collectionType}
@@ -252,35 +382,28 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
                     </FieldContent>
                   </Field>
                 </RadioGroup>
+
+                {collectionType === CollectionType.CATEGORY_BASED && (
+                  <Field>
+                    <FieldLabel htmlFor='category' className='flex justify-between'>
+                      <TypographyMuted>Danh mục</TypographyMuted>
+                    </FieldLabel>
+                    <CategorySelection
+                      multiSelect
+                      canSelectPrimaryCategory={false}
+                      onChange={handleSelectCategories}
+                      initialSelectedParentCategoryIds={initialCategoryIds}
+                    />
+                  </Field>
+                )}
               </CardContent>
             </Card>
 
             {/* Category Selection & Product Browse */}
             <Card className=''>
               <CardContent className='flex flex-col gap-y-4'>
-                {collectionType === CollectionType.CATEGORY_BASED && (
-                  <Controller
-                    name='categories'
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field data-invalid={fieldState.invalid}>
-                        <FieldLabel htmlFor='category' className='flex justify-between'>
-                          <TypographyMuted>Danh mục</TypographyMuted>
-                        </FieldLabel>
-                        <CategorySelection
-                          multiSelect
-                          canSelectPrimaryCategory={false}
-                          onChange={field.onChange}
-                          error={fieldState.error}
-                          // initialParentCategoryIds={initialCategoryIds}
-                        />
-                      </Field>
-                    )}
-                  />
-                )}
-
                 <Controller
-                  name='categories'
+                  name='products'
                   control={form.control}
                   render={({ field, fieldState }) => (
                     <Field data-invalid={fieldState.invalid}>
@@ -295,9 +418,7 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
                               <Button
                                 type='button'
                                 variant='outline'
-                                onClick={async () => {
-                                  await dialog.open('browse-products', undefined)
-                                }}
+                                onClick={handleBrowseProducts}
                               >
                                 Browse
                               </Button>
@@ -321,11 +442,75 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
                     </Field>
                   )}
                 />
+
+                <Separator />
+                {/* Drag-and-Drop Selected Product List Area */}
+                <VerticallySortableProductList
+                  initialProducts={selectedProducts}
+                  onChange={handleDragProducts}
+                />
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+        <div className='col-span-4'>
+          <div className='sticky top-3'>
+            <div className='flex items-center justify-end gap-x-3'>
+              {collectionId && collectionData?.slug && (
+                <Link href={ROUTES.COLLECTIONS.DETAIL(collectionData.slug)} target='_blank'>
+                  <Button type='button' variant={'outline'}>
+                    <Eye />
+                    View
+                  </Button>
+                </Link>
+              )}
+
+              {collectionId ? (
+                <Button type='submit' variant={'blue_gradient'} disabled={isSubmitting}>
+                  <Edit />
+                  {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
+                </Button>
+              ) : (
+                <Button type='submit' variant={'blue_gradient'} disabled={isSubmitting}>
+                  <Plus />
+                  {isSubmitting ? 'Đang tạo...' : 'Tạo mới'}
+                </Button>
+              )}
+            </div>
+
+            <Card className='mt-3'>
+              <CardContent className='flex flex-col gap-y-4'>
+                <Controller
+                  name='isActive'
+                  control={form.control}
+                  render={({ field }) => (
+                    <Field>
+                      <div className='flex items-center space-x-2'>
+                        <Switch
+                          id='collection_active'
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isSubmitting}
+                        />
+                        <Label htmlFor='collection_active'>
+                          <TypographyMuted>Kích hoạt</TypographyMuted>
+                        </Label>
+                      </div>
+                    </Field>
+                  )}
+                />
+
+                <ImageUploadButton
+                  className='max-h-40'
+                  maxFiles={1}
+                  uploadedImageUrls={[form.getValues('imageUrl')].filter(Boolean) as string[]}
+                  onChange={handleFileChange}
+                  label='Click or drag images here to upload'
+                />
               </CardContent>
             </Card>
 
-            {/* Status & SEO */}
-            <Card className=''>
+            <Card className='mt-3'>
               <CardContent className='flex flex-col gap-y-4'>
                 <Controller
                   name='metaTitle'
@@ -361,57 +546,6 @@ export default function UpsertCollectionForm({ collectionId }: UpsertCollectionF
                         disabled={isSubmitting}
                         {...field}
                       />
-                    </Field>
-                  )}
-                />
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-        <div className='col-span-3'>
-          <div className='sticky top-3'>
-            <div className='flex items-center justify-end'>
-              {collectionId ? (
-                <Button
-                  type='submit'
-                  variant={'blue_gradient'}
-                  disabled={isSubmitting}
-                  className='min-w-24'
-                >
-                  <Edit />
-                  {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
-                </Button>
-              ) : (
-                <Button
-                  type='submit'
-                  variant={'blue_gradient'}
-                  disabled={isSubmitting}
-                  className='min-w-24'
-                >
-                  <Plus />
-                  {isSubmitting ? 'Đang tạo...' : 'Tạo mới'}
-                </Button>
-              )}
-            </div>
-
-            <Card className='mt-3'>
-              <CardContent className='flex flex-col gap-y-4'>
-                <Controller
-                  name='isActive'
-                  control={form.control}
-                  render={({ field }) => (
-                    <Field>
-                      <div className='flex items-center space-x-2'>
-                        <Switch
-                          id='collection_active'
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={isSubmitting}
-                        />
-                        <Label htmlFor='collection_active'>
-                          <TypographyMuted>Kích hoạt</TypographyMuted>
-                        </Label>
-                      </div>
                     </Field>
                   )}
                 />

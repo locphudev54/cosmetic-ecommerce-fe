@@ -57,7 +57,6 @@ export interface PaginationQueryParams {
   paginationType?: PaginationType
   page?: number
   limit?: number
-  sortBy?: string
   sortOrder?: SortOrder
   cursor?: string
 }
