@@ -9,7 +9,7 @@ import { cn } from '@/lib/utils'
 import { fuzzySearch } from '@/utilts/fuzzy-search.utils'
 
 export interface FilterItem {
-  id: string | number
+  id: string
   name: string
 }
 
@@ -17,19 +17,21 @@ interface CollapsibleFilterProps {
   title: string
   items: FilterItem[]
   /** Externally controlled selected IDs (e.g. from URL state). When provided, the component is "controlled". */
-  selectedIds?: (string | number)[]
-  onSelectionChange?: (selectedIds: (string | number)[]) => void
+  selectedIds?: string[]
+  onSelectionChange?: (selectedIds: string[]) => void
+  defaultExpanded?: boolean
 }
 
 export function CollapsibleFilter({
   title,
   items,
   selectedIds: controlledSelectedIds,
-  onSelectionChange
+  onSelectionChange,
+  defaultExpanded = false
 }: CollapsibleFilterProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded)
   const [searchQuery, setSearchQuery] = useState('')
-  const [internalSelectedIds, setInternalSelectedIds] = useState<Set<string | number>>(new Set())
+  const [internalSelectedIds, setInternalSelectedIds] = useState<Set<string>>(new Set())
   const scrollContainerRef = useRef<HTMLDivElement>(null)
   const [canScrollUp, setCanScrollUp] = useState(false)
   const [canScrollDown, setCanScrollDown] = useState(false)
@@ -74,7 +76,7 @@ export function CollapsibleFilter({
     checkScrollButtons()
   }
 
-  const handleCheckboxChange = (itemId: string | number, checked: boolean) => {
+  const handleCheckboxChange = (itemId: string, checked: boolean) => {
     const newSet = new Set(effectiveSelectedIds)
     if (checked) {
       newSet.add(itemId)

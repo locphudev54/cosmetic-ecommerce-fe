@@ -6,12 +6,13 @@ import { useCollectionDetailBySlug } from '@/features/collections'
 import { useCountriesOfOrigin } from '@/features/country-of-origin'
 import { useProducts } from '@/features/product/hooks'
 import { useProductFilterParams } from '@/features/product/hooks/use-product-filter-params'
+import React from 'react'
 
-interface CollectionPageProps {
+interface CollectionOffsetVersionPageProps {
   slug: string
 }
 
-export default function CollectionPage({ slug }: CollectionPageProps) {
+export default function CollectionOffsetVersionPage({ slug }: CollectionOffsetVersionPageProps) {
   // ─── URL-synced filter state ──────────────────────────────────────────
   const { queryParams, setQueryParams, debouncedQueryParams, resetFilters } =
     useProductFilterParams({
@@ -26,6 +27,8 @@ export default function CollectionPage({ slug }: CollectionPageProps) {
 
   // ─── Offset-based pagination with debounced filter params ─────────────
   const { data: productData, isLoading, isFetching } = useProducts(debouncedQueryParams)
+
+  const [locValue, setLocValue] = React.useState(0)
 
   const products = productData?.data ?? []
   const totalPages = productData?.meta?.totalPages ?? 0
@@ -46,11 +49,19 @@ export default function CollectionPage({ slug }: CollectionPageProps) {
       }))
     : []
 
+  const categoryFilterItems: FilterItem[] = collectionData?.categories
+    ? collectionData.categories.map(({ category }) => ({
+        id: category.id,
+        name: category.name
+      }))
+    : []
+
   const hasActiveFilters =
     queryParams.brandIds.length > 0 ||
     queryParams.countryIds.length > 0 ||
     queryParams.searchQuery !== '' ||
-    queryParams.status.length > 0
+    queryParams.status.length > 0 ||
+    queryParams.categoryIds.length > 0
 
   return (
     <div className='customer-page-container'>
@@ -70,6 +81,44 @@ export default function CollectionPage({ slug }: CollectionPageProps) {
               selectedIds={queryParams.countryIds}
               onSelectionChange={(ids) => setQueryParams({ countryIds: ids as string[] })}
             />
+
+            <CollapsibleFilter
+              title='Danh mục'
+              items={categoryFilterItems}
+              selectedIds={queryParams.categoryIds}
+              onSelectionChange={(ids) => setQueryParams({ categoryIds: ids as string[] })}
+            />
+
+            {/* Attribute Filter */}
+            {collectionData?.attributes &&
+              collectionData.attributes.map(({ attribute }) => {
+                const attributeFilterItems: FilterItem[] = attribute.values.map(
+                  (attributeValue) => ({
+                    id: attributeValue.id,
+                    name: attributeValue.value
+                  })
+                )
+
+                const selectedValueIds = queryParams.attributes
+                  ? queryParams.attributes
+                      .filter((attr) => attr.attributeId === attribute.id)
+                      .flatMap((attr) => attr.valueIds)
+                  : []
+
+                return (
+                  <CollapsibleFilter
+                    key={attribute.id}
+                    title={attribute.name}
+                    items={attributeFilterItems}
+                    selectedIds={selectedValueIds}
+                    onSelectionChange={(ids) =>
+                      setQueryParams({
+                        attributes: [{ attributeId: attribute.id, valueIds: ids as string[] }]
+                      })
+                    }
+                  />
+                )
+              })}
 
             {/* Reset all filters */}
             {hasActiveFilters && (
@@ -116,6 +165,7 @@ export default function CollectionPage({ slug }: CollectionPageProps) {
                 boundaryCount={1}
                 className='mt-8'
               />
+              {/* <LocComponent value={locValue} onChange={setLocValue} /> */}
             </>
           )}
 

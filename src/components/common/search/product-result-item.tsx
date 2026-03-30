@@ -2,8 +2,8 @@ import React from 'react'
 import Image from 'next/image'
 import { cn } from '@/lib/utils'
 import { HighlightedText } from './highlighted-text'
-import { Product } from '@/features/product/types'
 import { ProductDocument } from '@/features/search/types/search.types'
+import { formatNumberToVnCurrency } from '@/utilts/client.utils'
 
 interface ProductResultItemProps {
   product: ProductDocument
@@ -18,9 +18,7 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
   onSelect,
   isHovered
 }) => {
-  // const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
-  const displayPrice =
-    typeof product.basePrice === 'string' ? parseFloat(product.basePrice) : product.basePrice
+  const primaryImage = product.images && product.images.length > 0 ? product.images[0] : null
 
   return (
     <button
@@ -31,7 +29,7 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
       )}
     >
       <div className='flex gap-3'>
-        {/* {primaryImage && (
+        {primaryImage && (
           <div className='h-12 w-12 flex-shrink-0 rounded border bg-slate-200'>
             <Image
               src={primaryImage.url}
@@ -41,13 +39,15 @@ export const ProductResultItem: React.FC<ProductResultItemProps> = ({
               height={48}
             />
           </div>
-        )} */}
+        )}
         <div className='min-w-0 flex-1'>
           <p className='truncate text-sm font-semibold text-gray-900'>
             <HighlightedText text={product.name} query={query} />
           </p>
           <p className='truncate text-xs text-gray-500'>{product.brand?.name}</p>
-          <p className='mt-1 text-sm font-bold text-blue-600'>${displayPrice.toFixed(2)}</p>
+          <p className='mt-1 text-sm font-bold text-blue-600'>
+            {formatNumberToVnCurrency(product.basePrice)}
+          </p>
         </div>
       </div>
     </button>

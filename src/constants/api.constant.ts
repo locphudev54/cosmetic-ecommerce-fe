@@ -107,3 +107,8 @@ export const API_ENDPOINTS = {
 export const EXPIRED_ACCESS_TOKEN_MESSAGE = 'Access token has expired'
 
 export const OAUTH_ERROR_MESSAGE = 'oauth_failed'
+
+export const DEFAULT_PAGINATION_FILTER = {
+  page: 1,
+  limit: 25
+} as const

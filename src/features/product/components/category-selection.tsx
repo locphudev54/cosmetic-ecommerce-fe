@@ -156,7 +156,7 @@ function CategorySelection({
     }
   }, [clearSelection])
 
-  // Sync selectedLeafCategories + primaryCategoryId to the parent form field
+  // Sync selectedCategories + primaryCategoryId to the parent form field
   React.useEffect(() => {
     if (!onChange) return
 
@@ -244,11 +244,6 @@ function CategorySelection({
     // )
     setOpen(false)
   }, [canSelectPrimaryCategory, multiSelect, selectedCategories, setPrimaryCategoryId])
-
-  // Sync selection changes to the store
-  // React.useEffect(() => {
-  //   selectedCategories.forEach((cat) => toggleSelect(cat.id))
-  // }, [selectedCategories, toggleSelect])
 
   return (
     <React.Fragment>

@@ -15,7 +15,7 @@ export default function HomeLayout({ children }: { children: React.ReactNode }) 
       <main className='grow'>
         <React.Suspense
           fallback={
-            <div className='flex min-h-[50vh] items-center justify-center text-lg text-gray-500'>
+            <div className='flex min-h-[50vh] items-center justify-center text-lg text-gray-600'>
               Vui lòng truy cập lại website sau khoảng 5 phút nếu có lỗi xảy ra
             </div>
           }

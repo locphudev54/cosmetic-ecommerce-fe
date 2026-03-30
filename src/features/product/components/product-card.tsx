@@ -1,12 +1,23 @@
 import { ROUTES } from '@/constants/route.constant'
 import { Product } from '@/features/product/types'
+import { ProductDocument } from '@/features/search/types/search.types'
 import { formatNumberToVnCurrency } from '@/utilts/client.utils'
 import { Eye, ShoppingBag } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 
+/**
+ * Base type representing the minimum fields ProductCard needs.
+ * Both `Product` (from PG via home page) and `ProductDocument` (from ES via collection page)
+ * satisfy this type, so ProductCard works with both data sources.
+ */
+export type ProductCardData = Pick<Product, 'slug' | 'name' | 'basePrice'> & {
+  brand?: { name: string } | null
+  images?: Array<{ url: string }> | null
+}
+
 interface Props {
-  product: Product
+  product: ProductCardData
 }
 
 export default function ProductCard(props: Props) {
@@ -34,13 +45,6 @@ export default function ProductCard(props: Props) {
           <Eye size={18} />
         </div>
 
-        {/* Discount percent */}
-        {/* {product.discountPercentage > 0 && (
-          <span className='bg-originalRed absolute left-0 top-0 rounded-sm px-1.5 py-1 text-xs text-white'>
-            {product.discountPercentage + '%'}
-          </span>
-        )} */}
-
         {/* Brand */}
         <span className='text-tiny mt-4 line-clamp-1 min-h-5 font-medium text-gray-400'>
           {product.brand?.name}
@@ -53,29 +57,6 @@ export default function ProductCard(props: Props) {
         <div className='text-business-secondary mt-2.5 font-bold'>
           {formatNumberToVnCurrency(+product.basePrice)}
         </div>
-
-        {/* stockONHand */}
-        {/* Original price */}
-        {/* {product.salePrice < product.price && (
-          <React.Fragment>
-            <span className="relative font-extralight text-gray-400 before:absolute before:left-[50%] before:h-[0.75px] before:w-[100%] before:-translate-x-[50%] before:translate-y-2.5 before:bg-gray-400 before:content-['']">
-              {formatNumberToVnCurrency(product.basePrice)}
-            </span>
-            <div className='mt-3 flex items-end gap-x-1'>
-              <div className='aspect-[3/2] h-6 pl-1.5'>
-                <Image
-                  sizes='100vw'
-                  width={0}
-                  height={0}
-                  className="h-full w-full object-cover animate-scale"
-                  alt='sale-icon'
-                  src={'/hot-deal-icon.webp'}
-                />
-              </div>
-              <span className='ml-3 text-xs font-medium text-[#ff6f27]'>Chỉ còn {product.stockQuantity} sản phẩm</span>
-            </div>
-          </React.Fragment>
-        )} */}
 
         {/* Add to cart */}
         <button className='mt-5 mb-2 inline-flex items-center gap-x-2 rounded-full border border-white pl-2.5 font-bold uppercase transition-colors duration-300 hover:border-black'>

@@ -31,11 +31,11 @@ export const useCollection = (id?: string) => {
   })
 }
 
-export const useCollectionDetailBySlug = (slug?: string) => {
+export const useCollectionDetailBySlug = (slug?: string, enabled?: boolean) => {
   return useQuery({
     queryKey: COLLECTION_QUERY_KEYS.detail(slug!),
     queryFn: () => collectionService.getCollectionBySlug(slug!),
-    enabled: !!slug
+    enabled: !!slug && enabled !== false
   })
 }
 

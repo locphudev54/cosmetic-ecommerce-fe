@@ -1,5 +1,6 @@
 // Since QueryClientProvider relies on useContext under the hood, we have to put 'use client' on top
-import { isServer, QueryClient } from '@tanstack/react-query'
+import { isServer } from '@/lib/utils'
+import { QueryClient } from '@tanstack/react-query'
 import { cache } from 'react'
 
 function makeQueryClient() {
@@ -22,7 +23,7 @@ function makeQueryClient() {
         // Refetch on window focus (good for keeping data fresh)
         refetchOnWindowFocus: false,
 
-        // Don't refetch on mount if data is fresh, just refresh if data is stale and the component mounts
+        // Don't refetch on mount if data is fresh, just refresh if data is stale - by invalidate function AND the component mounts
         refetchOnMount: true,
 
         // Refetch on reconnect

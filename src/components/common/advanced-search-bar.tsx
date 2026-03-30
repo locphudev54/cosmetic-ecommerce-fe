@@ -48,11 +48,15 @@ export const AdvancedSearchBar: React.FC<SearchBarProps> = ({
 
     setLoading(true)
 
-    const results = await searchService.searchProducts(searchQuery)
-    const products = results.products || []
-
-    setSuggestions(products.slice(0, 8))
-    setLoading(false)
+    try {
+      const response = await searchService.searchProducts({ searchQuery, limit: 8 })
+      const products = response.data || []
+      setSuggestions(products.slice(0, 8))
+    } catch {
+      setSuggestions([])
+    } finally {
+      setLoading(false)
+    }
   }, 800)
 
   // Debounced search

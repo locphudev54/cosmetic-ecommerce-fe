@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/navigation-menu'
 import Link from 'next/link'
 import { cn } from '@/lib/utils'
+import { ROUTES } from '@/constants/route.constant'
 
 const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWithoutRef<'a'>>(
   ({ className, title, children, ...props }, ref) => {
@@ -36,7 +37,7 @@ ListItem.displayName = 'ListItem'
 
 export default function NavMenu() {
   return (
-    <NavigationMenu className='mx-auto max-w-full'>
+    <NavigationMenu className=''>
       <NavigationMenuList className='space-x-4'>
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
@@ -253,7 +254,7 @@ export default function NavMenu() {
 
         <NavigationMenuItem>
           <NavigationMenuLink asChild>
-            <Link href='/collections/sua-rua-mat-nam-gioi'>
+            <Link href={ROUTES.COLLECTIONS.ALL}>
               <span
                 className={navigationMenuTriggerStyle({
                   className:

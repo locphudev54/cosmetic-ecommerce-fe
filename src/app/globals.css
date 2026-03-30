@@ -312,7 +312,44 @@
     }
 
     .customer-page-container {
-      max-width: 90rem; /* +12rem */
+      max-width: 86rem; /* +12rem */
     }
+  }
+
+  .wipe-bg {
+    transform: translateX(-100%);
+  }
+
+  /* Hover in → enters from left */
+  .wipe-btn:hover .wipe-bg {
+    animation: wipe-in 0.35s ease-out forwards;
+  }
+
+  /* Hover out → continues to the right */
+  .wipe-btn:not(:hover) .wipe-bg {
+    animation: wipe-out 0.45s ease-in forwards;
+  }
+
+  @keyframes wipe-in {
+    from {
+      transform: translateX(-100%);
+    }
+    to {
+      transform: translateX(0%);
+    }
+  }
+
+  @keyframes wipe-out {
+    from {
+      transform: translateX(0%);
+    }
+    to {
+      transform: translateX(100%);
+    }
+  }
+
+  /* Text color change */
+  .wipe-btn:hover {
+    color: white;
   }
 }
