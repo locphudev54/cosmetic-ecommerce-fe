@@ -11,11 +11,9 @@ export default function LocComponent({ value, onChange }: LocComponentProps) {
   const isControlled = value !== undefined && onChange !== undefined
   const effectiveValue = isControlled ? value : internalValue
 
-  debugger
-
   // sync internal state with external value when it changes -> Bad
   // React.useEffect(() => {
-  //   debugger
+  //
   //   setInternalValue(value)
   // }, [value])
 

@@ -23,6 +23,7 @@ export interface UseInfiniteScrollResult<TData> {
   hasNextPage: boolean
   isError: boolean
   error: Error | null
+  totalItems: number
   /** Manually trigger loading the next page */
   fetchNextPage: () => void
   /** Refetch from the beginning */
@@ -134,6 +135,8 @@ export function useInfiniteScroll<TData, TQueryKey extends QueryKey = QueryKey>(
     return () => observer.disconnect()
   }, [handleIntersection, threshold, rootMargin, mode])
 
+  console.log({ data })
+  debugger
   return {
     items,
     sentinelRef,
@@ -142,6 +145,7 @@ export function useInfiniteScroll<TData, TQueryKey extends QueryKey = QueryKey>(
     isFetchingNextPage,
     hasNextPage: hasNextPage ?? false,
     isError,
+    totalItems: data?.pages[0].meta?.totalItems ?? 0,
     error: error ?? null,
     fetchNextPage,
     refetch

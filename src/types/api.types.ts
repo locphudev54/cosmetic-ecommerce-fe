@@ -36,19 +36,19 @@ export class ApiError {
   }
 }
 
-export interface OffsetPaginationMeta {
-  page: number
+export interface PaginationMeta {
   limit: number
-  total: number
-  totalPages: number
+  totalItems: number
   hasPreviousPage: boolean
   hasNextPage: boolean
 }
 
-export interface CursorPaginationMeta {
-  limit: number
-  hasNextPage: boolean
-  hasPreviousPage: boolean
+export interface OffsetPaginationMeta extends PaginationMeta {
+  page: number
+  totalPages: number
+}
+
+export interface CursorPaginationMeta extends PaginationMeta {
   nextCursor: string | null
   previousCursor: string | null
 }
@@ -58,6 +58,7 @@ export interface PaginationQueryParams {
   page?: number
   limit?: number
   sortOrder?: SortOrder
+  sortBy?: string
   cursor?: string
 }
 

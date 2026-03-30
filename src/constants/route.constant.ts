@@ -22,7 +22,7 @@ export const ROUTES = {
 
   // Collections
   COLLECTIONS: {
-    HOME: '/collections',
+    ALL: '/collections/all',
     DETAIL: (slug: string) => `/collections/${slug}`
   },
 

@@ -15,14 +15,15 @@ import {
 } from '@/features/product/lib/query-parsers'
 import { AttributeFilter, FindAllProductsQueryParams } from '@/features/product/types'
 import { useDebouncedCallback } from '@/hooks/use-debounced-callback'
+import { DEFAULT_PAGINATION_FILTER } from '@/constants/api.constant'
 
 /**
  * Schema mapping URL param names → nuqs parsers with defaults.
  * Every key here becomes a query param in the URL.
  */
 const productFilterParsers = {
-  page: parseAsInteger.withDefault(1),
-  limit: parseAsInteger.withDefault(1),
+  page: parseAsInteger.withDefault(DEFAULT_PAGINATION_FILTER.page),
+  limit: parseAsInteger.withDefault(DEFAULT_PAGINATION_FILTER.limit),
   searchQuery: parseAsString.withDefault(''),
   status: getStatusParser().withDefault([]),
   categoryIds: getUuidArrayParser().withDefault([]),
@@ -87,8 +88,7 @@ function toQueryParams(
   if (state.countryIds.length > 0) params.countryIds = state.countryIds
   if (state.minPrice != null) params.minPrice = state.minPrice
   if (state.maxPrice != null) params.maxPrice = state.maxPrice
-  if (state.attributes && state.attributes.length > 0)
-    params.attributes = state.attributes
+  if (state.attributes && state.attributes.length > 0) params.attributes = state.attributes
   if (state.inStock != null) params.inStock = state.inStock
   if (state.hasActiveVariants != null) params.hasActiveVariants = state.hasActiveVariants
   if (state.sortBy) params.sortBy = state.sortBy
@@ -165,7 +165,9 @@ export function useProductFilterParams(options: UseProductFilterParamsOptions = 
         return {
           ...prev,
           ...updates,
-          ...(isFilterChange && !('page' in updates) ? { page: 1 } : {})
+          ...(isFilterChange && !('page' in updates)
+            ? { page: DEFAULT_PAGINATION_FILTER.page }
+            : {})
         }
       })
     },
@@ -177,8 +179,8 @@ export function useProductFilterParams(options: UseProductFilterParamsOptions = 
    */
   const resetFilters = React.useCallback(() => {
     setQueryState({
-      page: 1,
-      limit: 1,
+      page: DEFAULT_PAGINATION_FILTER.page,
+      limit: DEFAULT_PAGINATION_FILTER.limit,
       searchQuery: '',
       status: [],
       categoryIds: [],

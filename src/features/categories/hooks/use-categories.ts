@@ -17,10 +17,14 @@ export const CATEGORY_QUERY_KEYS = {
   detail: (id: string) => [...CATEGORY_QUERY_KEYS.details(), id] as const
 }
 
-export const useCategories = (params?: FindAllCategoriesQueryParams & DateRangeQueryParams) => {
+export const useCategories = (
+  params?: FindAllCategoriesQueryParams & DateRangeQueryParams,
+  enabled?: boolean
+) => {
   return useQuery({
     queryKey: CATEGORY_QUERY_KEYS.list(params),
-    queryFn: () => categoryService.getCategories(params)
+    queryFn: () => categoryService.getCategories(params),
+    enabled
   })
 }
 

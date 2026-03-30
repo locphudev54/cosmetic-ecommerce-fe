@@ -97,10 +97,10 @@ export interface AttributeFilter {
 
 export interface FindAllProductsQueryParams extends PaginationQueryParams {
   searchQuery?: string
+  productIds?: string[] // Optional list of product IDs to filter by (used for Collection Page)
   status?: ProductStatus[]
   categoryIds?: string[]
   categorySlug?: string
-  categoryPath?: string
   brandIds?: string[]
   countryIds?: string[]
   minPrice?: number
@@ -114,11 +114,6 @@ export interface FindAllProductsQueryParams extends PaginationQueryParams {
   maxVariantPrice?: number
   sku?: string
   sortBy?: ProductSortBy
-  // includeImages?: boolean
-  // includeVariants?: boolean
-  // includeAttributes?: boolean
-  // includeBrandAndCountry?: boolean
-  // includeCategories?: boolean
 }
 
 export interface FindAllAttributesQueryParams extends PaginationQueryParams {
@@ -240,5 +235,10 @@ export interface ProductAttributeType {
 
 export interface ProductAttributeValueType {
   attributeValueId: string
+  value: string
+}
+
+export interface ProuctSortingOptionType {
+  label: string
   value: string
 }

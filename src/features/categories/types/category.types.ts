@@ -56,6 +56,7 @@ export interface FindAllCategoriesQueryParams extends PaginationQueryParams {
   search?: string
   isActive?: boolean
   isDeleted?: boolean
+  getAll?: boolean
   parentId?: string
   includeProductCount?: boolean
   includeChildren?: boolean

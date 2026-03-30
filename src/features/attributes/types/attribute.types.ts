@@ -34,4 +34,5 @@ export interface FindAllAttributesQueryParams extends PaginationQueryParams {
   search?: string
   getAll?: boolean
   categoryId?: string
+  isGlobalFilter?: boolean
 }

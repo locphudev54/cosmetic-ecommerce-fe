@@ -1,10 +1,76 @@
 import { searchService } from '@/features/search/services/search.service'
-import { SearchResult } from '@/features/search/types/search.types'
+import { ProductDocument, SearchProductsParams } from '@/features/search/types/search.types'
+import { InfiniteScrollMode, useInfiniteScroll } from '@/hooks/use-infinite-scroll'
 import { useQuery } from '@tanstack/react-query'
 
-export const useSearchProducts = (query: string) => {
-  return useQuery<SearchResult>({
-    queryKey: ['search', 'products', query],
-    queryFn: () => searchService.searchProducts(query)
+export const SEARCH_QUERY_KEYS = {
+  all: ['search'] as const,
+  products: (params?: SearchProductsParams) =>
+    [...SEARCH_QUERY_KEYS.all, 'products', params] as const,
+  infiniteCursor: (params?: SearchProductsParams) =>
+    [...SEARCH_QUERY_KEYS.all, 'products', 'infinite-cursor', params] as const,
+  offsetProducts: (params?: SearchProductsParams) =>
+    [...SEARCH_QUERY_KEYS.all, 'products', 'offset', params] as const
+}
+
+/**
+ * Infinite scroll hook for the Collection Page.
+ * Calls `GET /search/products` via ElasticSearch with cursor-based pagination.
+ *
+ * Drop-in replacement for `useProductsInfiniteScroll` — same return type interface.
+ *
+ * @example
+ * ```tsx
+ * const { items, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } =
+ *   useSearchProductsInfiniteScroll({
+ *     params: debouncedQueryParams,
+ *     mode: 'manual'
+ *   })
+ * ```
+ */
+export function useSearchProductsInfiniteScroll({
+  params,
+  mode = 'scroll',
+  enabled = true
+}: {
+  params?: Omit<SearchProductsParams, 'cursor'>
+  mode?: InfiniteScrollMode
+  enabled?: boolean
+} = {}) {
+  return useInfiniteScroll<ProductDocument>({
+    queryKey: SEARCH_QUERY_KEYS.infiniteCursor(params),
+    mode,
+    queryFn: (cursor) =>
+      searchService.searchProductsCursor({ ...params, cursor: cursor ?? undefined }),
+    queryOptions: { enabled }
+  })
+}
+
+/**
+ * Offset-based pagination hook for the Collection Page.
+ * Calls `GET /search/products` via ElasticSearch with page-based pagination.
+ *
+ * Drop-in replacement for `useProducts` — returns the same shape.
+ *
+ * @example
+ * ```tsx
+ * const { data, isLoading, isFetching } = useSearchProductsOffset({
+ *   params: { ...debouncedQueryParams, page: 1 }
+ * })
+ * const products = data?.data ?? []
+ * const totalPages = data?.meta?.totalPages ?? 0
+ * ```
+ */
+export function useSearchProductsOffset({
+  params,
+  enabled = true
+}: {
+  params?: SearchProductsParams
+  enabled?: boolean
+} = {}) {
+  return useQuery({
+    queryKey: SEARCH_QUERY_KEYS.offsetProducts(params),
+    queryFn: () => searchService.searchProductsOffset(params),
+    enabled
   })
 }
