@@ -1,5 +1,4 @@
 import { User } from '@/features/user/types'
-import { get } from 'http'
 import { create } from 'zustand'
 import { devtools } from 'zustand/middleware'
 

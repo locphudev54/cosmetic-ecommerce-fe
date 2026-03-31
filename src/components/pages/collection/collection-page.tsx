@@ -122,11 +122,6 @@ export default function CollectionPage({
     mode: 'manual'
   })
 
-  // const {} = useProductsInfiniteScroll({
-  //   params: { ...debouncedQueryParams, productIds },
-  //   mode: 'manual'
-  // })
-
   // ─── Filter items for the UI Filter panel ──────────────────────────────────────────
   const brandFilterItems: FilterItem[] = brandsData
     ? brandsData.data.map((brand) => ({
