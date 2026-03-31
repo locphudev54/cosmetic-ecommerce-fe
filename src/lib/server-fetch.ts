@@ -166,9 +166,10 @@ class ServerFetchClient {
   /**
    * GET request
    */
-  async get<T = any, M = any>(
+  async get<T = any, M = any, P = Record<string, any>>(
     endpoint: string,
     options: Omit<RequestInit, 'method' | 'body'> & {
+      params?: P
       next?: {
         revalidate?: number | false
         tags?: string[]
@@ -177,7 +178,31 @@ class ServerFetchClient {
       signal?: AbortSignal
     } = {}
   ): Promise<ApiResponse<T, M>> {
-    return this.fetch<T, M>(endpoint, { ...options, method: 'GET' })
+    let finalEndpoint = endpoint
+
+    if (options.params) {
+      const searchParams = new URLSearchParams()
+      Object.entries(options.params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          if (Array.isArray(value)) {
+            value.forEach((v) => searchParams.append(key, String(v)))
+          } else {
+            searchParams.append(key, String(value))
+          }
+        }
+      })
+      
+      const queryString = searchParams.toString()
+      if (queryString) {
+        finalEndpoint = endpoint.includes('?')
+          ? `${endpoint}&${queryString}`
+          : `${endpoint}?${queryString}`
+      }
+    }
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { params, ...fetchOptions } = options
+    return this.fetch<T, M>(finalEndpoint, { ...fetchOptions, method: 'GET' })
   }
 
   /**
@@ -244,3 +269,4 @@ class ServerFetchClient {
 
 const serverFetchClient = new ServerFetchClient()
 export default serverFetchClient
+
