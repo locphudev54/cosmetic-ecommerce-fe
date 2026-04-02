@@ -1,11 +1,4 @@
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { ROUTES } from '@/constants/route.constant'
 import { UserRole } from '@/enums'
 import LogoutButton from '@/features/auth/components/logout-button'
@@ -18,8 +11,8 @@ export default function UserMenu() {
 
   return (
     <div className='border-l border-l-gray-700 pl-7'>
-      <DropdownMenu>
-        <DropdownMenuTrigger>
+      <HoverCard>
+        <HoverCardTrigger asChild>
           {isAuthenticated ? (
             <div className='flex cursor-pointer items-center gap-x-1 py-0.5 text-left'>
               <div>
@@ -40,27 +33,31 @@ export default function UserMenu() {
               </div>
             </div>
           )}
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align='end' className='w-48'>
-          <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          {!isAuthenticated && (
-            <DropdownMenuItem>
-              <Link href={ROUTES.AUTH.LOGIN} className='w-full'>
+        </HoverCardTrigger>
+        <HoverCardContent align='end' className='w-48 p-0'>
+          <div className='px-3 py-2 text-sm font-medium'>Tài khoản của tôi</div>
+          <div className='bg-border h-px' />
+          <div className='py-1'>
+            {!isAuthenticated && (
+              <Link
+                href={ROUTES.AUTH.LOGIN}
+                className='hover:bg-accent hover:text-accent-foreground block w-full px-3 py-2 text-sm'
+              >
                 Đăng nhập
               </Link>
-            </DropdownMenuItem>
-          )}
-          {isAuthenticated && user?.role !== UserRole.CUSTOMER && (
-            <DropdownMenuItem>
-              <Link href={ROUTES.ADMIN.HOME} className='w-full'>
+            )}
+            {isAuthenticated && user?.role !== UserRole.CUSTOMER && (
+              <Link
+                href={ROUTES.ADMIN.HOME}
+                className='hover:bg-accent hover:text-accent-foreground block w-full px-3 py-2 text-sm'
+              >
                 Trang quản trị
               </Link>
-            </DropdownMenuItem>
-          )}
-          {isAuthenticated && <LogoutButton />}
-        </DropdownMenuContent>
-      </DropdownMenu>
+            )}
+            {isAuthenticated && <LogoutButton />}
+          </div>
+        </HoverCardContent>
+      </HoverCard>
     </div>
   )
 }

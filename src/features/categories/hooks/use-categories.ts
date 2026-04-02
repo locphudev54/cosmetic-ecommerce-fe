@@ -2,6 +2,7 @@ import { categoryService } from '@/features/categories/services/category.service
 import {
   CreateCategoryDto,
   FindAllCategoriesQueryParams,
+  GetCategoryTreeQueryParams,
   UpdateCategoryDto
 } from '@/features/categories/types'
 import { DateRangeQueryParams } from '@/types'
@@ -10,7 +11,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 export const CATEGORY_QUERY_KEYS = {
   all: ['categories'] as const,
   lists: () => [...CATEGORY_QUERY_KEYS.all, 'list'] as const,
-  tree: () => [...CATEGORY_QUERY_KEYS.all, 'tree'] as const,
+  tree: (params?: GetCategoryTreeQueryParams) =>
+    [...CATEGORY_QUERY_KEYS.all, 'tree', params] as const,
   list: (params?: FindAllCategoriesQueryParams) =>
     [...CATEGORY_QUERY_KEYS.lists(), params] as const,
   details: () => [...CATEGORY_QUERY_KEYS.all, 'detail'] as const,
@@ -28,10 +30,10 @@ export const useCategories = (
   })
 }
 
-export const useCategoryTree = ({ isDeleted }: { isDeleted?: boolean }) => {
+export const useCategoryTree = (params: GetCategoryTreeQueryParams) => {
   return useQuery({
     queryKey: CATEGORY_QUERY_KEYS.tree(),
-    queryFn: () => categoryService.getCategoryTree({ isDeleted })
+    queryFn: () => categoryService.getCategoryTree(params)
   })
 }
 

@@ -1,4 +1,4 @@
-import HomagePage from '@/components/pages/home/home-page'
+import HomagePage from '@/components/pages/home-page'
 import { API_ENDPOINTS } from '@/constants/api.constant'
 import { PRODUCT_QUERY_KEYS } from '@/features/product/hooks'
 import { Product } from '@/features/product/types'

@@ -43,7 +43,7 @@ export default async function RootLayout({
           </TooltipProvider>
         </Providers>
         <ServerWrapper />
-        <Toaster position='bottom-right' richColors />
+        <Toaster position='bottom-right' />
       </body>
     </html>
   )

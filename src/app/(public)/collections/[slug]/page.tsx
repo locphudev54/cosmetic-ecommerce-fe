@@ -1,18 +1,28 @@
-import CollectionPage from '@/components/pages/collection/collection-page'
+import CollectionPage from '@/components/pages/collection-page'
 import { API_ENDPOINTS, DEFAULT_PAGINATION_FILTER } from '@/constants/api.constant'
 import { ProductSortBy, SortOrder } from '@/enums'
-import { Attribute, ATTRIBUTE_QUERY_KEYS, FindAllAttributesQueryParams } from '@/features/attributes'
+import {
+  Attribute,
+  ATTRIBUTE_QUERY_KEYS,
+  FindAllAttributesQueryParams
+} from '@/features/attributes'
 import { Brand, BRAND_QUERY_KEYS, FindAllBrandsQueryParams } from '@/features/brands'
 import { CATEGORY_QUERY_KEYS } from '@/features/categories/hooks'
 import { Category, FindAllCategoriesQueryParams } from '@/features/categories/types/category.types'
 import { COLLECTION_QUERY_KEYS, CollectionDetailBySlug } from '@/features/collections'
-import { COUNTRY_OF_ORIGIN_QUERY_KEYS, CountryOfOrigin, FindAllCountriesOfOriginQueryParams } from '@/features/country-of-origin'
+import {
+  COUNTRY_OF_ORIGIN_QUERY_KEYS,
+  CountryOfOrigin,
+  FindAllCountriesOfOriginQueryParams
+} from '@/features/country-of-origin'
 import { SEARCH_QUERY_KEYS } from '@/features/search/hooks/use-search'
 import { ProductDocument, SearchProductsParams } from '@/features/search/types/search.types'
 import { getServerQueryClient } from '@/lib/query-client'
 import serverFetchClient from '@/lib/server-fetch'
-import { ApiResponse, CursorPaginationMeta, OffsetPaginationMeta } from '@/types'
+import { ApiError, ApiResponse, CursorPaginationMeta, OffsetPaginationMeta } from '@/types'
 import { dehydrate, HydrationBoundary, InfiniteData } from '@tanstack/react-query'
+import { HttpStatusCode } from 'axios'
+import { notFound } from 'next/navigation'
 
 export default async function Page({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
@@ -67,7 +77,11 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
       queryClient.fetchQuery({
         queryKey: COUNTRY_OF_ORIGIN_QUERY_KEYS.list({ getAll: true }), // Todo: Implement proper pagination to get all countries of origin and cache them
         queryFn: () =>
-          serverFetchClient.get<CountryOfOrigin[], OffsetPaginationMeta, FindAllCountriesOfOriginQueryParams>(API_ENDPOINTS.COUNTRY_OF_ORIGIN.LIST, { params: { getAll: true } })
+          serverFetchClient.get<
+            CountryOfOrigin[],
+            OffsetPaginationMeta,
+            FindAllCountriesOfOriginQueryParams
+          >(API_ENDPOINTS.COUNTRY_OF_ORIGIN.LIST, { params: { getAll: true } })
       })
     ])
 
@@ -102,18 +116,21 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
           fetchParams.cursor = pageParam
         }
 
-        return serverFetchClient.get<
-          ProductDocument[],
-          CursorPaginationMeta,
-          SearchProductsParams
-        >(API_ENDPOINTS.SEARCH.PRODUCTS, { params: fetchParams })
+        return serverFetchClient.get<ProductDocument[], CursorPaginationMeta, SearchProductsParams>(
+          API_ENDPOINTS.SEARCH.PRODUCTS,
+          { params: fetchParams }
+        )
       },
       initialPageParam: null,
       getNextPageParam: (lastPage: ApiResponse<ProductDocument[], CursorPaginationMeta>) =>
         lastPage.meta?.hasNextPage ? lastPage.meta?.nextCursor : undefined
     })
-  } catch (error) {
-    throw new Error('Failed to fetch in collection page')
+  } catch (error: ApiError | any) {
+    if (error instanceof ApiError && error.statusCode === HttpStatusCode.NotFound) {
+      notFound()
+    } else {
+      throw new Error('Failed to fetch in collection page')
+    }
   }
 
   return (

@@ -36,3 +36,8 @@ export enum CollectionType {
   MANUAL = 'MANUAL',
   CATEGORY_BASED = 'CATEGORY_BASED'
 }
+
+export enum CategoryTreeFormat {
+  NESTED = 'NESTED',
+  FLAT = 'FLAT'
+}

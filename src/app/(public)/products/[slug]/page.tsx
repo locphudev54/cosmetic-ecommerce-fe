@@ -1,4 +1,4 @@
-import ProductDetailPage from '@/components/pages/home/product-detail/product-detail-page'
+import ProductDetailPage from '@/components/pages/product-detail-page'
 import { API_ENDPOINTS } from '@/constants/api.constant'
 import { PRODUCT_QUERY_KEYS } from '@/features/product/hooks'
 import { Product } from '@/features/product/types/product.types'

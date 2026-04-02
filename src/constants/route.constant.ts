@@ -20,6 +20,10 @@ export const ROUTES = {
     DETAIL: (slug: string) => `/products/${slug}`
   },
 
+  // Cart & Checkout
+  CART: '/cart',
+  CHECKOUT: '/checkout',
+
   // Collections
   COLLECTIONS: {
     ALL: '/collections/all',

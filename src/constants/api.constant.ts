@@ -101,6 +101,17 @@ export const API_ENDPOINTS = {
   // Search
   SEARCH: {
     PRODUCTS: '/search/products'
+  },
+
+  // Cart
+  CART: {
+    GET: '/cart',
+    ADD_ITEM: '/cart/items',
+    UPDATE_ITEM: (itemId: string) => `/cart/items/${itemId}`,
+    REMOVE_ITEM: (itemId: string) => `/cart/items/${itemId}`,
+    BULK_REMOVE: '/cart/items/bulk-delete',
+    MERGE: '/cart/merge',
+    VARIANTS: (productId: string) => `/cart/variants/${productId}`
   }
 } as const
 

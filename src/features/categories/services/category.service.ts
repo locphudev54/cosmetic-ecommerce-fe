@@ -4,6 +4,7 @@ import {
   CategoryTreeNodeType,
   CreateCategoryDto,
   FindAllCategoriesQueryParams,
+  GetCategoryTreeQueryParams,
   UpdateCategoryDto
 } from '@/features/categories/types'
 import apiClient from '@/lib/api-client'
@@ -18,7 +19,7 @@ export const categoryService = {
     })
   },
 
-  async getCategoryTree(params?: { isDeleted?: boolean }): Promise<CategoryTreeNodeType[]> {
+  async getCategoryTree(params?: GetCategoryTreeQueryParams): Promise<CategoryTreeNodeType[]> {
     const response = await apiClient.get<CategoryTreeNodeType[]>(API_ENDPOINTS.CATEGORIES.TREE, {
       params
     })
