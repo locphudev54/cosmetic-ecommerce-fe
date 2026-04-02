@@ -1,6 +1,6 @@
 'use client'
 
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import CartItem from '@/features/cart/components/cart-item'
 import { useCart } from '@/features/cart/hooks/use-cart'
 import { ROUTES } from '@/constants/route.constant'
@@ -14,8 +14,8 @@ export default function Cart() {
   const totalPrice = cart?.totalPrice ? Number(cart.totalPrice) : 0
 
   return (
-    <Popover>
-      <PopoverTrigger>
+    <HoverCard openDelay={10} closeDelay={100}>
+      <HoverCardTrigger asChild>
         <div className='flex cursor-pointer items-center gap-x-2.5'>
           <div className='relative'>
             {/* Badge contain CartItems length */}
@@ -40,8 +40,8 @@ export default function Cart() {
             <span>Giỏ hàng</span>
           </div>
         </div>
-      </PopoverTrigger>
-      <PopoverContent align='end' className='w-[230px] md:w-[430px]' sideOffset={16}>
+      </HoverCardTrigger>
+      <HoverCardContent align='end' className='w-[230px] md:w-[430px]' sideOffset={16}>
         <div>
           {isLoading ? (
             <div className='flex min-h-48 items-center justify-center'>
@@ -74,7 +74,7 @@ export default function Cart() {
             </Link>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+      </HoverCardContent>
+    </HoverCard>
   )
 }

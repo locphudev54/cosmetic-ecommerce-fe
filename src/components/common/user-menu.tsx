@@ -11,7 +11,7 @@ export default function UserMenu() {
 
   return (
     <div className='border-l border-l-gray-700 pl-7'>
-      <HoverCard>
+      <HoverCard openDelay={10} closeDelay={100}>
         <HoverCardTrigger asChild>
           {isAuthenticated ? (
             <div className='flex cursor-pointer items-center gap-x-1 py-0.5 text-left'>
