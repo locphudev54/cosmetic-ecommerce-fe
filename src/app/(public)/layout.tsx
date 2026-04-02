@@ -5,12 +5,14 @@ import { Accordion } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { API_ENDPOINTS } from '@/constants/api.constant'
+import { ROUTES } from '@/constants/route.constant'
 import { CATEGORY_QUERY_KEYS } from '@/features/categories/hooks'
 import { CategoryTreeNodeType, GetCategoryTreeQueryParams } from '@/features/categories/types'
 import { getServerQueryClient } from '@/lib/query-client'
 import serverFetchClient from '@/lib/server-fetch'
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
+import Link from 'next/link'
 import React from 'react'
 
 const CATEGORY_MEGA_MENU_MAX_DEPTH = 5 // Max depth of category tree to show in the menu
@@ -93,6 +95,14 @@ export default async function HomeLayout({ children }: { children: React.ReactNo
                 </HoverCard>
               </div>
             ))}
+            <Link href={ROUTES.COLLECTIONS.ALL}>
+              <Button
+                variant={'ghost'}
+                className='rounded font-bold transition-colors duration-200 group-hover:bg-black group-hover:text-white hover:bg-black hover:text-white'
+              >
+                <span className='uppercase'>Tất cả sản phẩm</span>
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
