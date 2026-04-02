@@ -9,6 +9,16 @@ import { ApiError, ApiResponse } from '@/types/api.types'
 import { AxiosRequestConfig } from 'axios'
 import { RefreshTokenClientResponse } from '@/features/auth/types/auth.types'
 import { isApiError } from '@/utilts/common.utils'
+import { nanoid } from 'nanoid'
+
+/**
+ * Generate a unique idempotency key for mutating requests.
+ * This key is generated once per request and remains stable on retries
+ * because the interceptor checks if the header is already set.
+ */
+function generateIdempotencyKey(): string {
+  return `idem_${Date.now()}_${nanoid(12)}`
+}
 
 /**
  * Production-ready Axios client for Client Components with advanced features:
@@ -108,7 +118,7 @@ class ApiClient {
     }
 
     /**
-     * Request Interceptor: Add access token and handle AbortController
+     * Request Interceptor: Add access token, idempotency key, and handle AbortController
      */
     this.instance.interceptors.request.use(
       (config: InternalAxiosRequestConfig) => {
@@ -116,6 +126,18 @@ class ApiClient {
 
         if (accessToken && config.headers) {
           config.headers.Authorization = `Bearer ${accessToken}`
+        }
+
+        // Auto-generate Idempotency-Key for mutating requests (POST, PUT, PATCH, DELETE)
+        // The key is STABLE on retries because once set, it remains in config.headers
+        const method = config.method?.toLowerCase()
+        if (
+          method &&
+          ['post', 'put', 'patch', 'delete'].includes(method) &&
+          config.headers &&
+          !config.headers['Idempotency-Key']
+        ) {
+          config.headers['Idempotency-Key'] = generateIdempotencyKey()
         }
 
         // Add AbortController if not provided (for timeout protection)

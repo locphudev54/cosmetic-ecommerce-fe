@@ -1,5 +1,6 @@
 import { Attribute } from '@/features/attributes'
 import { PaginationQueryParams } from '@/types/api.types'
+import { CategoryTreeFormat } from '@/enums'
 
 export interface CategoryTreeNodeType {
   id: string
@@ -67,6 +68,18 @@ export interface CategoryAttribute {
   attributeId: string
   attribute: Attribute
   categoryId: string
-  // isFilterable: boolean
-  // isRequired: boolean
+}
+
+export interface GetCategoryTreeQueryParams {
+  rootId?: string
+  maxDepth?: number
+  isDeleted?: boolean
+  activeOnly?: boolean
+  format?: CategoryTreeFormat
+  limit?: number
+  includeProductCount?: boolean
+}
+
+export interface MoveCategoryDto {
+  newParentId: string | null
 }

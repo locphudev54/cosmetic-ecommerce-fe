@@ -1,15 +1,17 @@
 'use client'
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import CartItem from '@/features/cart/components/cart-item'
+import { useCart } from '@/features/cart/hooks/use-cart'
+import { ROUTES } from '@/constants/route.constant'
+import { formatNumberWithCommas } from '@/lib/utils'
+import { Inbox, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
 export default function Cart() {
-  // const cartItemsListQuery = useGetItemsInCartQuery({ enabled: !!session, staleTime: 10 * 1000 })
-  // const cartItems = React.useMemo(() => cartItemsListQuery.data?.data ?? [], [cartItemsListQuery.data?.data])
-  // const totalPrice = React.useMemo(
-  //   () => cartItems.reduce((result, item) => result + item.sku.sellingPrice * item.quantity, 0),
-  //   [cartItems]
-  // )
+  const { data: cart, isLoading } = useCart()
+  const cartItems = cart?.items ?? []
+  const totalPrice = cart?.totalPrice ? Number(cart.totalPrice) : 0
 
   return (
     <Popover>
@@ -18,8 +20,7 @@ export default function Cart() {
           <div className='relative'>
             {/* Badge contain CartItems length */}
             <div className='bg-business-secondary absolute -top-2.5 -right-2.5 flex aspect-square h-5 items-center justify-center rounded-full text-[11px] text-white'>
-              {/* {cartItems.length} */}
-              100
+              {cartItems.length}
             </div>
             <svg
               width='20px'
@@ -42,10 +43,14 @@ export default function Cart() {
       </PopoverTrigger>
       <PopoverContent align='end' className='w-[230px] md:w-[430px]' sideOffset={16}>
         <div>
-          {/* {cartItems.length > 0 ? (
+          {isLoading ? (
+            <div className='flex min-h-48 items-center justify-center'>
+              <Loader2 size={24} className='animate-spin text-gray-400' />
+            </div>
+          ) : cartItems.length > 0 ? (
             <div className='custom-scrollbar flex max-h-[288px] flex-col gap-y-2 overflow-y-scroll'>
-              {cartItems.map((item, index) => (
-                <CartItem cartItem={item} key={index} />
+              {cartItems.map((item) => (
+                <CartItem cartItem={item} key={item.id} />
               ))}
             </div>
           ) : (
@@ -53,17 +58,16 @@ export default function Cart() {
               <Inbox strokeWidth={1} size={36} />
               <span>Giỏ hàng trống</span>
             </div>
-          )} */}
+          )}
 
           <div className='sticky bottom-0 border-t border-gray-200 bg-white pt-6'>
             <div className='flex justify-between text-base uppercase'>
               <span className='text-[15px] font-bold'>Tổng tiền:</span>
               <span className='text-originalRed font-bold'>
-                {/* {formatNumberToVnCurrency(totalPrice)} */}
-                1000
+                ₫{formatNumberWithCommas(totalPrice)}
               </span>
             </div>
-            <Link href='#'>
+            <Link href={ROUTES.CART}>
               <button className='bg-business-secondary mt-4 w-full rounded-full px-5 py-2 font-medium text-white hover:opacity-80'>
                 Xem giỏ hàng
               </button>

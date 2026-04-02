@@ -191,7 +191,7 @@ class ServerFetchClient {
           }
         }
       })
-      
+
       const queryString = searchParams.toString()
       if (queryString) {
         finalEndpoint = endpoint.includes('?')
@@ -269,4 +269,3 @@ class ServerFetchClient {
 
 const serverFetchClient = new ServerFetchClient()
 export default serverFetchClient
-

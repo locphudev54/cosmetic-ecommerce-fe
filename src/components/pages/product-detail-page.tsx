@@ -22,7 +22,7 @@ import {
 import QuantitySelect from '@/features/product/components/quantity-select'
 import { useProductBySlug } from '@/features/product/hooks'
 import type { ProductVariant } from '@/features/product/types'
-import { cn } from '@/lib/utils'
+import { cn, handleApiError } from '@/lib/utils'
 import type { CarouselImage } from '@/types/carousel'
 import { formatNumberToVnCurrency } from '@/utilts/client.utils'
 import { Box, Phone, Truck } from 'lucide-react'
@@ -35,6 +35,10 @@ import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import 'yet-another-react-lightbox/styles.css'
 import 'yet-another-react-lightbox/plugins/thumbnails.css'
+import { useAddToCart } from '@/features/cart/hooks/use-cart'
+import { useCartSelectionStore } from '@/features/cart/store/cart-selection-store'
+import { toast } from 'sonner'
+import { useRouter } from 'next/navigation'
 
 const Lightbox = dynamic(() => import('yet-another-react-lightbox'), {
   ssr: false
@@ -66,6 +70,7 @@ type GalleryImage = {
 
 export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
   const { data: product, isLoading } = useProductBySlug(slug)
+  const router = useRouter()
 
   const variants = React.useMemo(() => product?.variants ?? [], [product?.variants])
 
@@ -104,6 +109,10 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
   const [galleryApi, setGalleryApi] = React.useState<CarouselApi | null>(null)
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [lightboxIndex, setLightboxIndex] = React.useState(-1)
+
+  const { toggleItem } = useCartSelectionStore()
+
+  const addToCartMutation = useAddToCart()
 
   React.useEffect(() => {
     if (!variants.length) return
@@ -269,6 +278,32 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
 
   const stockOnHand = selectedVariant?.stockOnHand ?? 0
   const sellingPrice = selectedVariant?.sellingPrice ?? product.basePrice
+
+  const handleAddToCartAndBuyNow = async (
+    variantId: string,
+    { buyNow = false }: { buyNow?: boolean }
+  ) => {
+    if (!variantId) {
+      toast.error('Vui lòng chọn đầy đủ thuộc tính sản phẩm trước khi thêm vào giỏ hàng.')
+      return
+    }
+
+    try {
+      await addToCartMutation.mutateAsync({ productVariantId: variantId, quantity: buyCount })
+
+      if (buyNow) {
+        toggleItem(variantId)
+        toast.success('Thêm vào giỏ hàng thành công! Chuyển đến giỏ hàng...')
+        setTimeout(() => {
+          router.push(ROUTES.CART)
+        }, 1500)
+      } else {
+        toast.success('Thêm vào giỏ hàng thành công!')
+      }
+    } catch (error) {
+      handleApiError(error)
+    }
+  }
 
   return (
     <div className='customer-page-container min-h-screen pb-16'>
@@ -484,9 +519,9 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                       <React.Fragment>
                         <div className='col-span-1'>
                           <button
-                            // disabled={addToCartMutation.isPending}
+                            disabled={addToCartMutation.isPending}
                             onClick={() => {
-                              // handleAddToCart()
+                              handleAddToCartAndBuyNow(selectedVariant?.id ?? '', { buyNow: false })
                             }}
                             className='border-business-secondary text-business-secondary before:bg-business-secondary relative w-full overflow-hidden rounded-[5px] border bg-white py-2.5 text-[15px] font-bold uppercase transition-all before:absolute before:top-0 before:bottom-0 before:left-0 before:z-0 before:h-full before:w-0 before:transition-all before:duration-500 hover:text-white hover:before:left-0 hover:before:w-full'
                           >
@@ -495,15 +530,14 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                         </div>
                         <div className='col-span-1'>
                           <button
-                            // disabled={addToCartMutation.isPending}
+                            disabled={addToCartMutation.isPending}
                             onClick={() => {
-                              // handleAddToCart(selectedSku._id)
+                              handleAddToCartAndBuyNow(selectedVariant?.id ?? '', { buyNow: true })
                             }}
                             className={cn(
                               'bg-business-secondary w-full rounded-[5px] border py-2.5 text-[15px] font-bold text-white uppercase transition-opacity duration-300 hover:opacity-70',
                               {
-                                'cursor-not-allowed': false
-                                //  addToCartMutation.isPending
+                                'cursor-not-allowed': addToCartMutation.isPending
                               }
                             )}
                           >
