@@ -137,7 +137,7 @@ export default function HomePage() {
 
       <ScrollToTopButton />
 
-      <Dialog open={true} onOpenChange={setDialogOpen}>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Website đang trong quá trình phát triền</DialogTitle>
