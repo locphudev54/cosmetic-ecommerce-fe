@@ -435,9 +435,7 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                   <div className='flex items-center gap-x-2'>
                     <span className='text-business-secondary text-2xl font-bold'>
                       {/* {formatNumberToVnCurrency(Number(sellingPrice))} */}
-                      {formatNumberToVnCurrency(
-                        Number(+product.basePrice + +product.basePrice * 0.1)
-                      )}
+                      {formatNumberToVnCurrency(Number(sellingPrice))}
                       {/* giả sử giá bán cao hơn giá hãng 10% */}
                     </span>
                     <span className='text-sm font-medium text-gray-500'>(Đã bao gồm VAT)</span>

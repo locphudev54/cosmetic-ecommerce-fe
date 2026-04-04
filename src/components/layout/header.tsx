@@ -8,6 +8,8 @@ import UserMenu from '@/components/common/user-menu'
 import { CircleCheckBig, Medal, Truck } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import PublicCategoryNav from '@/components/common/public-category-nav'
+import { CategoryTreeNodeType } from '@/features/categories/types'
 
 const SCROLL_TOP_THRESHOLD = 12
 const SCROLL_DELTA = 6
@@ -106,7 +108,12 @@ function CompactHeader({ onSearch }: { onSearch: (query: string) => void }) {
   )
 }
 
-export default function Header() {
+interface HeaderProps {
+  categoryTree?: CategoryTreeNodeType[]
+  prunedCategoryTree: CategoryTreeNodeType[]
+}
+
+export default function Header({ categoryTree, prunedCategoryTree }: HeaderProps) {
   const [mode, setMode] = React.useState<HeaderMode>('full')
   const [isHidden, setIsHidden] = React.useState(false)
   const [headerHeight, setHeaderHeight] = React.useState(0)
@@ -226,13 +233,23 @@ export default function Header() {
       <motion.div
         ref={headerRef}
         className={`fixed top-0 left-0 z-50 w-full ${isHidden ? 'pointer-events-none' : ''}`}
-        // animate={{ y: isHidden ? hideOffset : 0, opacity: isHidden ? 0 : 1 }}
+        animate={{ y: isHidden ? hideOffset : 0, opacity: isHidden ? 0 : 1 }}
         transition={TRANSITION}
       >
         {shouldCompact ? (
-          <CompactHeader onSearch={handleSearch} />
+          // <CompactHeader onSearch={handleSearch} />
+          <PublicCategoryNav
+            categoryTree={categoryTree || []}
+            prunedCategoryTree={prunedCategoryTree}
+          />
         ) : (
-          <FullHeader onSearch={handleSearch} />
+          <React.Fragment>
+            <FullHeader onSearch={handleSearch} />
+            <PublicCategoryNav
+              categoryTree={categoryTree || []}
+              prunedCategoryTree={prunedCategoryTree}
+            />
+          </React.Fragment>
         )}
       </motion.div>
     </>

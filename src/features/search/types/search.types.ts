@@ -58,8 +58,8 @@ export interface SearchFacets {
 }
 
 /**
- * Parameters accepted by the unified GET /search/products endpoint.
+ * Parameters accepted by the unified POST /search/products endpoint.
  */
-export interface SearchProductsParams extends Omit<FindAllProductsQueryParams, 'paginationType'> {
+export interface SearchProductsBody extends Omit<FindAllProductsQueryParams, 'paginationType'> {
   includeFacets?: boolean
 }

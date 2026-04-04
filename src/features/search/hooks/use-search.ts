@@ -1,16 +1,15 @@
 import { searchService } from '@/features/search/services/search.service'
-import { ProductDocument, SearchProductsParams } from '@/features/search/types/search.types'
+import { ProductDocument, SearchProductsBody } from '@/features/search/types/search.types'
 import { InfiniteScrollMode, useInfiniteScroll } from '@/hooks/use-infinite-scroll'
 import { useQuery } from '@tanstack/react-query'
 
 export const SEARCH_QUERY_KEYS = {
   all: ['search'] as const,
-  products: (params?: SearchProductsParams) =>
-    [...SEARCH_QUERY_KEYS.all, 'products', params] as const,
-  infiniteCursor: (params?: SearchProductsParams) =>
-    [...SEARCH_QUERY_KEYS.all, 'products', 'infinite-cursor', params] as const,
-  offsetProducts: (params?: SearchProductsParams) =>
-    [...SEARCH_QUERY_KEYS.all, 'products', 'offset', params] as const
+  products: (body?: SearchProductsBody) => [...SEARCH_QUERY_KEYS.all, 'products', body] as const,
+  infiniteCursor: (body?: SearchProductsBody) =>
+    [...SEARCH_QUERY_KEYS.all, 'products', 'infinite-cursor', body] as const,
+  offsetProducts: (body?: SearchProductsBody) =>
+    [...SEARCH_QUERY_KEYS.all, 'products', 'offset', body] as const
 }
 
 /**
@@ -33,7 +32,7 @@ export function useSearchProductsInfiniteScroll({
   mode = 'scroll',
   enabled = true
 }: {
-  params?: Omit<SearchProductsParams, 'cursor'>
+  params?: Omit<SearchProductsBody, 'cursor'>
   mode?: InfiniteScrollMode
   enabled?: boolean
 } = {}) {
@@ -65,7 +64,7 @@ export function useSearchProductsOffset({
   params,
   enabled = true
 }: {
-  params?: SearchProductsParams
+  params?: SearchProductsBody
   enabled?: boolean
 } = {}) {
   return useQuery({

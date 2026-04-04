@@ -1,5 +1,5 @@
 import { API_ENDPOINTS } from '@/constants/api.constant'
-import { ProductDocument, SearchProductsParams } from '@/features/search/types/search.types'
+import { ProductDocument, SearchProductsBody } from '@/features/search/types/search.types'
 import apiClient from '@/lib/api-client'
 import { ApiResponse, CursorPaginationMeta, OffsetPaginationMeta } from '@/types/api.types'
 
@@ -10,24 +10,26 @@ export const searchService = {
    * Returns the full ApiResponse with data and meta.
    */
   async searchProducts(
-    params: SearchProductsParams
+    body: SearchProductsBody
   ): Promise<ApiResponse<ProductDocument[], CursorPaginationMeta>> {
-    return apiClient.get<ProductDocument[], CursorPaginationMeta>(API_ENDPOINTS.SEARCH.PRODUCTS, {
-      params
-    })
+    return apiClient.post<ProductDocument[], CursorPaginationMeta>(
+      API_ENDPOINTS.SEARCH.PRODUCTS,
+      body
+    )
   },
 
   /**
    * Cursor-paginated search for infinite scroll on the Collection Page.
-   * Accepts the full search params plus an optional cursor.
+   * Accepts the full search body plus an optional cursor.
    * Compatible with the `useInfiniteScroll` hook's `queryFn` signature.
    */
   searchProductsCursor(
-    params?: Omit<SearchProductsParams, 'cursor'> & { cursor?: string }
+    body?: Omit<SearchProductsBody, 'cursor'> & { cursor?: string }
   ): Promise<ApiResponse<ProductDocument[], CursorPaginationMeta>> {
-    return apiClient.get<ProductDocument[], CursorPaginationMeta>(API_ENDPOINTS.SEARCH.PRODUCTS, {
-      params
-    })
+    return apiClient.post<ProductDocument[], CursorPaginationMeta>(
+      API_ENDPOINTS.SEARCH.PRODUCTS,
+      body
+    )
   },
 
   /**
@@ -36,10 +38,11 @@ export const searchService = {
    * Returns OffsetPaginationMeta with total, page, totalPages.
    */
   searchProductsOffset(
-    params?: SearchProductsParams
+    body?: Omit<SearchProductsBody, 'page'> & { page?: number }
   ): Promise<ApiResponse<ProductDocument[], OffsetPaginationMeta>> {
-    return apiClient.get<ProductDocument[], OffsetPaginationMeta>(API_ENDPOINTS.SEARCH.PRODUCTS, {
-      params
-    })
+    return apiClient.post<ProductDocument[], OffsetPaginationMeta>(
+      API_ENDPOINTS.SEARCH.PRODUCTS,
+      body
+    )
   }
 }

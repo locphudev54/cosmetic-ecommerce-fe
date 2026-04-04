@@ -284,7 +284,11 @@ class ApiClient {
   /**
    * Typed POST request
    */
-  post<T = any>(url: string, data?: any, config?: AxiosRequestConfig): Promise<ApiResponse<T>> {
+  post<T = any, M = any>(
+    url: string,
+    data?: any,
+    config?: AxiosRequestConfig
+  ): Promise<ApiResponse<T, M>> {
     return this.instance.post(url, data, config)
   }
 

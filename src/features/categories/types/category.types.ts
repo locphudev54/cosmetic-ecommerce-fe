@@ -6,6 +6,7 @@ export interface CategoryTreeNodeType {
   id: string
   name: string
   slug: string
+  imageUrl: string
   path: string
   depth: number
   isActive: boolean
@@ -17,6 +18,7 @@ export interface Category {
   id: string
   name: string
   slug: string
+  imageUrl: string
   description?: string
   parentId?: string
   path: string

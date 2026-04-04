@@ -65,7 +65,7 @@ export default function VerticallySortableProductList({
   }
 
   return (
-    <div className='mx-auto w-full p-2'>
+    <div className='custom-scrollbar mx-auto h-100 w-full overflow-y-auto p-2'>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}

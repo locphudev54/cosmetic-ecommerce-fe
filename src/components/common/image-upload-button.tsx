@@ -4,7 +4,7 @@ import { TypographyMuted } from '@/components/common/typography'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
 import { cn } from '@/lib/utils'
-import { Loader2, Upload, X } from 'lucide-react'
+import { Upload, X } from 'lucide-react'
 import Image from 'next/image'
 import React, { useCallback, useRef, useState } from 'react'
 import { toast } from 'sonner'
@@ -40,6 +40,11 @@ export const ImageUploadButton = ({
   const [previews, setPreviews] = useState<string[]>([])
   // const [selectedFiles, setSelectedFiles] = useState<File[]>([])
 
+  const effectivePreviews =
+    mode === 'preview' && uploadedImageUrls && uploadedImageUrls.length > 0
+      ? uploadedImageUrls
+      : previews
+
   React.useEffect(() => {
     // Clean up object URLs when component unmounts or previews change
     return () => {
@@ -48,11 +53,11 @@ export const ImageUploadButton = ({
   }, [previews])
 
   // Sync uploadedImageUrls to previews in preview mode
-  React.useEffect(() => {
-    if (mode === 'preview' && uploadedImageUrls && uploadedImageUrls.length > 0) {
-      setPreviews(uploadedImageUrls)
-    }
-  }, [uploadedImageUrls, mode])
+  // React.useEffect(() => {
+  //   if (mode === 'preview' && uploadedImageUrls && uploadedImageUrls.length > 0) {
+  //     setPreviews(uploadedImageUrls)
+  //   }
+  // }, [uploadedImageUrls, mode, previews.length])
 
   const generatePreviewUrl = useCallback((file: File): Promise<string> => {
     return new Promise((resolve) => {
@@ -118,9 +123,9 @@ export const ImageUploadButton = ({
       }
 
       // Reset input
-      // if (fileInputRef.current) {
-      //   fileInputRef.current.value = ''
-      // }
+      if (fileInputRef.current) {
+        fileInputRef.current.value = ''
+      }
     },
     [generatePreviewUrl, maxFiles, mode, multiple, onChange, onUpload]
   )
@@ -160,7 +165,7 @@ export const ImageUploadButton = ({
     const newPreviews = previews.filter((_, i) => i !== index)
     // setSelectedFiles(newFiles)
     setPreviews(newPreviews)
-    // onChange?.(newFiles)
+    onChange?.([])
   }
 
   const handleClearAll = () => {
@@ -228,48 +233,41 @@ export const ImageUploadButton = ({
         </Button> */}
 
         {/* Preview Section (only in preview mode) */}
-        {mode === 'preview' && previews.length > 0 && (
+        {mode === 'preview' && effectivePreviews.length > 0 && (
           <div className='space-y-3'>
             <div className='flex items-center justify-between'>
               {/* <h3 className='text-sm font-semibold'>Preview ({previews.length})</h3> */}
-              {multiple && previews.length > 1 && (
+              {multiple && effectivePreviews.length > 1 && (
                 <Button type='button' variant='ghost' size='sm' onClick={handleClearAll}>
                   Clear All
                 </Button>
               )}
             </div>
 
-            {previews.length === 1 &&
-              previews.map((preview, index) => (
-                <div
-                  key={index}
+            {effectivePreviews.length === 1 && (
+              <div className='group bg-muted absolute inset-0 h-full w-full overflow-hidden rounded-lg'>
+                <Image
+                  src={effectivePreviews[0]}
+                  alt={`Preview image`}
+                  className='h-full w-full object-cover transition-transform group-hover:scale-105'
+                  sizes='100vw'
+                  width={0}
+                  height={0}
+                />
+                <Button
+                  type='button'
+                  size={'icon-xs'}
+                  variant={'destructive'}
                   onClick={(e) => {
                     e.stopPropagation()
+                    handleRemovePreview(0)
                   }}
-                  className='group bg-muted absolute inset-0 h-full w-full overflow-hidden rounded-lg'
+                  className='absolute top-1 right-1 cursor-pointer rounded-full p-1 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100'
                 >
-                  <Image
-                    src={preview}
-                    alt={`Preview ${index + 1}`}
-                    className='h-full w-full object-cover transition-transform group-hover:scale-105'
-                    sizes='100vw'
-                    width={0}
-                    height={0}
-                  />
-                  <Button
-                    type='button'
-                    size={'icon-xs'}
-                    variant={'destructive'}
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      handleRemovePreview(index)
-                    }}
-                    className='absolute top-1 right-1 cursor-pointer rounded-full p-1 text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100'
-                  >
-                    <X className='h-4 w-4' />
-                  </Button>
-                </div>
-              ))}
+                  <X className='h-4 w-4' />
+                </Button>
+              </div>
+            )}
           </div>
         )}
 
@@ -283,9 +281,9 @@ export const ImageUploadButton = ({
       )} */}
       </div>
 
-      {previews.length > 1 && (
+      {effectivePreviews.length > 1 && (
         <div className='grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4'>
-          {previews.map((preview, index) => (
+          {effectivePreviews.map((previewUrl, index) => (
             <div
               key={index}
               className='group bg-muted relative aspect-square overflow-hidden rounded-lg'
@@ -294,7 +292,7 @@ export const ImageUploadButton = ({
                 sizes='100vw'
                 height={0}
                 width={0}
-                src={preview}
+                src={previewUrl}
                 alt={`Preview ${index + 1}`}
                 className='h-full w-full object-cover transition-transform group-hover:scale-105'
               />

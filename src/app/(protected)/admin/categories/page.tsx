@@ -45,10 +45,7 @@ export default function Page() {
     })
   }
 
-  const memoizedColumns = React.useMemo(
-    () => getColumns(),
-    []
-  )
+  const memoizedColumns = React.useMemo(() => getColumns(), [])
 
   const {
     page,

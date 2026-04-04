@@ -23,10 +23,14 @@ import { envClient } from '@/config/env.client'
 import { Button } from '@/components/ui/button'
 import { Check, Copy } from 'lucide-react'
 import { toast } from 'sonner'
+import { Input } from '@/components/ui/input'
+import LocComponent from '@/components/pages/loc-component'
+import LocComponentVip from '@/components/pages/loc-component-vip'
 
 export default function HomePage() {
   const isDevelopment = envClient.NEXT_PUBLIC_NODE_ENV === 'development'
   const [dialogOpen, setDialogOpen] = React.useState(!isDevelopment)
+  const [locValue, setLocValue] = React.useState('')
 
   const { data: productsData } = useProducts()
   const productList = productsData?.data ?? []
@@ -133,6 +137,11 @@ export default function HomePage() {
             </div>
           </Carousel>
         </div>
+
+        {/* Loc Component */}
+        {/* <div className='text-xl font-semibold text-red-300'>Loc Component: {locValue}</div>
+        <LocComponent onChange={() => {}} initialValue={locValue} />
+        <LocComponentVip /> */}
       </div>
 
       <ScrollToTopButton />

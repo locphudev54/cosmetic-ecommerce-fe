@@ -1,103 +1,27 @@
 'use client'
 
-import { useState, useRef } from 'react'
-import { Menu, ChevronDown, ChevronRight, X } from 'lucide-react'
-import { motion, AnimatePresence, NumberMap } from 'motion/react'
-import { useIsMobile } from '@/hooks/use-mobile'
+import { AccordionCategoryMenuItem } from '@/components/common/accordion-category-menu-item'
+import { Accordion } from '@/components/ui/accordion'
 import { Button } from '@/components/ui/button'
 import {
   Drawer,
   DrawerContent,
+  DrawerDescription,
   DrawerHeader,
-  DrawerTitle,
-  DrawerDescription
+  DrawerTitle
 } from '@/components/ui/drawer'
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger
-} from '@/components/ui/accordion'
-import { CategoryTreeNodeType } from '@/features/categories/types'
-import { cn } from '@/lib/utils'
-import Link from 'next/link'
-import Image from 'next/image'
 import { ROUTES } from '@/constants/route.constant'
+import { CategoryTreeNodeType } from '@/features/categories/types'
+import { useIsMobile } from '@/hooks/use-mobile'
+import { cn } from '@/lib/utils'
+import { ChevronDown, ChevronRight, Menu, X } from 'lucide-react'
+import { AnimatePresence, motion } from 'motion/react'
+import Image from 'next/image'
+import Link from 'next/link'
+import { useRef, useState } from 'react'
 
 interface MegaMenuProps {
   categoryTree: CategoryTreeNodeType[]
-}
-
-// ─── Mobile (unchanged) ───────────────────────────────────────────────────────
-
-export const AccordionCategoryItem = ({
-  category,
-  level = 0,
-  shouldNavigate = false
-}: {
-  category: CategoryTreeNodeType
-  level?: number
-  shouldNavigate?: boolean
-}) => {
-  const hasChildren = category.children && category.children.length > 0
-  const isRootCategory = level === 0
-
-  if (!hasChildren) {
-    return (
-      <Link href={ROUTES.COLLECTIONS.DETAIL(category.slug)} className='block'>
-        <button
-          className={cn(
-            'w-full cursor-pointer px-4 py-2 text-left text-sm text-gray-700 transition-colors hover:text-blue-600',
-            isRootCategory && 'font-bold'
-          )}
-          style={{ paddingLeft: `${16 + level * 16}px` }}
-        >
-          {category.name}
-        </button>
-      </Link>
-    )
-  }
-
-  return (
-    <AccordionItem value={category.id} className='border-0'>
-      {shouldNavigate ? (
-        <div
-          className='flex cursor-pointer items-center justify-between px-4 hover:bg-gray-50 hover:text-blue-600 hover:no-underline'
-          style={{ paddingLeft: `${16 + level * 16}px` }}
-        >
-          <Link
-            href={ROUTES.COLLECTIONS.DETAIL(category.slug)}
-            className={cn('w-full text-sm text-gray-800', isRootCategory && 'font-bold')}
-          >
-            {category.name}
-          </Link>
-          <AccordionTrigger className={cn('cursor-pointer')} />
-        </div>
-      ) : (
-        <AccordionTrigger
-          className={cn(
-            'ptext-left flex cursor-pointer items-center justify-between px-4 py-3 text-sm text-gray-700 transition-colors hover:text-blue-600 hover:no-underline',
-            isRootCategory && 'font-bold'
-          )}
-          style={{ paddingLeft: `${16 + level * 16}px` }}
-        >
-          {category.name}
-        </AccordionTrigger>
-      )}
-      <AccordionContent className='border-0 pb-0'>
-        <div className='space-y-0'>
-          {category.children?.map((child) => (
-            <AccordionCategoryItem
-              key={child.id}
-              category={child}
-              level={level + 1}
-              shouldNavigate={shouldNavigate}
-            />
-          ))}
-        </div>
-      </AccordionContent>
-    </AccordionItem>
-  )
 }
 
 // ─── Desktop two-panel mega menu ──────────────────────────────────────────────
@@ -190,46 +114,70 @@ const DesktopMegaMenu = ({ categoryTree }: { categoryTree: CategoryTreeNodeType[
                     const hasChildren = category.children && category.children.length > 0
 
                     return (
-                      <button
+                      <Link
+                        href={ROUTES.COLLECTIONS.DETAIL(category.slug)}
                         key={category.id}
-                        onMouseEnter={() => handleHover(category, depth)}
-                        className={cn(
-                          'relative flex w-full cursor-pointer items-center justify-between px-5 py-1.5 text-left text-sm transition-colors duration-200 ease-in-out',
-                          isRootColumn && 'py-4',
-                          isRootColumn &&
-                            categoryIdx !== columnItems.length - 1 &&
-                            'after:absolute after:right-0 after:-bottom-[1.25px] after:left-0 after:mx-auto after:h-[1.25px] after:w-[90%] after:bg-gray-300 after:content-[""]',
-                          isRootColumn
-                            ? isActive
-                              ? 'bg-blue-600 text-white'
-                              : 'text-gray-800 hover:bg-gray-50'
-                            : isActive
-                              ? 'bg-gray-100 text-blue-700'
-                              : 'text-gray-700 hover:text-blue-600'
-                        )}
+                        className='cursor-pointer'
                       >
-                        <span className='flex items-center gap-2'>
-                          {depth > 0 && (
-                            <span className='text-base text-gray-800 group-hover:text-blue-400'>
-                              {'>'}
-                            </span>
+                        <button
+                          key={category.id}
+                          onMouseEnter={() => handleHover(category, depth)}
+                          className={cn(
+                            'relative flex w-full cursor-pointer items-center justify-between px-5 py-1.5 text-left text-sm transition-colors duration-200 ease-in-out',
+                            isRootColumn && 'py-4',
+                            isRootColumn &&
+                              categoryIdx !== columnItems.length - 1 &&
+                              'after:absolute after:right-0 after:-bottom-[1.25px] after:left-0 after:mx-auto after:h-[1.25px] after:w-[90%] after:bg-gray-300 after:content-[""]',
+                            isRootColumn
+                              ? isActive
+                                ? 'bg-blue-600 text-white'
+                                : 'text-gray-800 hover:bg-gray-50'
+                              : isActive
+                                ? 'bg-gray-100 text-blue-700'
+                                : 'text-gray-700 hover:text-blue-600'
                           )}
-                          {category.name}
-                        </span>
-                        {hasChildren && (
-                          <ChevronRight
-                            className={`h-3.5 w-3.5 shrink-0 ${
-                              isRootColumn
-                                ? isActive
-                                  ? 'text-white'
-                                  : 'text-gray-600'
-                                : isActive
-                                  ? 'text-blue-500'
-                                  : 'text-gray-600'
-                            }`}
-                          />
-                        )}
-                      </button>
+                        >
+                          <div className='flex items-center gap-1'>
+                            {isRootColumn && (
+                              <div className='aspect-square h-7'>
+                                <div
+                                  className={cn(
+                                    'h-full w-full bg-gray-900 transition-colors duration-200 ease-in-out',
+                                    isActive && 'scale-110 bg-white'
+                                  )}
+                                  style={{
+                                    WebkitMaskImage: `url(${category.imageUrl || '/placeholder-image.svg'})`,
+                                    maskImage: `url(${category.imageUrl || '/placeholder-image.svg'})`,
+                                    WebkitMaskRepeat: 'no-repeat',
+                                    maskRepeat: 'no-repeat',
+                                    WebkitMaskSize: 'contain',
+                                    maskSize: 'contain',
+                                    WebkitMaskPosition: 'center',
+                                    maskPosition: 'center'
+                                  }}
+                                />
+                              </div>
+                            )}
+                            <span className='flex items-center gap-2'>
+                              {depth > 0 && <span className='text-base text-gray-800'>{'>'}</span>}
+                              {category.name}
+                            </span>
+                          </div>
+                          {hasChildren && (
+                            <ChevronRight
+                              className={`h-3.5 w-3.5 shrink-0 ${
+                                isRootColumn
+                                  ? isActive
+                                    ? 'text-white'
+                                    : 'text-gray-600'
+                                  : isActive
+                                    ? 'text-blue-500'
+                                    : 'text-gray-600'
+                              }`}
+                            />
+                          )}
+                        </button>
+                      </Link>
                     )
                   })}
                 </motion.div>
@@ -243,7 +191,6 @@ const DesktopMegaMenu = ({ categoryTree }: { categoryTree: CategoryTreeNodeType[
 }
 
 // ─── Main export ──────────────────────────────────────────────────────────────
-
 export function MegaMenu({ categoryTree }: MegaMenuProps) {
   const [isOpen, setIsOpen] = useState(false)
   const isMobile = useIsMobile()
@@ -288,7 +235,7 @@ export function MegaMenu({ categoryTree }: MegaMenuProps) {
             <div className='px-3 pt-4.5 pb-3 text-xl font-extrabold'>Danh mục sản phẩm</div>
             <Accordion type='multiple' className='w-full'>
               {categoryTree.map((category) => (
-                <AccordionCategoryItem key={category.id} category={category} level={0} />
+                <AccordionCategoryMenuItem key={category.id} category={category} level={0} />
               ))}
             </Accordion>
           </div>
