@@ -208,9 +208,9 @@ class ServerFetchClient {
   /**
    * POST request
    */
-  async post<T = any>(
+  async post<T = any, M = any, B = Record<string, any>>(
     endpoint: string,
-    body: any,
+    body: B,
     options: Omit<RequestInit, 'method' | 'body'> & {
       next?: {
         revalidate?: number | false
@@ -219,8 +219,8 @@ class ServerFetchClient {
       timeout?: number
       signal?: AbortSignal
     } = {}
-  ): Promise<ApiResponse<T>> {
-    return this.fetch<T>(endpoint, {
+  ): Promise<ApiResponse<T, M>> {
+    return this.fetch<T, M>(endpoint, {
       ...options,
       method: 'POST',
       body: JSON.stringify(body)

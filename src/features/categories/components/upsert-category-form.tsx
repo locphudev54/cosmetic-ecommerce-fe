@@ -1,4 +1,5 @@
 'use client'
+import { ImageUploadButton } from '@/components/common/image-upload-button'
 import ReturnBack from '@/components/common/return-back'
 import { TypographyH3, TypographyMuted } from '@/components/common/typography'
 import { Button } from '@/components/ui/button'
@@ -6,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Field, FieldError, FieldLabel } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Spinner } from '@/components/ui/spinner'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { ROUTES } from '@/constants/route.constant'
@@ -14,6 +16,7 @@ import { AttributeSelector } from '@/features/categories/components/attribute-se
 import { useCategory, useCreateCategory, useUpdateCategory } from '@/features/categories/hooks'
 import { UpsertCategoryFormValues, createCategorySchema } from '@/features/categories/schemas'
 import CategorySelection from '@/features/product/components/category-selection'
+import { useUploadSingleImage } from '@/features/upload/hooks/use-upload'
 import { useDialog } from '@/hooks/use-dialog'
 import { handleApiError } from '@/lib/utils'
 import { slugifyString } from '@/utilts/client.utils'
@@ -33,6 +36,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
   const dialog = useDialog()
 
   const [parentAttributes, setParentAttributes] = React.useState<Attribute[]>([])
+  const [categoryImageFile, setcategoryImageFile] = React.useState<File | null>(null)
   const isFirstlyInit = React.useRef(true)
 
   const form = useForm<UpsertCategoryFormValues>({
@@ -41,6 +45,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
       name: '',
       slug: '',
       description: '',
+      imageUrl: undefined,
       parentId: undefined,
       isActive: true,
       metaTitle: '',
@@ -53,7 +58,12 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
 
   // Mutations
   const createCategoryMutation = useCreateCategory()
-  const updateCaegoryMutation = useUpdateCategory()
+  const updateCategoryMutation = useUpdateCategory()
+  const uploadSingleImageMutation = useUploadSingleImage()
+  const isSubmitting =
+    createCategoryMutation.isPending ||
+    updateCategoryMutation.isPending ||
+    uploadSingleImageMutation.isPending
 
   const parentIdValue = form.watch('parentId')
   const initialParentIds = React.useMemo(
@@ -70,6 +80,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
         parentId: categoryData.parentId || undefined,
         isActive: categoryData.isActive,
         metaTitle: categoryData.metaTitle || '',
+        imageUrl: categoryData.imageUrl || undefined,
         metaDescription: categoryData.metaDescription || '',
         attributeIds: categoryData.categoryAttributes
           ? categoryData.categoryAttributes.map((attr) => attr.attributeId)
@@ -192,16 +203,37 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
     )
   }
 
+  const handleFileChange = (files: File[]) => {
+    const file = files[0]
+    setcategoryImageFile(file)
+    if (file) {
+      const previewUrl = URL.createObjectURL(file)
+      form.setValue('imageUrl', previewUrl)
+    } else {
+      form.setValue('imageUrl', undefined)
+    }
+  }
+
   const onSubmit = async (data: UpsertCategoryFormValues) => {
     try {
+      if (categoryImageFile) {
+        const uploadResult = await uploadSingleImageMutation.mutateAsync({
+          file: categoryImageFile,
+          params: { folder: 'category-icons' }
+        })
+        data.imageUrl = uploadResult.url
+      }
+
       if (categoryId) {
-        await updateCaegoryMutation.mutateAsync({ id: categoryId, data })
+        await updateCategoryMutation.mutateAsync({ id: categoryId, data })
       } else {
         await createCategoryMutation.mutateAsync(data)
       }
       toast.success(`Danh mục đã được ${categoryId ? 'cập nhật' : 'tạo'} thành công!`)
       form.reset()
-      router.push(ROUTES.ADMIN.CATEGORY.HOME)
+
+      router.back()
+      // router.push(ROUTES.ADMIN.CATEGORY.HOME)
     } catch (error) {
       handleApiError(error, form)
     }
@@ -214,7 +246,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
     >
       <ReturnBack />
       <div className='grid grid-cols-12 gap-x-4'>
-        <div className='col-span-7'>
+        <div className='col-span-8'>
           <TypographyH3>Danh mục</TypographyH3>
           <Card className='mt-4'>
             <CardContent className='flex flex-col gap-y-4'>
@@ -286,10 +318,10 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                           <TypographyMuted>Mô tả</TypographyMuted>
                         </FieldLabel>
                         <Textarea
-                          className='min-h-24'
+                          className='min-h-40'
                           id='category_description'
                           placeholder='Nhập mô tả danh mục...'
-                          rows={5}
+                          rows={20}
                           {...field}
                         />
                       </Field>
@@ -297,22 +329,19 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                   />
                 </div>
                 <div className='col-span-1'>
-                  <Controller
-                    name='parentId'
-                    control={form.control}
-                    render={({ field, fieldState }) => (
-                      <Field>
-                        <FieldLabel htmlFor='parentId'>
-                          <TypographyMuted>Danh mục cha</TypographyMuted>
-                        </FieldLabel>
-                        <CategorySelection
-                          initialSelectedParentCategoryIds={initialParentIds}
-                          onChange={handleSelectParentCategory}
-                        />
-                        {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-                      </Field>
-                    )}
-                  />
+                  {/* Category Image */}
+                  <Field>
+                    <FieldLabel htmlFor='category_image'>
+                      <TypographyMuted>Hình ảnh</TypographyMuted>
+                    </FieldLabel>
+                    <ImageUploadButton
+                      className='max-h-40 max-w-40'
+                      maxFiles={1}
+                      uploadedImageUrls={[form.getValues('imageUrl')].filter(Boolean) as string[]}
+                      onChange={handleFileChange}
+                      label=''
+                    />
+                  </Field>
                 </div>
               </div>
 
@@ -332,7 +361,7 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
             </CardContent>
           </Card>
         </div>
-        <div className='col-span-5'>
+        <div className='col-span-4'>
           <div className='sticky top-3'>
             {/* Action buttons */}
             <div className='flex items-center justify-end'>
@@ -340,11 +369,11 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                 <Button
                   type='submit'
                   variant={'blue_gradient'}
-                  disabled={createCategoryMutation.isPending}
+                  disabled={updateCategoryMutation.isPending}
                   className='min-w-24'
                 >
-                  <Edit />
-                  {createCategoryMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật'}
+                  {updateCategoryMutation.isPending ? <Spinner /> : <Edit />}
+                  {updateCategoryMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật'}
                 </Button>
               ) : (
                 <Button
@@ -377,6 +406,23 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                           <TypographyMuted>Kích hoạt</TypographyMuted>
                         </Label>
                       </div>
+                    </Field>
+                  )}
+                />
+
+                <Controller
+                  name='parentId'
+                  control={form.control}
+                  render={({ field, fieldState }) => (
+                    <Field>
+                      <FieldLabel htmlFor='parentId'>
+                        <TypographyMuted>Danh mục cha</TypographyMuted>
+                      </FieldLabel>
+                      <CategorySelection
+                        initialSelectedParentCategoryIds={initialParentIds}
+                        onChange={handleSelectParentCategory}
+                      />
+                      {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
                     </Field>
                   )}
                 />

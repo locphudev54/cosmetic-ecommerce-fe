@@ -35,14 +35,14 @@ export default function ProductCard(props: Props) {
             width={0}
             height={0}
             sizes='100vw'
-            src={product.images?.[0]?.url || '/placeholder-image.png'}
+            src={product.images?.[0]?.url || '/placeholder-image.svg'}
             className='h-full w-full object-cover'
             alt={product.name}
           />
         </div>
 
         <div className='absolute top-[19%] left-[50%] flex h-10 w-10 -translate-x-[50%] items-center justify-center rounded-full bg-white text-lg text-[#6d6565] opacity-0 transition-all duration-500 group-hover:opacity-100 hover:bg-[#5e5656] hover:text-white'>
-          <Eye size={18} />
+          <Image src='/eye.svg' width={20} height={20} alt='View' />
         </div>
 
         {/* Brand */}

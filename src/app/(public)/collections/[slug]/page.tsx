@@ -16,7 +16,7 @@ import {
   FindAllCountriesOfOriginQueryParams
 } from '@/features/country-of-origin'
 import { SEARCH_QUERY_KEYS } from '@/features/search/hooks/use-search'
-import { ProductDocument, SearchProductsParams } from '@/features/search/types/search.types'
+import { ProductDocument, SearchProductsBody } from '@/features/search/types/search.types'
 import { getServerQueryClient } from '@/lib/query-client'
 import serverFetchClient from '@/lib/server-fetch'
 import { ApiError, ApiResponse, CursorPaginationMeta, OffsetPaginationMeta } from '@/types'
@@ -87,14 +87,14 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
 
     productIdsOfCollection = collectionData?.products.map((product) => product.productId) || []
 
-    const searchParams: Omit<SearchProductsParams, 'cursor'> = {
+    const searchBody: Omit<SearchProductsBody, 'cursor'> = {
       limit: DEFAULT_PAGINATION_FILTER.limit,
       sortBy: ProductSortBy.CREATED_AT,
       sortOrder: SortOrder.DESC,
       productIds: productIdsOfCollection.length > 0 ? productIdsOfCollection : undefined
     }
 
-    await queryClient.prefetchInfiniteQuery<
+    const res = await queryClient.prefetchInfiniteQuery<
       ApiResponse<ProductDocument[], CursorPaginationMeta>,
       Error,
       InfiniteData<ApiResponse<ProductDocument[], CursorPaginationMeta>>,
@@ -108,17 +108,17 @@ export default async function Page({ params }: { params: Promise<{ slug: string 
         sortOrder: SortOrder.DESC
       }),
       queryFn: ({ pageParam }) => {
-        const fetchParams: SearchProductsParams = {
-          ...searchParams
+        const fetchBody: SearchProductsBody = {
+          ...searchBody
         }
 
         if (pageParam) {
-          fetchParams.cursor = pageParam
+          fetchBody.cursor = pageParam
         }
 
-        return serverFetchClient.get<ProductDocument[], CursorPaginationMeta, SearchProductsParams>(
+        return serverFetchClient.post<ProductDocument[], CursorPaginationMeta, SearchProductsBody>(
           API_ENDPOINTS.SEARCH.PRODUCTS,
-          { params: fetchParams }
+          fetchBody
         )
       },
       initialPageParam: null,
