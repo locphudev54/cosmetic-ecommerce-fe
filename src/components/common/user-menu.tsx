@@ -9,6 +9,7 @@ import { useIsTablet } from '@/hooks/use-mobile'
 import { useAuthStore } from '@/stores/auth-store'
 import { ChevronDown, User } from 'lucide-react'
 import Link from 'next/link'
+import React from 'react'
 
 export default function UserMenu() {
   const { isAuthenticated, user } = useAuthStore()
@@ -56,7 +57,19 @@ export default function UserMenu() {
             Trang quản trị
           </Link>
         )}
-        {isAuthenticated && <LogoutButton />}
+        {isAuthenticated && (
+          <React.Fragment>
+            {/* {user?.role === UserRole.CUSTOMER && ( */}
+            <Link
+              href={ROUTES.ACCOUNT.DASHBOARD}
+              className='hover:bg-accent hover:text-accent-foreground block w-full px-3 py-2 text-sm'
+            >
+              Tài khoản của tôi
+            </Link>
+            {/* )} */}
+            <LogoutButton />
+          </React.Fragment>
+        )}
       </div>
     </>
   )

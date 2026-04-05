@@ -49,8 +49,9 @@ export function AuthInitializer({ accessToken, refreshToken }: AuthInitializerPr
         if (
           !refreshToken
           // || pathname === ROUTES.AUTH.LOGOUT
-        )
+        ) {
           return
+        }
 
         try {
           const response = await internalApiClient.post<RefreshTokenClientResponse>(

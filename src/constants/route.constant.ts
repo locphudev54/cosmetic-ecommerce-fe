@@ -30,6 +30,16 @@ export const ROUTES = {
     DETAIL: (slug: string) => `/collections/${slug}`
   },
 
+  // Accounts
+  ACCOUNT: {
+    DASHBOARD: '/account/dashboard', // View recent orders, manage account details, and access other account-related features.
+    ORDERS: '/account/orders', // View order history, track current orders, and manage returns or cancellations.
+    ORDER_DETAIL: (orderId: string) => `/account/orders/${orderId}`,
+    ADDRESSES: '/account/addresses', // View and manage shipping addresses, choose default address, add new address, edit or delete existing addresses.
+    PROFILE: '/account/profile', // View and edit profile information such as: name, email, phone number, etc.
+    CHANGE_PASSWORD: '/account/change-password'
+  },
+
   // Dashboard
   ADMIN: {
     HOME: '/admin',
