@@ -369,21 +369,21 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
                 <Button
                   type='submit'
                   variant={'blue_gradient'}
-                  disabled={updateCategoryMutation.isPending}
+                  disabled={isSubmitting}
                   className='min-w-24'
                 >
-                  {updateCategoryMutation.isPending ? <Spinner /> : <Edit />}
-                  {updateCategoryMutation.isPending ? 'Đang cập nhật...' : 'Cập nhật'}
+                  {isSubmitting ? <Spinner /> : <Edit />}
+                  {isSubmitting ? 'Đang cập nhật...' : 'Cập nhật'}
                 </Button>
               ) : (
                 <Button
                   type='submit'
                   variant={'blue_gradient'}
-                  disabled={createCategoryMutation.isPending}
+                  disabled={isSubmitting}
                   className='min-w-24'
                 >
                   <Plus />
-                  {createCategoryMutation.isPending ? 'Đang tạo...' : 'Tạo mới'}
+                  {isSubmitting ? 'Đang tạo...' : 'Tạo mới'}
                 </Button>
               )}
             </div>

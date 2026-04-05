@@ -101,7 +101,9 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 control={form.control}
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
-                    <FieldLabel htmlFor='email'>Email</FieldLabel>
+                    <FieldLabel htmlFor='email' required>
+                      Email
+                    </FieldLabel>
                     <Input
                       id='email'
                       type='email'
@@ -119,10 +121,17 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 render={({ field, fieldState }) => (
                   <Field data-invalid={fieldState.invalid}>
                     <div className='flex items-center'>
-                      <FieldLabel htmlFor='password'>Password</FieldLabel>
+                      <FieldLabel htmlFor='password' required>
+                        Password
+                      </FieldLabel>
                       <Link
                         href={ROUTES.AUTH.FORGOT_PASSWORD}
-                        className='ml-auto inline-block text-sm underline-offset-4 hover:underline'
+                        className={cn(
+                          'ml-auto inline-block text-sm underline-offset-4',
+                          loginMutation.isPending
+                            ? 'pointer-events-none cursor-not-allowed opacity-50'
+                            : 'hover:underline'
+                        )}
                       >
                         Quên mật khẩu?
                       </Link>
@@ -165,13 +174,11 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                 </Button>
                 <div className='grid grid-cols-2 gap-x-3'>
                   <div className='col-span-1'>
-                    {' '}
                     <Button
                       type='button'
                       variant={'outline'}
-                      className={cn('w-full', {
-                        'cursor-not-allowed opacity-80': loginMutation.isPending
-                      })}
+                      disabled={loginMutation.isPending}
+                      className={cn('w-full', {})}
                       onClick={() => handleLoginWithSocial('google')}
                     >
                       <Image
@@ -187,9 +194,8 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
                     <Button
                       type='button'
                       variant={'outline'}
-                      className={cn('w-full', {
-                        'cursor-not-allowed opacity-80': loginMutation.isPending
-                      })}
+                      disabled={loginMutation.isPending}
+                      className={cn('w-full', {})}
                       onClick={() => handleLoginWithSocial('facebook')}
                     >
                       <Image
@@ -209,7 +215,12 @@ export function LoginForm({ className, ...props }: React.ComponentProps<'div'>) 
         <CardFooter className='flex-col gap-y-3'>
           <Link
             href={ROUTES.AUTH.REGISTER}
-            className='w-full text-center text-sm text-red-500 dark:text-red-800'
+            className={cn(
+              'w-full text-center text-sm text-red-500 dark:text-red-800',
+              loginMutation.isPending
+                ? 'pointer-events-none cursor-not-allowed opacity-50'
+                : 'hover:underline'
+            )}
           >
             Bạn chưa có tài khoản? Đăng ký ngay
           </Link>

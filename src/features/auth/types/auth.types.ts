@@ -5,6 +5,22 @@ export interface LoginCredentials {
   password: string
 }
 
+export interface RegisterCredentials {
+  email: string
+  password: string
+  fullName?: string
+  phoneNumber?: string
+}
+
+export interface ForgotPasswordRequest {
+  email: string
+}
+
+export interface ResetPasswordRequest {
+  resetToken: string
+  newPassword: string
+}
+
 export interface RefreshTokenClientResponse {
   user: User
   accessToken: string
@@ -19,3 +35,8 @@ export interface RefreshTokenServerResponse {
 export type LoginClientResponse = RefreshTokenClientResponse
 
 export type LoginServerResponse = RefreshTokenServerResponse
+
+// Register returns the same shape as login (auto-login after registration)
+export type RegisterClientResponse = LoginClientResponse
+
+export type RegisterServerResponse = LoginServerResponse

@@ -88,10 +88,8 @@ export function UpsertAttributeForm({ onSuccess, attribute }: UpsertAttributeFor
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel htmlFor='attribute_name'>
-              <TypographyMuted>
-                Tên <span className='text-destructive'>(*)</span>
-              </TypographyMuted>
+            <FieldLabel htmlFor='attribute_name' required>
+              <TypographyMuted>Tên</TypographyMuted>
             </FieldLabel>
             <Input
               disabled={isSubmitting}
@@ -144,10 +142,8 @@ export function UpsertAttributeForm({ onSuccess, attribute }: UpsertAttributeFor
         control={form.control}
         render={({ field, fieldState }) => (
           <Field data-invalid={fieldState.invalid}>
-            <FieldLabel>
-              <TypographyMuted>
-                Giá Trị <span className='text-destructive'>(*)</span>
-              </TypographyMuted>
+            <FieldLabel required>
+              <TypographyMuted>Giá Trị</TypographyMuted>
             </FieldLabel>
             <TagsInput
               disabled={isSubmitting}

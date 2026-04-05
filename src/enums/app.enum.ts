@@ -2,9 +2,9 @@
  * User role enum
  */
 export enum UserRole {
-  CUSTOMER = 'customer',
-  ADMIN = 'admin',
-  STAFF = 'staff'
+  CUSTOMER = 'CUSTOMER',
+  ADMIN = 'ADMIN',
+  STAFF = 'STAFF'
 }
 
 /**
