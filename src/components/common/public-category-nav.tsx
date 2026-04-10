@@ -7,22 +7,45 @@ import { Button } from '@/components/ui/button'
 import { HoverCard, HoverCardContent, HoverCardTrigger } from '@/components/ui/hover-card'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { ROUTES } from '@/constants/route.constant'
+import { useCategoryTree } from '@/features/categories/hooks'
 import { CategoryTreeNodeType } from '@/features/categories/types'
 import { useIsTablet } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import { ChevronDown } from 'lucide-react'
 import Link from 'next/link'
 
-interface PublicCategoryNavProps {
-  categoryTree?: CategoryTreeNodeType[]
-  prunedCategoryTree: CategoryTreeNodeType[]
-}
+const CATEGORY_SUB_MENU_MAX_DEPTH = 2 // Max depth of category tree to show in the sub-menu
+const CATEGORY_MEGA_MENU_MAX_DEPTH = 5 // Max depth of category tree to show in the menu
 
-export default function PublicCategoryNav({
-  categoryTree = [],
-  prunedCategoryTree
-}: PublicCategoryNavProps) {
+export default function PublicCategoryNav() {
   const isTabletOrBelow = useIsTablet()
+  const { data: categoryTreeData } = useCategoryTree({
+    isDeleted: false,
+    maxDepth: CATEGORY_MEGA_MENU_MAX_DEPTH
+  })
+
+  // Prune the category tree with the max depth is 3
+  const truncateCategoryTree = (
+    nodes: CategoryTreeNodeType[],
+    currentDepth: number,
+    maxDepth: number
+  ): CategoryTreeNodeType[] => {
+    if (currentDepth > maxDepth) {
+      return []
+    }
+    return nodes.map((node) => ({
+      ...node,
+      children: node.children ? truncateCategoryTree(node.children, currentDepth + 1, maxDepth) : []
+    }))
+  }
+
+  const categoryTree = categoryTreeData || []
+
+  const prunedCategoryTree = truncateCategoryTree(
+    categoryTree || [],
+    0,
+    CATEGORY_SUB_MENU_MAX_DEPTH
+  )
 
   return (
     <div className='bg-business-primary py-1.5'>
@@ -33,7 +56,9 @@ export default function PublicCategoryNav({
             const triggerButton = (
               <Button
                 variant={'ghost'}
-                className='rounded font-bold transition-colors duration-200 group-hover:bg-black group-hover:text-white hover:bg-black hover:text-white'
+                className={cn(
+                  'rounded font-bold transition-colors duration-200 group-hover:bg-black group-hover:text-white hover:bg-black hover:text-white'
+                )}
               >
                 <span className='uppercase'>{category.name}</span>
                 <ChevronDown
@@ -54,15 +79,6 @@ export default function PublicCategoryNav({
                       sideOffset={11}
                       className='custom-scrollbar max-h-125 overflow-y-auto rounded p-2'
                     >
-                      <div className='px-2 pb-2 text-sm font-medium'>
-                        <Link
-                          href={ROUTES.COLLECTIONS.DETAIL(category.slug)}
-                          className='hover:text-business-primary'
-                        >
-                          Xem tất cả {category.name}
-                        </Link>
-                      </div>
-                      <div className='bg-border h-px' />
                       <Accordion type='multiple' className='py-0'>
                         {category.children?.map((childCategory) => (
                           <AccordionCategoryMenuItem

@@ -2,6 +2,7 @@ import { AccordionContent, AccordionItem, AccordionTrigger } from '@/components/
 import { ROUTES } from '@/constants/route.constant'
 import { CategoryTreeNodeType } from '@/features/categories/types'
 import { cn } from '@/lib/utils'
+import { after } from 'next/dist/server/after/after'
 import Link from 'next/link'
 
 interface AccordionCategoryMenuItemProps {
@@ -52,7 +53,7 @@ export const AccordionCategoryMenuItem = ({
       ) : (
         <AccordionTrigger
           className={cn(
-            'ptext-left flex cursor-pointer items-center justify-between px-4 py-3 text-sm text-gray-700 transition-colors hover:text-blue-600 hover:no-underline',
+            'flex cursor-pointer items-center justify-between px-4 py-3 text-left text-sm text-gray-700 transition-colors hover:text-blue-600 hover:no-underline',
             isRootCategory && 'font-bold'
           )}
           style={{ paddingLeft: `${16 + level * 16}px` }}

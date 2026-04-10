@@ -112,6 +112,17 @@ export const API_ENDPOINTS = {
     BULK_REMOVE: '/cart/items/bulk-delete',
     MERGE: '/cart/merge',
     VARIANTS: (productId: string) => `/cart/variants/${productId}`
+  },
+
+  // Orders
+  ORDERS: {
+    LIST: '/orders',
+    CREATE: '/orders',
+    GUEST_CREATE: '/orders/guest',
+    DETAIL: (id: string) => `/orders/${id}`,
+    CANCEL: (id: string) => `/orders/${id}/cancel`,
+    UPDATE_STATUS: (id: string) => `/orders/${id}/status`,
+    SHIPPING_FEE: '/orders/shipping-fee'
   }
 } as const
 

@@ -17,7 +17,7 @@ export default function Cart() {
   const totalPrice = cart?.totalPrice ? Number(cart.totalPrice) : 0
 
   const triggerContent = (
-    <div className='flex cursor-pointer items-center gap-x-2.5'>
+    <Link href={ROUTES.CART} className='flex cursor-pointer items-center gap-x-2.5'>
       <div className='relative'>
         {/* Badge contain CartItems length */}
         <div className='bg-business-secondary absolute -top-2.5 -right-2.5 flex aspect-square h-5 items-center justify-center rounded-full text-[11px] text-white'>
@@ -40,7 +40,7 @@ export default function Cart() {
       <div>
         <span>Giỏ hàng</span>
       </div>
-    </div>
+    </Link>
   )
 
   const cartContent = (
@@ -50,7 +50,7 @@ export default function Cart() {
           <Loader2 size={24} className='animate-spin text-gray-400' />
         </div>
       ) : cartItems.length > 0 ? (
-        <div className='custom-scrollbar flex max-h-[288px] flex-col gap-y-2 overflow-y-scroll'>
+        <div className='custom-scrollbar flex max-h-100 min-h-80 flex-col gap-y-2 overflow-y-auto'>
           {cartItems.map((item) => (
             <CartItem cartItem={item} key={item.id} />
           ))}
@@ -68,7 +68,7 @@ export default function Cart() {
           <span className='text-originalRed font-bold'>₫{formatNumberWithCommas(totalPrice)}</span>
         </div>
         <Link href={ROUTES.CART}>
-          <button className='bg-business-secondary mt-4 w-full rounded-full px-5 py-2 font-medium text-white hover:opacity-80'>
+          <button className='bg-business-secondary mt-4 w-full cursor-pointer rounded-full px-5 py-2 font-medium text-white hover:opacity-80'>
             Xem giỏ hàng
           </button>
         </Link>

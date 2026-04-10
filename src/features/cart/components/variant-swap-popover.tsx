@@ -31,7 +31,16 @@ export default function VariantSwapPopover({
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger asChild>{trigger}</PopoverTrigger>
+      <PopoverTrigger
+        asChild
+        onClick={(e) => {
+          e.stopPropagation() // prevents bubbling to Link
+          e.preventDefault() // prevents navigation
+          setOpen((prev) => !prev)
+        }}
+      >
+        {trigger}
+      </PopoverTrigger>
       <PopoverContent align='start' className='w-[320px] p-0' sideOffset={8}>
         <div className='border-b border-gray-100 px-4 py-3'>
           <div className='flex items-center gap-x-2 text-sm font-semibold'>

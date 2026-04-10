@@ -1,4 +1,5 @@
 import slugify from 'slugify'
+import { nanoid } from 'nanoid'
 import { isClient } from '@/lib/utils'
 
 export function slugifyString(text: string): string {
@@ -67,6 +68,48 @@ export function getSearchHistory(): string[] {
 export function saveSearchHistory(history: string[]): void {
   if (!isClient) return
   localStorage.setItem('searchHistory', JSON.stringify(history))
+}
+
+type CartIdempotencyEntry = {
+  key: string
+  createdAt: number
+}
+
+const CART_IDEMPOTENCY_KEY_PREFIX = 'checkoutIdempotency:cart:'
+
+function getCartIdempotencyStorageKey(cartId: string): string {
+  return `${CART_IDEMPOTENCY_KEY_PREFIX}${cartId}`
+}
+
+function generateCartIdempotencyKey(): string {
+  return `idem_${Date.now()}_${nanoid(12)}`
+}
+
+export function getOrCreateCartIdempotencyKey(cartId: string): string {
+  if (!isClient) return ''
+
+  const storageKey = getCartIdempotencyStorageKey(cartId)
+  try {
+    const raw = localStorage.getItem(storageKey)
+    if (raw) {
+      const parsed = JSON.parse(raw) as CartIdempotencyEntry
+      if (parsed?.key) return parsed.key
+    }
+  } catch (error) {
+    console.error('Failed to read cart idempotency key', error)
+  }
+
+  const entry: CartIdempotencyEntry = {
+    key: generateCartIdempotencyKey(),
+    createdAt: Date.now()
+  }
+  localStorage.setItem(storageKey, JSON.stringify(entry))
+  return entry.key
+}
+
+export function clearCartIdempotencyKey(cartId: string): void {
+  if (!isClient) return
+  localStorage.removeItem(getCartIdempotencyStorageKey(cartId))
 }
 
 export const formatNumberToVnCurrency = (number: number) => {
