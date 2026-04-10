@@ -19,7 +19,7 @@ const authRoutes = [
   ROUTES.AUTH.OAUTH_CALLBACK
 ]
 
-const protectedRoutesPrefixes = [ROUTES.ADMIN.HOME]
+const protectedRoutesPrefixes = ['/account', '/admin', '/orders']
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl
@@ -111,6 +111,8 @@ export async function proxy(request: NextRequest) {
 export const config = {
   matcher: [
     '/admin/:path*',
+    '/account/:path*',
+    '/orders/:path*',
     '/login',
     '/register',
     '/forgot-password',

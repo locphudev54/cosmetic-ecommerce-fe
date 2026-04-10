@@ -1,6 +1,6 @@
 'use client'
 
-import { BookOpen, GalleryVerticalEnd, Package2, Settings2 } from 'lucide-react'
+import { BookOpen, GalleryVerticalEnd, Package2, Settings2, Package } from 'lucide-react'
 import * as React from 'react'
 
 import { NavMain } from '@/components/common/nav-main'
@@ -101,6 +101,18 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
                 {
                   title: 'Tạo mới',
                   url: ROUTES.ADMIN.COLLECTION.NEW
+                }
+              ]
+            },
+            {
+              title: 'Đơn hàng',
+              url: ROUTES.ADMIN.ORDER.HOME,
+              icon: Package,
+              isActive: true,
+              items: [
+                {
+                  title: 'Danh sách',
+                  url: ROUTES.ADMIN.ORDER.HOME
                 }
               ]
             }

@@ -19,11 +19,12 @@ import {
   useCartSelectionStore
 } from '@/features/cart/store/cart-selection-store'
 import { cn, formatNumberWithCommas, handleApiError } from '@/lib/utils'
-import { Inbox, Ticket, Trash2 } from 'lucide-react'
+import { Inbox, Loader2, Ticket, Trash2 } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useMemo } from 'react'
 import { toast } from 'sonner'
+import { useShallow } from 'zustand/react/shallow'
 
 export default function CartPage() {
   const router = useRouter()
@@ -33,8 +34,14 @@ export default function CartPage() {
   // Real-time sync for authenticated users
   useCartSocket()
 
-  const { selectedItemIds, selectAll, clearSelection, removeFromSelection } =
-    useCartSelectionStore()
+  const { selectedItemIds, selectAll, clearSelection, removeFromSelection } = useCartSelectionStore(
+    useShallow((state) => ({
+      selectedItemIds: state.selectedItemIds,
+      clearSelection: state.clearSelection,
+      selectAll: state.selectAll,
+      removeFromSelection: state.removeFromSelection
+    }))
+  )
 
   const cartItems = cartData?.items ?? []
   const cartVersion = cartData?.version ?? 1
@@ -71,23 +78,10 @@ export default function CartPage() {
     }
   }
 
-  const handleCheckout = () => {
+  const navigateToCheckoutPage = () => {
     if (selectedCount === 0) return
     router.push(ROUTES.CHECKOUT)
   }
-
-  // Loading state
-  // if (isLoading) {
-  //   return (
-  //     <div className='min-h-screen bg-gray-50 pb-10'>
-  //       <div className='container'>
-  //         <div className='flex min-h-[500px] items-center justify-center'>
-  //           <Loader2 size={32} className='animate-spin text-gray-400' />
-  //         </div>
-  //       </div>
-  //     </div>
-  //   )
-  // }
 
   return (
     <div className='min-h-screen pb-10'>
@@ -146,15 +140,19 @@ export default function CartPage() {
 
         {/* Item list */}
         <div>
-          <div className='mt-5 rounded-sm border border-gray-100 bg-white px-4 py-5 shadow-md min-h-[40vh]'>
-            {cartItems.length > 0 ? (
+          <div className='mt-5 min-h-[40vh] rounded-sm border border-gray-100 bg-white px-4 py-5 shadow-md'>
+            {isLoading ? (
+              <div className='flex min-h-[40vh] items-center justify-center'>
+                <Loader2 size={32} className='animate-spin text-gray-400' />
+              </div>
+            ) : cartItems.length > 0 ? (
               <div className=''>
                 {cartItems.map((item) => (
                   <CartItemRow key={item.id} item={item} cartVersion={cartVersion} />
                 ))}
               </div>
             ) : (
-              <div className='flex  flex-col items-center justify-center gap-y-3'>
+              <div className='flex flex-col items-center justify-center gap-y-3'>
                 <Inbox strokeWidth={1} size={48} className='text-gray-500' />
                 <span className='text-gray-500'>Giỏ hàng trống</span>
                 <Link href={ROUTES.COLLECTIONS.ALL}>
@@ -223,7 +221,7 @@ export default function CartPage() {
                     </span>
                   </div>
                   <button
-                    onClick={handleCheckout}
+                    onClick={navigateToCheckoutPage}
                     disabled={selectedCount === 0}
                     className={cn(
                       'rounded-sm bg-black px-14 py-4 text-[15px] font-medium text-white capitalize',

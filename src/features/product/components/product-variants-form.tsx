@@ -552,7 +552,7 @@ export default function ProductVariantsForm({ onChange, ...props }: Props) {
                       <ChevronDown className='h-4 w-4' />
                     </ComboboxTrigger>
                   </ComboboxAnchor>
-                  <ComboboxContent>
+                  <ComboboxContent className='custom-scrollbar max-h-60 overflow-y-scroll'>
                     <ComboboxEmpty>Không tìm thấy giá trị thuộc tính nào</ComboboxEmpty>
                     {attributeItemValues.map((attItemValue) => (
                       <ComboboxItem

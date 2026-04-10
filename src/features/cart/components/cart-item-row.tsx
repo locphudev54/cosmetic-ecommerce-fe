@@ -11,6 +11,7 @@ import { formatNumberWithCommas, handleApiError } from '@/lib/utils'
 import { Trash2 } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useShallow } from 'zustand/react/shallow'
 
 interface Props {
   item: CartItemType
@@ -27,7 +28,12 @@ export default function CartItemRow({ item, cartVersion }: Props) {
     ?.map((av) => av.attributeValue.value)
     .join(' / ')
 
-  const { toggleItem, isSelected } = useCartSelectionStore()
+  const { toggleItem, isSelected } = useCartSelectionStore(
+    useShallow((state) => ({
+      toggleItem: state.toggleItem,
+      isSelected: state.isSelected
+    }))
+  )
   const selected = isSelected(item.id)
   const updateMutation = useUpdateCartItem()
   const removeMutation = useRemoveCartItem()
@@ -70,42 +76,42 @@ export default function CartItemRow({ item, cartVersion }: Props) {
             onChange={() => toggleItem(item.id)}
             className='h-4 w-4 cursor-pointer rounded-none accent-black'
           />
-          {/* <Link href={`/products/${productSlug}`} className='flex gap-x-3 rounded-sm'> */}
-          <div className='h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gray-100'>
-            <Image
-              width={80}
-              height={80}
-              alt={product.name}
-              src={productImage}
-              className='h-full w-full object-cover'
-            />
-          </div>
-          <div className='flex flex-col justify-center'>
-            <h3 className='mb-1 line-clamp-2 max-w-72 text-sm font-medium'>{product.name}</h3>
-            {attributeString && (
-              <div className='flex items-center gap-x-1'>
-                <span className='text-xs text-gray-500'>Phân loại:</span>
-                <VariantSwapPopover
-                  productId={productVariant.productId}
-                  currentVariantId={productVariant.id}
-                  onSwap={handleVariantSwap}
-                  trigger={
-                    <button className='cursor-pointer text-xs font-medium text-blue-600 hover:underline'>
-                      {attributeString}
-                    </button>
-                  }
-                />
-              </div>
-            )}
-            {/* Price change notification */}
-            {item.priceChanged && (
-              <PriceChangeBanner
-                previousPrice={item.previousPrice!}
-                currentPrice={item.currentPrice!}
+          <Link href={`/products/${productSlug}`} className='flex gap-x-3 rounded-sm'>
+            <div className='h-20 w-20 shrink-0 overflow-hidden rounded-md border border-gray-100'>
+              <Image
+                width={80}
+                height={80}
+                alt={product.name}
+                src={productImage}
+                className='h-full w-full object-cover'
               />
-            )}
-          </div>
-          {/* </Link> */}
+            </div>
+            <div className='flex flex-col justify-center'>
+              <h3 className='mb-1 line-clamp-2 max-w-72 text-sm font-medium'>{product.name}</h3>
+              {attributeString && (
+                <div className='flex items-center gap-x-1'>
+                  <span className='text-xs text-gray-500'>Phân loại:</span>
+                  <VariantSwapPopover
+                    productId={productVariant.productId}
+                    currentVariantId={productVariant.id}
+                    onSwap={handleVariantSwap}
+                    trigger={
+                      <button className='cursor-pointer text-xs font-medium text-blue-600 hover:underline'>
+                        {attributeString}
+                      </button>
+                    }
+                  />
+                </div>
+              )}
+              {/* Price change notification */}
+              {item.priceChanged && (
+                <PriceChangeBanner
+                  previousPrice={item.previousPrice!}
+                  currentPrice={item.currentPrice!}
+                />
+              )}
+            </div>
+          </Link>
         </div>
       </div>
 

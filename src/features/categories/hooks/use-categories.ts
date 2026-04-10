@@ -32,7 +32,7 @@ export const useCategories = (
 
 export const useCategoryTree = (params: GetCategoryTreeQueryParams) => {
   return useQuery({
-    queryKey: CATEGORY_QUERY_KEYS.tree(),
+    queryKey: CATEGORY_QUERY_KEYS.tree(params),
     queryFn: () => categoryService.getCategoryTree(params)
   })
 }

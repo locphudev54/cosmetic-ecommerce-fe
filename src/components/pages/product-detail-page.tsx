@@ -25,7 +25,7 @@ import type { ProductVariant } from '@/features/product/types'
 import { cn, handleApiError } from '@/lib/utils'
 import type { CarouselImage } from '@/types/carousel'
 import { formatNumberToVnCurrency } from '@/utilts/client.utils'
-import { Box, Phone, Truck } from 'lucide-react'
+import { Box, Phone, Truck, ZoomIn } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
@@ -104,13 +104,12 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
     return Array.from(attributeMap.values())
   }, [variants])
 
+  const toggleItem = useCartSelectionStore((s) => s.toggleItem)
   const [selectedAttributes, setSelectedAttributes] = React.useState<Record<string, string>>({})
   const [buyCount, setBuyCount] = React.useState<number>(1)
   const [galleryApi, setGalleryApi] = React.useState<CarouselApi | null>(null)
   const [selectedIndex, setSelectedIndex] = React.useState(0)
   const [lightboxIndex, setLightboxIndex] = React.useState(-1)
-
-  const { toggleItem } = useCartSelectionStore()
 
   const addToCartMutation = useAddToCart()
 
@@ -261,10 +260,13 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
     if (!galleryApi || !selectedVariant) return
     const variantIndex = galleryImages.findIndex((image) => image.variantId === selectedVariant.id)
 
-    if (variantIndex >= 0 && variantIndex !== selectedIndex) {
+    if (variantIndex < 0) return
+
+    const currentIndex = galleryApi.selectedScrollSnap()
+    if (currentIndex !== variantIndex) {
       galleryApi.scrollTo(variantIndex)
     }
-  }, [galleryApi, galleryImages, selectedIndex, selectedVariant])
+  }, [galleryApi, galleryImages, selectedVariant])
 
   if (isLoading) {
     return <div className='customer-page-container min-h-screen py-10'>Đang tải...</div>
@@ -337,7 +339,7 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                     <button
                       type='button'
                       onClick={() => setLightboxIndex(index)}
-                      className='aspect-square w-full overflow-hidden rounded-md border border-gray-100 bg-white'
+                      className='group relative aspect-square w-full overflow-hidden rounded-md border border-gray-100 bg-white'
                     >
                       <Image
                         src={image.src}
@@ -347,6 +349,12 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                         height={0}
                         sizes='100vw'
                       />
+
+                      <span className='pointer-events-none absolute inset-0 flex cursor-pointer items-center justify-center opacity-0 transition-opacity duration-200 group-hover:opacity-100'>
+                        <span className='flex h-11 w-11 items-center justify-center rounded-full bg-white/90 text-gray-700 shadow'>
+                          <ZoomIn className='h-5 w-5' />
+                        </span>
+                      </span>
                     </button>
                   </CarouselItem>
                 ))}
@@ -362,7 +370,7 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                   type='button'
                   onClick={() => galleryApi?.scrollTo(index)}
                   className={cn(
-                    'aspect-square w-20 shrink-0 overflow-hidden rounded-md border bg-white',
+                    'aspect-square w-20 shrink-0 cursor-pointer overflow-hidden rounded-md border bg-white',
                     index === selectedIndex ? 'border-business-secondary' : 'border-gray-100'
                   )}
                 >
@@ -468,7 +476,7 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                                   }))
                                 }
                                 className={cn(
-                                  'relative flex min-w-[120px] items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition',
+                                  'relative flex min-w-30 items-center justify-center gap-2 rounded-md border px-4 py-2 text-sm font-medium transition',
                                   isSelected
                                     ? 'border-red-500 text-red-500'
                                     : 'border-gray-200 text-gray-900 hover:border-red-300',
@@ -478,7 +486,7 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
                               >
                                 <span className='line-clamp-2 text-center'>{value.value}</span>
                                 {isSelected && (
-                                  <span className='absolute right-0 bottom-0 h-5 w-5 rounded-tl-md bg-red-500'>
+                                  <span className='absolute right-0 bottom-0 h-5 w-5 rounded-tl-md rounded-br-md bg-red-500'>
                                     <span className='absolute right-1 bottom-1 h-2 w-1.5 rotate-45 border-r-2 border-b-2 border-white' />
                                   </span>
                                 )}

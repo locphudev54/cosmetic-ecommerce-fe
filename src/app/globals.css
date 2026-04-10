@@ -158,31 +158,32 @@
   }
 
   .custom-scrollbar {
-    @apply overflow-y-auto;
+    @apply overflow-auto;
+  }
+
+  /* Scrollbar size */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 0.25rem; /* vertical scrollbar */
+    height: 0.25rem; /* horizontal scrollbar */
   }
 
   /* Light mode */
-  .custom-scrollbar::-webkit-scrollbar {
-    width: 0.25rem; /* w-2 */
-  }
-
   .custom-scrollbar::-webkit-scrollbar-track {
-    background-color: #f3f4f6; /* gray-100 */
+    background-color: #f3f4f6;
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #b5b8ba; /* gray-300 */
+    background-color: #b5b8ba;
   }
 
   /* Dark mode */
   .dark .custom-scrollbar::-webkit-scrollbar-track {
-    background-color: #404040; /* neutral-700 */
+    background-color: #404040;
   }
 
   .dark .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #737373; /* neutral-500 */
+    background-color: #737373;
   }
-
   /* Hide scrollbar but keep scrolling */
   .hidden-scrollbar::-webkit-scrollbar {
     display: none; /* Chrome, Safari, Edge */

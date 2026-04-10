@@ -108,12 +108,7 @@ function CompactHeader({ onSearch }: { onSearch: (query: string) => void }) {
   )
 }
 
-interface HeaderProps {
-  categoryTree?: CategoryTreeNodeType[]
-  prunedCategoryTree: CategoryTreeNodeType[]
-}
-
-export default function Header({ categoryTree, prunedCategoryTree }: HeaderProps) {
+export default function Header() {
   const [mode, setMode] = React.useState<HeaderMode>('full')
   const [isHidden, setIsHidden] = React.useState(false)
   const [headerHeight, setHeaderHeight] = React.useState(0)
@@ -238,17 +233,11 @@ export default function Header({ categoryTree, prunedCategoryTree }: HeaderProps
       >
         {shouldCompact ? (
           // <CompactHeader onSearch={handleSearch} />
-          <PublicCategoryNav
-            categoryTree={categoryTree || []}
-            prunedCategoryTree={prunedCategoryTree}
-          />
+          <PublicCategoryNav />
         ) : (
           <React.Fragment>
             <FullHeader onSearch={handleSearch} />
-            <PublicCategoryNav
-              categoryTree={categoryTree || []}
-              prunedCategoryTree={prunedCategoryTree}
-            />
+            <PublicCategoryNav />
           </React.Fragment>
         )}
       </motion.div>

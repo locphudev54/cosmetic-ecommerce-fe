@@ -66,6 +66,10 @@ export const ROUTES = {
     },
     COUNTRY_OF_ORIGIN: {
       HOME: '/admin/country-of-origin'
+    },
+    ORDER: {
+      HOME: '/admin/orders',
+      DETAIL: (id: string) => `/admin/orders/${id}`
     }
   }
 }

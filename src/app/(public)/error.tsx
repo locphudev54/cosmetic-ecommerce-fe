@@ -9,10 +9,10 @@ export default function Error({ error, reset }: { error: ApiError | Error; reset
   const router = useRouter()
 
   return (
-    <div className='flex min-h-screen flex-col items-center justify-center gap-5'>
-      <h2>Something went wrong!</h2>
-      <p>{JSON.stringify(error)}</p>
-      <Button
+    <div className='flex min-h-[50vh] items-center justify-center text-lg text-gray-600'>
+      <h2> Vui lòng truy cập lại website sau khoảng 5 phút nếu có lỗi xảy ra</h2>
+      {/* <p>{JSON.stringify(error)}</p> */}
+      {/* <Button
         variant={'default'}
         onClick={() => {
           router.refresh() // re-call failed api requests
@@ -20,7 +20,7 @@ export default function Error({ error, reset }: { error: ApiError | Error; reset
         }}
       >
         Try again
-      </Button>
+      </Button> */}
     </div>
   )
 }

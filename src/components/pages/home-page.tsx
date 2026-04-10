@@ -19,13 +19,10 @@ import { useProducts } from '@/features/product/hooks'
 import Image from 'next/image'
 import React from 'react'
 
-import { envClient } from '@/config/env.client'
 import { Button } from '@/components/ui/button'
+import { envClient } from '@/config/env.client'
 import { Check, Copy } from 'lucide-react'
 import { toast } from 'sonner'
-import { Input } from '@/components/ui/input'
-import LocComponent from '@/components/pages/loc-component'
-import LocComponentVip from '@/components/pages/loc-component-vip'
 
 export default function HomePage() {
   const isDevelopment = envClient.NEXT_PUBLIC_NODE_ENV === 'development'
@@ -125,7 +122,7 @@ export default function HomePage() {
                   key={product.id}
                   className='basis-1/2 pl-3 sm:basis-1/3 md:basis-1/4 lg:basis-1/6'
                 >
-                  <ProductCard key={product.id} product={product} />
+                  <ProductCard key={product.id} product={product as any} />
                 </CarouselItem>
               ))}
             </CarouselContent>
