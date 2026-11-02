@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/auth-store'
 import { Loader2, ShieldCheck } from 'lucide-react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import React, { useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 export default function Page() {
   const router = useRouter()
@@ -17,8 +18,12 @@ export default function Page() {
   const accessToken = searchParams.get(JSON_WEB_TOKEN_KEYS.ACCESS_TOKEN)
   const refreshToken = searchParams.get(JSON_WEB_TOKEN_KEYS.REFRESH_TOKEN)
 
-  const setAccessToken = useAuthStore((state) => state.setAccessToken)
-  const setUser = useAuthStore((state) => state.setUser)
+  const { setAccessToken, setUser } = useAuthStore(
+    useShallow((state) => ({
+      setAccessToken: state.setAccessToken,
+      setUser: state.setUser
+    }))
+  )
 
   const syncTokensMutation = useSyncTokensMutation()
 
@@ -62,10 +67,8 @@ export default function Page() {
 
         {/* Text */}
         <div className='text-center'>
-          <h2 className='text-lg font-semibold text-foreground'>Đang xác thực...</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            Vui lòng đợi trong giây lát
-          </p>
+          <h2 className='text-foreground text-lg font-semibold'>Đang xác thực...</h2>
+          <p className='text-muted-foreground mt-1 text-sm'>Vui lòng đợi trong giây lát</p>
         </div>
 
         {/* Spinner */}

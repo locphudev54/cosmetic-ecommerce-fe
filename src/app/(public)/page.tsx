@@ -1,4 +1,4 @@
-import HomagePage from '@/components/pages/home-page'
+import HomePage from '@/components/pages/home-page'
 import { API_ENDPOINTS } from '@/constants/api.constant'
 import { PRODUCT_QUERY_KEYS } from '@/features/product/hooks'
 import { Product } from '@/features/product/types'
@@ -19,7 +19,7 @@ export default async function Page() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <HomagePage />
+      <HomePage />
     </HydrationBoundary>
   )
 }

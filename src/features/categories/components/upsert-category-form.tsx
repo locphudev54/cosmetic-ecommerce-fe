@@ -63,7 +63,8 @@ export default function UpsertCategoryForm({ categoryId }: UpsertCategoryFormPro
   const isSubmitting =
     createCategoryMutation.isPending ||
     updateCategoryMutation.isPending ||
-    uploadSingleImageMutation.isPending
+    uploadSingleImageMutation.isPending ||
+    form.formState.isSubmitting
 
   const parentIdValue = form.watch('parentId')
   const initialParentIds = React.useMemo(

@@ -1,5 +1,38 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Run with Docker
+
+Build Docker image from the `client` folder:
+
+```powershell
+cd client
+
+Get-Content .env.prod | ForEach-Object {
+  if ($_ -match '^\s*([^#][^=]+)=(.*)$') {
+    Set-Item -Path "Env:$($matches[1].Trim())" -Value $matches[2]
+  }
+}
+
+docker build -t cosmetic-client `
+  --build-arg NEXT_PUBLIC_BACKEND_API_URL `
+  --build-arg NEXT_PUBLIC_API_URL `
+  --build-arg NEXT_PUBLIC_NODE_ENV `
+  --build-arg NEXT_PUBLIC_LOGOUT_SECRET_KEY `
+  --build-arg BACKEND_API_URL `
+  --build-arg API_URL `
+  .
+```
+
+Run the container:
+
+```powershell
+docker run --rm --name cosmetic-client --env-file .env.prod -p 3000:3000 cosmetic-client
+```
+
+Open `http://localhost:3000`.
+
+If the backend runs on your host machine, use `host.docker.internal` for server-side URLs inside `.env.prod`, for example `BACKEND_API_URL=http://host.docker.internal:8080`. Browser-facing variables like `NEXT_PUBLIC_BACKEND_API_URL` can still point to `http://localhost:8080`.
+
 ## Getting Started
 
 First, run the development server:

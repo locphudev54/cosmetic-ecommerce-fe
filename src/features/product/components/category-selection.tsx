@@ -45,7 +45,7 @@ function CategorySelection({
   // const setCategories = useCategoryTreeStore((s) => s.setCategories)
   // const setMultiSelect = useCategoryTreeStore((s) => s.setMultiSelect)
   // const setShowProductCount = useCategoryTreeStore((s) => s.setShowProductCount)
-  // const clearSelection = useCategoryTreeStore((s) => s.clearSelection)
+  // const clearCartSelection = useCategoryTreeStore((s) => s.clearCartSelection)
 
   // The second way: use a single selector to get all the necessary state and actions from the store, this way we can ensure that the component only re-renders when the relevant parts of the state change
   const {
@@ -54,7 +54,7 @@ function CategorySelection({
     setCategories,
     setMultiSelect,
     setShowProductCount,
-    clearSelection,
+    clearCartSelection,
     expandNodes,
     primaryCategoryId,
     setPrimaryCategoryId
@@ -67,14 +67,14 @@ function CategorySelection({
       setCategories: s.setCategories,
       setMultiSelect: s.setMultiSelect,
       setShowProductCount: s.setShowProductCount,
-      clearSelection: s.clearSelection,
+      clearCartSelection: s.clearCartSelection,
       expandNodes: s.expandNodes
     }))
   )
 
   // The third way: use the store state and actions directly in the component without destructuring, this way we can avoid unnecessary re-renders caused by changing references of the destructured variables, but it may make the code less readable and harder to maintain
   // const categoryTreeStore = useCategoryTreeStore(s => s)
-  // const { selectedCategories, toggleSelect, setCategories, setMultiSelect, setShowProductCount, clearSelection } = categoryTreeStore
+  // const { selectedCategories, toggleSelect, setCategories, setMultiSelect, setShowProductCount, clearCartSelection } = categoryTreeStore
 
   const { data } = useCategoryTree({ isDeleted: false })
   const categoryTreeNodeList = useMemo(() => data || [], [data])
@@ -152,9 +152,9 @@ function CategorySelection({
 
   React.useEffect(() => {
     return () => {
-      clearSelection()
+      clearCartSelection()
     }
-  }, [clearSelection])
+  }, [clearCartSelection])
 
   // Sync selectedCategories + primaryCategoryId to the parent form field
   React.useEffect(() => {

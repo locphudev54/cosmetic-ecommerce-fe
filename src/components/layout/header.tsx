@@ -1,15 +1,14 @@
 'use client'
 
-import React from 'react'
-import { motion, type Transition } from 'motion/react'
 import { AdvancedSearchBar } from '@/components/common/advanced-search-bar'
-import Cart from '@/features/cart/components/cart'
+import PublicCategoryNav from '@/components/common/public-category-nav'
 import UserMenu from '@/components/common/user-menu'
+import Cart from '@/features/cart/components/cart'
 import { CircleCheckBig, Medal, Truck } from 'lucide-react'
+import { motion, type Transition } from 'motion/react'
 import Image from 'next/image'
 import Link from 'next/link'
-import PublicCategoryNav from '@/components/common/public-category-nav'
-import { CategoryTreeNodeType } from '@/features/categories/types'
+import React from 'react'
 
 const SCROLL_TOP_THRESHOLD = 12
 const SCROLL_DELTA = 6

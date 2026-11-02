@@ -10,9 +10,15 @@ import { useAuthStore } from '@/stores/auth-store'
 import { ChevronDown, User } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
+import { useShallow } from 'zustand/react/shallow'
 
 export default function UserMenu() {
-  const { isAuthenticated, user } = useAuthStore()
+  const { isAuthenticated, user } = useAuthStore(
+    useShallow((state) => ({
+      isAuthenticated: state.isAuthenticated,
+      user: state.user
+    }))
+  )
   const isTabletOrBelow = useIsTablet()
 
   const triggerContent = isAuthenticated ? (

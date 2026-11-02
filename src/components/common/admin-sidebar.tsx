@@ -115,6 +115,11 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
                   url: ROUTES.ADMIN.ORDER.HOME
                 }
               ]
+            },
+            {
+              title: 'Media',
+              url: ROUTES.ADMIN.MEDIA.HOME,
+              icon: GalleryVerticalEnd
             }
           ]}
         />

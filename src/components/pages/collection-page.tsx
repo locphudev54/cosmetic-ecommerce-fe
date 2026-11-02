@@ -18,7 +18,7 @@ import { useCountriesOfOrigin } from '@/features/country-of-origin'
 import ProductCard from '@/features/product/components/product-card'
 import SelectedProductFilterBadge from '@/features/product/components/selected-product-filter-badge'
 import { useProductFilterParams } from '@/features/product/hooks/use-product-filter-params'
-import { Product, ProuctSortingOptionType } from '@/features/product/types'
+import { ProuctSortingOptionType } from '@/features/product/types'
 import { useSearchProductsInfiniteScroll } from '@/features/search/hooks/use-search'
 import { cn } from '@/lib/utils'
 import { ArrowDownAZ, Check, ChevronDown } from 'lucide-react'
@@ -111,15 +111,13 @@ export default function CollectionPage({
   // ─── ES-powered infinite scroll ───────────────────────────────────────
   const {
     items: productList,
-    isLoading: isProductListLoading,
     isFetchingNextPage,
-    isFetching: isProductListFetching,
     hasNextPage,
     totalItems,
-    fetchNextPage
+    sentinelRef
   } = useSearchProductsInfiniteScroll({
     params: { ...debouncedQueryParams, productIds },
-    mode: 'manual'
+    mode: 'scroll'
   })
 
   // ─── Filter items for the UI Filter panel ──────────────────────────────────────────
@@ -385,23 +383,13 @@ export default function CollectionPage({
         </div>
 
         {hasNextPage && (
-          <div className='mt-8 flex justify-center'>
-            <Button
-              variant='outline'
-              size={'lg'}
-              onClick={() => fetchNextPage()}
-              disabled={isFetchingNextPage}
-              className='rounded-md'
-            >
-              {isFetchingNextPage ? (
-                <>
-                  <Spinner className='mr-2' />
-                  Đang tải...
-                </>
-              ) : (
-                'Xem thêm'
-              )}
-            </Button>
+          <div ref={sentinelRef} className='mt-8 flex min-h-12 justify-center'>
+            {isFetchingNextPage && (
+              <div className='flex items-center text-sm text-gray-700'>
+                <Spinner className='mr-2' />
+                Đang tải...
+              </div>
+            )}
           </div>
         )}
 

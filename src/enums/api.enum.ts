@@ -14,3 +14,9 @@ export enum ProductSortBy {
   PRICE = 'basePrice',
   VIEWS = 'views'
 }
+
+export enum PaymentResult {
+  SUCCESS,
+  FAILED,
+  PENDING
+}

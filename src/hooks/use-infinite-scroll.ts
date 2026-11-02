@@ -135,8 +135,6 @@ export function useInfiniteScroll<TData, TQueryKey extends QueryKey = QueryKey>(
     return () => observer.disconnect()
   }, [handleIntersection, threshold, rootMargin, mode])
 
-  console.log({ data })
-
   return {
     items,
     sentinelRef,

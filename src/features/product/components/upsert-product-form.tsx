@@ -524,7 +524,11 @@ export default function UpsertProductForm({ productId }: { productId?: string })
             {/* Action buttons */}
             <div className='flex flex-col items-center justify-end gap-x-2 md:flex-row'>
               {isEditMode && (
-                <Button type='button' variant={'outline'}>
+                <Button
+                  type='button'
+                  variant={'outline'}
+                  onClick={() => router.push(ROUTES.PRODUCTS.DETAIL(productData?.slug ?? ''))}
+                >
                   <Eye />
                   View
                 </Button>

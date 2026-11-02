@@ -123,6 +123,10 @@ export const API_ENDPOINTS = {
     CANCEL: (id: string) => `/orders/${id}/cancel`,
     UPDATE_STATUS: (id: string) => `/orders/${id}/status`,
     SHIPPING_FEE: '/orders/shipping-fee'
+  },
+
+  PAYMENTS: {
+    CREATE: '/payment/create'
   }
 } as const
 

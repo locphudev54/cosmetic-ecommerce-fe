@@ -70,6 +70,9 @@ export const ROUTES = {
     ORDER: {
       HOME: '/admin/orders',
       DETAIL: (id: string) => `/admin/orders/${id}`
+    },
+    MEDIA: {
+      HOME: '/admin/media'
     }
   }
 }

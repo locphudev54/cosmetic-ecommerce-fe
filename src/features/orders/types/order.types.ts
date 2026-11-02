@@ -110,7 +110,7 @@ export interface Order {
   id: string
   userId: string
   idempotencyKey: string | null
-  code: string | null
+  code: string
   status: OrderStatus
   totalPrice: string | number
   shippingFee: string | number
@@ -143,7 +143,7 @@ export interface ShippingInfoRequest {
 
 export interface CreateOrderRequest {
   cartId: string
-  selectedItemIds: string[]
+  selectedCartItemIds: string[]
   paymentMethod: PaymentMethod
   shippingInfo: ShippingInfoRequest
   shippingFee?: number
