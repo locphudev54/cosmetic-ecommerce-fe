@@ -7,6 +7,7 @@ import { envClient } from '@/config/env.client'
 import { useAuthStore } from '@/stores/auth-store'
 import { CART_QUERY_KEY } from '@/features/cart/hooks/use-cart'
 import { toast } from 'sonner'
+import { useShallow } from 'zustand/react/shallow'
 
 /**
  * useCartSocket — Real-time cart sync via WebSocket
@@ -20,7 +21,12 @@ import { toast } from 'sonner'
 export function useCartSocket() {
   const socketRef = useRef<Socket | null>(null)
   const queryClient = useQueryClient()
-  const { accessToken, isAuthenticated } = useAuthStore()
+  const { accessToken, isAuthenticated } = useAuthStore(
+    useShallow((state) => ({
+      accessToken: state.accessToken,
+      isAuthenticated: state.isAuthenticated
+    }))
+  )
 
   useEffect(() => {
     // Only connect if authenticated

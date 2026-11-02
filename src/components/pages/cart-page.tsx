@@ -21,44 +21,59 @@ import {
 import { cn, formatNumberWithCommas, handleApiError } from '@/lib/utils'
 import { Inbox, Loader2, Ticket, Trash2 } from 'lucide-react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
-import { useMemo } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import React, { useMemo } from 'react'
 import { toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function CartPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { data: cartData, isLoading, isError } = useCart()
   const bulkRemoveMutation = useBulkRemoveCartItems()
 
   // Real-time sync for authenticated users
   useCartSocket()
 
-  const { selectedItemIds, selectAll, clearSelection, removeFromSelection } = useCartSelectionStore(
-    useShallow((state) => ({
-      selectedItemIds: state.selectedItemIds,
-      clearSelection: state.clearSelection,
-      selectAll: state.selectAll,
-      removeFromSelection: state.removeFromSelection
-    }))
-  )
+  const { selectedCartItemIds, selectAll, removeFromSelection, toggleCartItem } =
+    useCartSelectionStore(
+      useShallow((state) => ({
+        selectedCartItemIds: state.selectedCartItemIds,
+        selectAll: state.selectAll,
+        removeFromSelection: state.removeFromSelection,
+        toggleCartItem: state.toggleCartItem
+      }))
+    )
 
-  const cartItems = cartData?.items ?? []
+  const cartItems = React.useMemo(() => cartData?.items ?? [], [cartData])
   const cartVersion = cartData?.version ?? 1
+  const selectedProductVariantId = searchParams.get('selectedProductVariantId')
+
+  React.useEffect(() => {
+    if (selectedProductVariantId) {
+      // If the URL contains a selectedProductVariantId, select that item in the cart
+      const itemToSelect = cartItems.find(
+        (item) => item.productVariantId === selectedProductVariantId
+      )
+      if (itemToSelect) {
+        toggleCartItem(itemToSelect.id)
+      }
+    }
+  }, [cartItems, selectedProductVariantId, toggleCartItem])
 
   // Compute selected items total
   const selectedTotalPrice = useMemo(
-    () => computeSelectedTotal(cartItems, selectedItemIds),
-    [cartItems, selectedItemIds]
+    () => computeSelectedTotal(cartItems, selectedCartItemIds),
+    [cartItems, selectedCartItemIds]
   )
 
   const selectedCount = useMemo(
-    () => cartItems.filter((item) => selectedItemIds.includes(item.id)).length,
-    [cartItems, selectedItemIds]
+    () => cartItems.filter((item) => selectedCartItemIds.includes(item.id)).length,
+    [cartItems, selectedCartItemIds]
   )
 
   const allSelected =
-    cartItems.length > 0 && cartItems.every((item) => selectedItemIds.includes(item.id))
+    cartItems.length > 0 && cartItems.every((item) => selectedCartItemIds.includes(item.id))
 
   const handleSelectAll = () => {
     selectAll(cartItems.map((item) => item.id))
@@ -67,7 +82,7 @@ export default function CartPage() {
   const handleBulkDelete = async () => {
     try {
       if (selectedCount === 0) return
-      const itemIdsToRemove = selectedItemIds.filter((id) =>
+      const itemIdsToRemove = selectedCartItemIds.filter((id) =>
         cartItems.some((item) => item.id === id)
       )
       await bulkRemoveMutation.mutateAsync({ itemIds: itemIdsToRemove, version: cartVersion })

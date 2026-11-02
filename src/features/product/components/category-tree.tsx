@@ -17,7 +17,7 @@ export function CategoryTree({ onConfirm }: CategoryTreeProps) {
   const filteredCategories = useCategoryTreeStore((s) => s.filteredCategories)
   const setSearchQuery = useCategoryTreeStore((s) => s.setSearchQuery)
   const clearSearch = useCategoryTreeStore((s) => s.clearSearch)
-  const clearSelection = useCategoryTreeStore((s) => s.clearSelection)
+  const clearCartSelection = useCategoryTreeStore((s) => s.clearCartSelection)
   const moveFocusedCategory = useCategoryTreeStore((s) => s.moveFocusedCategory)
   const toggleSelect = useCategoryTreeStore((s) => s.toggleSelect)
   const toggleExpand = useCategoryTreeStore((s) => s.toggleExpand)
@@ -111,7 +111,7 @@ export function CategoryTree({ onConfirm }: CategoryTreeProps) {
                   {selectedCategories.length}{' '}
                   {selectedCategories.length === 1 ? 'category' : 'categories'} selected
                 </span> */}
-                <Button variant='outline' size='sm' onClick={clearSelection}>
+                <Button variant='outline' size='sm' onClick={clearCartSelection}>
                   <span>Clear ({selectedCategories.length})</span>
                 </Button>
 

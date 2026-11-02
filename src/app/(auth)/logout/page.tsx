@@ -9,11 +9,17 @@ import { ROUTES } from '@/constants/route.constant'
 import internalApiClient from '@/lib/internal-api-client'
 import { useAuthStore } from '@/stores/auth-store'
 import { Loader2, LogOut } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 
 export default function LogoutPage() {
   const router = useRouter()
   const searchParams = useSearchParams()
-  const { clearAuth, accessToken } = useAuthStore()
+  const { clearAuth, accessToken } = useAuthStore(
+    useShallow((state) => ({
+      clearAuth: state.clearAuth,
+      accessToken: state.accessToken
+    }))
+  )
 
   useEffect(() => {
     const key = searchParams.get('key')
@@ -58,10 +64,8 @@ export default function LogoutPage() {
 
         {/* Text */}
         <div className='text-center'>
-          <h2 className='text-lg font-semibold text-foreground'>Đang đăng xuất...</h2>
-          <p className='mt-1 text-sm text-muted-foreground'>
-            Vui lòng đợi trong giây lát
-          </p>
+          <h2 className='text-foreground text-lg font-semibold'>Đang đăng xuất...</h2>
+          <p className='text-muted-foreground mt-1 text-sm'>Vui lòng đợi trong giây lát</p>
         </div>
 
         {/* Spinner */}

@@ -7,40 +7,14 @@ import {
   CarouselNext,
   CarouselPrevious
 } from '@/components/ui/carousel'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle
-} from '@/components/ui/dialog'
 import ProductCard from '@/features/product/components/product-card'
 import { useProducts } from '@/features/product/hooks'
 import Image from 'next/image'
 import React from 'react'
 
-import { Button } from '@/components/ui/button'
-import { envClient } from '@/config/env.client'
-import { Check, Copy } from 'lucide-react'
-import { toast } from 'sonner'
-
 export default function HomePage() {
-  const isDevelopment = envClient.NEXT_PUBLIC_NODE_ENV === 'development'
-  const [dialogOpen, setDialogOpen] = React.useState(!isDevelopment)
-  const [locValue, setLocValue] = React.useState('')
-
   const { data: productsData } = useProducts()
   const productList = productsData?.data ?? []
-
-  const [copiedItem, setCopiedItem] = React.useState<string | null>(null)
-
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text)
-    setCopiedItem(label)
-    toast.success(`${label} đã được sao chép vào clipboard!`)
-    setTimeout(() => setCopiedItem(null), 2000)
-  }
-
   return (
     <React.Fragment>
       <Carousel className='relative'>
@@ -142,68 +116,6 @@ export default function HomePage() {
       </div>
 
       <ScrollToTopButton />
-
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Website đang trong quá trình phát triền</DialogTitle>
-            <DialogDescription>
-              Một số tính năng demo có thể không hoạt động hoặc dữ liệu có thể không chính xác
-              <div>Đội ngũ phát triền đang triển khai các tính năng mới</div>
-              <strong className='mt-3 inline-block text-lg'>Cảm ơn bạn đã truy cập website</strong>
-              <strong className='mt-3 inline-block text-xl text-blue-700'>
-                Nếu website không hiển thị sản phẩm, vui lòng truy cập lại sau vài phút !
-              </strong>
-              <div className='mt-4 mb-6 rounded-lg border-2 border-blue-200 bg-blue-50 p-4'>
-                <h3 className='mb-3 text-sm font-semibold text-blue-900'>👤 Tài khoản Admin</h3>
-                <div className='space-y-2'>
-                  {/* Email */}
-                  <div className='flex items-center justify-between rounded border border-blue-100 bg-white px-3 py-2'>
-                    <div>
-                      <p className='text-xs text-slate-500'>Email</p>
-                      <p className='text-sm font-medium text-slate-800'>loc01@gmail.com</p>
-                    </div>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => handleCopy('phamphuloc7663@gmail.com', 'Email')}
-                      className='ml-2 hover:bg-blue-100'
-                    >
-                      {copiedItem === 'Email' ? (
-                        <Check className='h-4 w-4 text-green-600' />
-                      ) : (
-                        <Copy className='h-4 w-4' />
-                      )}
-                    </Button>
-                  </div>
-
-                  {/* Password */}
-                  <div className='flex items-center justify-between rounded border border-blue-100 bg-white px-3 py-2'>
-                    <div>
-                      <p className='text-xs text-slate-500'>Mật khẩu</p>
-                      <p className='font-mono text-sm font-medium tracking-widest text-slate-800'>
-                        123123123
-                      </p>
-                    </div>
-                    <Button
-                      variant='ghost'
-                      size='sm'
-                      onClick={() => handleCopy('123123123', 'Mật khẩu')}
-                      className='ml-2 hover:bg-blue-100'
-                    >
-                      {copiedItem === 'Mật khẩu' ? (
-                        <Check className='h-4 w-4 text-green-600' />
-                      ) : (
-                        <Copy className='h-4 w-4' />
-                      )}
-                    </Button>
-                  </div>
-                </div>
-              </div>{' '}
-            </DialogDescription>
-          </DialogHeader>
-        </DialogContent>
-      </Dialog>
     </React.Fragment>
   )
 }

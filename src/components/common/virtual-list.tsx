@@ -73,7 +73,7 @@ export function VirtualList<TItem>({
       <div
         ref={scrollContainerRef}
         style={{ height: containerHeight, overflowY: 'auto' }}
-        className='rounded-lg border'
+        className='hidden-scrollbar rounded-lg border'
       >
         {/* Inner spacer — height equals total virtual scroll area */}
         <div style={{ height: totalSize, position: 'relative' }}>

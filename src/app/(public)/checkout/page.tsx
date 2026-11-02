@@ -1,108 +1,109 @@
 'use client'
 
-import * as React from 'react'
-import { useRouter } from 'next/navigation'
+import { Button } from '@/components/ui/button'
+import { Field, FieldError, FieldLabel } from '@/components/ui/field'
+import { Input } from '@/components/ui/input'
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { Separator } from '@/components/ui/separator'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Textarea } from '@/components/ui/textarea'
+import { ROUTES } from '@/constants/route.constant'
 import { useCart } from '@/features/cart/hooks/use-cart'
 import {
-  useCartSelectionStore,
   computeSelectedTotal,
-  getSelectedCartItems
+  getSelectedCartItems,
+  useCartSelectionStore
 } from '@/features/cart/store/cart-selection-store'
 import {
-  useCreateOrder,
   useCreateGuestOrder,
+  useCreateOrder,
   useShippingFee
 } from '@/features/orders/hooks/use-orders'
-import { checkoutSchema, CheckoutFormValues } from '@/features/orders/schemas'
-import { PaymentMethod, PAYMENT_METHOD_LABELS } from '@/features/orders/types/order.types'
+import { CheckoutFormValues, checkoutSchema } from '@/features/orders/schemas'
+import {
+  CreateOrderRequest,
+  PAYMENT_METHOD_LABELS,
+  PaymentMethod
+} from '@/features/orders/types/order.types'
+import { useCreatePayment } from '@/features/payment/hooks/use-payment'
+import { handleApiError } from '@/lib/utils'
 import { useAuthStore } from '@/stores/auth-store'
 import {
   clearCartIdempotencyKey,
   formatNumberToVnCurrency,
   getOrCreateCartIdempotencyKey
 } from '@/utilts/client.utils'
-import { ROUTES } from '@/constants/route.constant'
-import { Skeleton } from '@/components/ui/skeleton'
-import { Button } from '@/components/ui/button'
-import { Field, FieldError, FieldLabel } from '@/components/ui/field'
-import { Input } from '@/components/ui/input'
-import { Textarea } from '@/components/ui/textarea'
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
-import { Separator } from '@/components/ui/separator'
+import { zodResolver } from '@hookform/resolvers/zod'
 import {
   ArrowLeft,
-  MapPin,
-  CreditCard,
-  ShoppingBag,
-  Loader2,
   CheckCircle2,
-  Package
+  CreditCard,
+  Loader2,
+  MapPin,
+  Package,
+  ShoppingBag
 } from 'lucide-react'
-import Link from 'next/link'
 import Image from 'next/image'
-import { toast } from 'sonner'
-import { zodResolver } from '@hookform/resolvers/zod'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import * as React from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { toast } from 'sonner'
 import { useShallow } from 'zustand/react/shallow'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { data: cart, isLoading: cartLoading } = useCart()
   const { data: shippingFee = 0, isLoading: shippingFeeLoading } = useShippingFee()
-  const { selectedItemIds, clearSelection } = useCartSelectionStore(
+  const { selectedCartItemIds, clearCartSelection } = useCartSelectionStore(
     useShallow((state) => ({
-      selectedItemIds: state.selectedItemIds,
-      clearSelection: state.clearSelection
+      selectedCartItemIds: state.selectedCartItemIds,
+      clearCartSelection: state.clearCartSelection
     }))
   )
 
-  const { accessToken } = useAuthStore()
-  const isAuthenticated = !!accessToken
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
   const createOrderMutation = useCreateOrder()
   const createGuestOrderMutation = useCreateGuestOrder()
-
-  const [submitted, setSubmitted] = React.useState(false)
-  const [createdOrderCode, setCreatedOrderCode] = React.useState<string | null>(null)
-  const [submittedShippingInfo, setSubmittedShippingInfo] =
-    React.useState<CheckoutFormValues | null>(null)
+  const createPaymentMutation = useCreatePayment()
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutSchema),
     defaultValues: {
-      fullName: '',
-      email: '',
-      phoneNumber: '',
-      province: '',
-      district: '',
-      ward: '',
-      streetAddress: '',
-      note: '',
-      paymentMethod: PaymentMethod.COD
+      fullName: 'Pham Phu Loc',
+      email: 'phamphuloc7663@gmail.com',
+      phoneNumber: '0987777182',
+      province: 'abc',
+      district: 'xyz',
+      ward: '123',
+      streetAddress: '321',
+      note: '123',
+      paymentMethod: PaymentMethod.BANKING
     }
   })
 
   // Compute selected items from cart
   const cartItems = cart?.items
 
-  const selectedItems = React.useMemo(() => {
+  const selectedCartItems = React.useMemo(() => {
     if (!cartItems) return []
-    return getSelectedCartItems(cartItems, selectedItemIds)
-  }, [cartItems, selectedItemIds])
+    return getSelectedCartItems(cartItems, selectedCartItemIds)
+  }, [cartItems, selectedCartItemIds])
 
   const selectedTotal = React.useMemo(() => {
     if (!cartItems) return 0
-    return computeSelectedTotal(cartItems, selectedItemIds)
-  }, [cartItems, selectedItemIds])
+    return computeSelectedTotal(cartItems, selectedCartItemIds)
+  }, [cartItems, selectedCartItemIds])
 
   const grandTotal = selectedTotal + (shippingFee || 0)
 
   // Redirect if no items selected
   React.useEffect(() => {
-    if (!cartLoading && selectedItems.length === 0 && !submitted) {
+    if (!cartLoading && selectedCartItems.length === 0) {
       router.push(ROUTES.CART)
     }
-  }, [cartLoading, selectedItems.length, submitted, router])
+  }, [cartLoading, selectedCartItems.length, router])
 
   const onSubmit = async (data: CheckoutFormValues) => {
     if (!cart) {
@@ -111,9 +112,9 @@ export default function CheckoutPage() {
     }
 
     const { paymentMethod, ...shippingInfo } = data
-    const orderData = {
+    const orderData: CreateOrderRequest = {
       cartId: cart.id,
-      selectedItemIds,
+      selectedCartItemIds,
       paymentMethod,
       shippingInfo,
       shippingFee: shippingFee || 0
@@ -122,38 +123,52 @@ export default function CheckoutPage() {
 
     try {
       const mutation = isAuthenticated ? createOrderMutation : createGuestOrderMutation
-      const response = await mutation.mutateAsync({ data: orderData, idempotencyKey })
+      const { data: newOrder } = await mutation.mutateAsync({ data: orderData, idempotencyKey })
 
       clearCartIdempotencyKey(cart.id)
+      clearCartSelection()
 
-      setSubmittedShippingInfo(data)
-      setCreatedOrderCode(response.data?.code || null)
-      setSubmitted(true)
-      clearSelection()
-      toast.success('Đặt hàng thành công!')
+      if (paymentMethod === PaymentMethod.BANKING) {
+        const { code: createdOrderCode, totalPrice } = newOrder
+
+        debugger
+        const { paymentUrl } = await createPaymentMutation.mutateAsync({
+          amount: +totalPrice,
+          orderCode: createdOrderCode,
+          orderId: newOrder.id
+        })
+
+        // Redirect to payment gateway
+        router.push(paymentUrl)
+      }
     } catch (error: any) {
+      debugger
       toast.error(error?.message || 'Đặt hàng thất bại. Vui lòng thử lại.')
+      // handleApiError(error, form)
     }
   }
 
   const isSubmitting =
     createOrderMutation.isPending ||
     createGuestOrderMutation.isPending ||
-    form.formState.isSubmitting
-  const submittedEmail = submittedShippingInfo?.email ?? ''
+    form.formState.isSubmitting ||
+    createPaymentMutation.isPending
 
-  // Success screen
-  if (submitted && createdOrderCode) {
+  // Success screen when place the order successfully (but the payment may still be in other states: pending, failed, etc.)
+  if (
+    (createOrderMutation.isSuccess || createGuestOrderMutation.isSuccess) &&
+    form.getValues('paymentMethod') === PaymentMethod.COD
+  ) {
     return (
       <div className='mx-auto max-w-lg py-20 text-center'>
         <div className='mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100'>
           <CheckCircle2 className='h-10 w-10 text-emerald-600' />
         </div>
         <h1 className='mb-2 text-2xl font-bold text-gray-900'>Đặt hàng thành công!</h1>
-        <p className='mb-1 text-gray-600'>Mã đơn hàng của bạn:</p>
-        <p className='mb-6 text-xl font-semibold text-rose-600'>{createdOrderCode}</p>
+        {/* <p className='mb-1 text-gray-600'>Mã đơn hàng của bạn:</p>
+    <p className='mb-6 text-xl font-semibold text-rose-600'>{}</p> */}
         <p className='mb-8 text-sm text-gray-500'>
-          Chúng tôi đã gửi email xác nhận đến {submittedEmail}. Bạn có thể theo dõi trạng thái đơn
+          Chúng tôi đã gửi email xác nhận đến tài khoản của bạn. Bạn có thể theo dõi trạng thái đơn
           hàng trong phần &quot;Đơn hàng&quot; của tài khoản.
         </p>
         <div className='flex justify-center gap-4'>
@@ -408,11 +423,11 @@ export default function CheckoutPage() {
           <div className='rounded-xl border bg-white p-6 shadow-sm'>
             <div className='mb-4 flex items-center gap-2'>
               <Package className='h-5 w-5 text-rose-600' />
-              <h2 className='text-lg font-semibold'>Sản phẩm ({selectedItems.length})</h2>
+              <h2 className='text-lg font-semibold'>Sản phẩm ({selectedCartItems.length})</h2>
             </div>
 
             <div className='space-y-4'>
-              {selectedItems.map((item) => {
+              {selectedCartItems.map((item) => {
                 const imageUrl =
                   item.productVariant?.imageUrl ||
                   item.productVariant?.product?.images?.[0]?.url ||
@@ -455,7 +470,9 @@ export default function CheckoutPage() {
 
             <div className='space-y-3'>
               <div className='flex justify-between text-sm'>
-                <span className='text-gray-600'>Tạm tính ({selectedItems.length} sản phẩm)</span>
+                <span className='text-gray-600'>
+                  Tạm tính ({selectedCartItems.length} sản phẩm)
+                </span>
                 <span className='font-medium'>{formatNumberToVnCurrency(selectedTotal)}</span>
               </div>
               <div className='flex justify-between text-sm'>
@@ -477,7 +494,7 @@ export default function CheckoutPage() {
               className='mt-6 w-full bg-rose-600 text-white hover:bg-rose-700'
               size='lg'
               type='submit'
-              disabled={isSubmitting || selectedItems.length === 0}
+              disabled={isSubmitting || selectedCartItems.length === 0}
             >
               {isSubmitting ? (
                 <>

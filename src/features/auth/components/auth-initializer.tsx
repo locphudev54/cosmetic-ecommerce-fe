@@ -1,14 +1,12 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { API_ENDPOINTS } from '@/constants/api.constant'
 import { authService } from '@/features/auth/services'
 import { RefreshTokenClientResponse } from '@/features/auth/types/auth.types'
 import internalApiClient from '@/lib/internal-api-client'
 import { useAuthStore } from '@/stores/auth-store'
-import { usePathname } from 'next/navigation'
-import { ROUTES } from '@/constants/route.constant'
 
 interface AuthInitializerProps {
   accessToken?: string
@@ -16,65 +14,83 @@ interface AuthInitializerProps {
 }
 
 export function AuthInitializer({ accessToken, refreshToken }: AuthInitializerProps) {
-  const pathname = usePathname()
-  const { clearAuth, setUser, setAccessToken } = useAuthStore()
+  const initializedTokenKeyRef = useRef<string | null>(null)
 
-  // const isAuthenticationPath = [
-  //   ROUTES.AUTH.LOGIN,
-  //   ROUTES.AUTH.REGISTER,
-  //   ROUTES.AUTH.LOGOUT
-  // ].includes(pathname)
+  useEffect(() => {
+    const tokenKey = `${accessToken ?? ''}:${refreshToken ?? ''}`
 
-  useEffect(
-    () => {
-      const refreshTokenFunction = async () => {
-        // If already have access token received from server-side rendering, no need to refresh
-        // Set this access token to auth store
+    if (initializedTokenKeyRef.current === tokenKey) {
+      return
+    }
 
-        if (accessToken) {
-          const user = await authService.getMe(accessToken).catch((error) => {
-            console.log('Failed to fetch user with existing access token:', error)
-            clearAuth()
-          })
+    initializedTokenKeyRef.current = tokenKey
 
-          if (!user) {
+    let isCurrent = true
+
+    const syncAuthState = async () => {
+      const { clearAuth, setAccessToken, setUser } = useAuthStore.getState()
+
+      if (!accessToken && !refreshToken) {
+        return
+      }
+
+      if (accessToken) {
+        try {
+          const user = await authService.getMe(accessToken)
+
+          if (!isCurrent) {
             return
           }
 
-          setUser(user)
-          setAccessToken(accessToken)
-          return
-        }
+          const { accessToken: storeAccessToken, user: storeUser } = useAuthStore.getState()
 
-        if (
-          !refreshToken
-          // || pathname === ROUTES.AUTH.LOGOUT
-        ) {
-          return
-        }
+          if (storeAccessToken !== accessToken) {
+            setAccessToken(accessToken)
+          }
 
-        try {
-          const response = await internalApiClient.post<RefreshTokenClientResponse>(
-            API_ENDPOINTS.AUTH.REFRESH
-          )
-
-          const { user, accessToken } = response.data
-          setUser(user)
-          setAccessToken(accessToken)
+          if (storeUser?.id !== user.id) {
+            setUser(user)
+          }
         } catch (error) {
+          if (!isCurrent) {
+            return
+          }
+
           clearAuth()
-          console.log('Token refresh failed:', error)
+          console.log('Failed to fetch user with existing access token:', error)
         }
+
+        return
       }
 
-      // Bug, when user go to home page, this useEffect will run, but accessToken is undefined, so it will call refreshToken, but refreshToken will fail because there is no refresh token in cookie, so it will clearAut
-      //  but user is not authenticated and user will be logged out, and user will be redirected to login page
-      refreshTokenFunction()
-    },
+      try {
+        const response = await internalApiClient.post<RefreshTokenClientResponse>(
+          API_ENDPOINTS.AUTH.REFRESH
+        )
 
-    // []
-    [accessToken, clearAuth, refreshToken, setAccessToken, setUser]
-  )
+        if (!isCurrent) {
+          return
+        }
+
+        const { user, accessToken } = response.data
+        setAccessToken(accessToken)
+        setUser(user)
+      } catch (error) {
+        if (!isCurrent) {
+          return
+        }
+
+        clearAuth()
+        console.log('Token refresh failed:', error)
+      }
+    }
+
+    syncAuthState()
+
+    return () => {
+      isCurrent = false
+    }
+  }, [accessToken, refreshToken])
 
   return null
 }

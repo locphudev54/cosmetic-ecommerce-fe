@@ -26,11 +26,16 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import { useShallow } from 'zustand/react/shallow'
 
 export function RegisterForm({ className, ...props }: React.ComponentProps<'div'>) {
   const router = useRouter()
-  const setUser = useAuthStore((state) => state.setUser)
-  const setAccessToken = useAuthStore((state) => state.setAccessToken)
+  const { setUser, setAccessToken } = useAuthStore(
+    useShallow((state) => ({
+      setUser: state.setUser,
+      setAccessToken: state.setAccessToken
+    }))
+  )
 
   const form = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),

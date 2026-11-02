@@ -82,7 +82,7 @@ export function VirtualGrid<TItem>({
       <div
         ref={scrollContainerRef}
         style={{ height: containerHeight, overflowY: 'auto' }}
-        className='rounded-lg border'
+        className='custom-scrollbar rounded-lg border'
       >
         {/* Inner spacer */}
         <div style={{ height: totalSize, position: 'relative' }}>

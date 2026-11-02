@@ -35,7 +35,7 @@ interface CategoryTreeState {
   unSelectNodes: (ids: string[]) => void
 
   clearSearch: () => void
-  clearSelection: () => void
+  clearCartSelection: () => void
   setFocusedCategoryId: (id: string | null) => void
   moveFocusedCategory: (direction: 'up' | 'down') => void
   isExpanded: (id: string) => boolean
@@ -305,7 +305,7 @@ export const useCategoryTreeStore = create<CategoryTreeState>()(
           return { searchQuery: '', focusedCategoryId: null, ...derived }
         }),
 
-      clearSelection: () =>
+      clearCartSelection: () =>
         set(() => {
           return { selectedCategories: [] }
           // return { selected: new Set<string>() }

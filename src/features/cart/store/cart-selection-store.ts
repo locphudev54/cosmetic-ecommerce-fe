@@ -9,12 +9,12 @@ import { devtools, persist } from 'zustand/middleware'
  * for checkout. Persisted to localStorage so selections survive page reloads.
  */
 interface CartSelectionState {
-  selectedItemIds: string[]
+  selectedCartItemIds: string[]
 
   // Actions
-  toggleItem: (itemId: string) => void
+  toggleCartItem: (itemId: string) => void
   selectAll: (itemIds: string[]) => void
-  clearSelection: () => void
+  clearCartSelection: () => void
   isSelected: (itemId: string) => boolean
   removeFromSelection: (itemIds: string[]) => void
 
@@ -26,50 +26,50 @@ export const useCartSelectionStore = create<CartSelectionState>()(
   devtools(
     persist(
       (set, get) => ({
-        selectedItemIds: [],
+        selectedCartItemIds: [],
 
-        toggleItem: (itemId: string) => {
-          const current = get().selectedItemIds
+        toggleCartItem: (itemId: string) => {
+          const current = get().selectedCartItemIds
           const isCurrentlySelected = current.includes(itemId)
 
           set({
-            selectedItemIds: isCurrentlySelected
+            selectedCartItemIds: isCurrentlySelected
               ? current.filter((id) => id !== itemId)
               : [...current, itemId]
           })
         },
 
         selectAll: (itemIds: string[]) => {
-          const current = get().selectedItemIds
+          const current = get().selectedCartItemIds
           const allSelected = itemIds.every((id) => current.includes(id))
 
           set({
-            selectedItemIds: allSelected ? [] : itemIds
+            selectedCartItemIds: allSelected ? [] : itemIds
           })
         },
 
-        clearSelection: () => {
-          set({ selectedItemIds: [] })
+        clearCartSelection: () => {
+          set({ selectedCartItemIds: [] })
         },
 
         isSelected: (itemId: string) => {
-          return get().selectedItemIds.includes(itemId)
+          return get().selectedCartItemIds.includes(itemId)
         },
 
         removeFromSelection: (itemIds: string[]) => {
           set({
-            selectedItemIds: get().selectedItemIds.filter((id) => !itemIds.includes(id))
+            selectedCartItemIds: get().selectedCartItemIds.filter((id) => !itemIds.includes(id))
           })
         },
 
         getSelectedCount: () => {
-          return get().selectedItemIds.length
+          return get().selectedCartItemIds.length
         }
       }),
       {
         name: 'cart-selection-store',
-        // Only persist selectedItemIds
-        partialize: (state) => ({ selectedItemIds: state.selectedItemIds })
+        // Only persist selectedCartItemIds
+        partialize: (state) => ({ selectedCartItemIds: state.selectedCartItemIds })
       }
     ),
     {
@@ -81,12 +81,9 @@ export const useCartSelectionStore = create<CartSelectionState>()(
 /**
  * Helper to compute selected total from cart items
  */
-export function computeSelectedTotal(
-  items: CartItemType[],
-  selectedItemIds: string[]
-): number {
+export function computeSelectedTotal(items: CartItemType[], selectedCartItemIds: string[]): number {
   return items
-    .filter((item) => selectedItemIds.includes(item.id))
+    .filter((item) => selectedCartItemIds.includes(item.id))
     .reduce((total, item) => total + Number(item.subtotal), 0)
 }
 
@@ -95,7 +92,7 @@ export function computeSelectedTotal(
  */
 export function getSelectedCartItems(
   items: CartItemType[],
-  selectedItemIds: string[]
+  selectedCartItemIds: string[]
 ): CartItemType[] {
-  return items.filter((item) => selectedItemIds.includes(item.id))
+  return items.filter((item) => selectedCartItemIds.includes(item.id))
 }

@@ -1,5 +1,7 @@
 'use client'
 
+import NextJsImage from '@/components/common/next-js-image'
+import RichTextDescription from '@/components/common/rich-text-description'
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -8,9 +10,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator
 } from '@/components/ui/breadcrumb'
-import NextJsImage from '@/components/common/next-js-image'
-import { ROUTES } from '@/constants/route.constant'
-import RichTextDescription from '@/components/common/rich-text-description'
 import {
   Carousel,
   CarouselContent,
@@ -19,6 +18,8 @@ import {
   CarouselPrevious,
   type CarouselApi
 } from '@/components/ui/carousel'
+import { ROUTES } from '@/constants/route.constant'
+import { useAddToCart } from '@/features/cart/hooks/use-cart'
 import QuantitySelect from '@/features/product/components/quantity-select'
 import { useProductBySlug } from '@/features/product/hooks'
 import type { ProductVariant } from '@/features/product/types'
@@ -29,16 +30,14 @@ import { Box, Phone, Truck, ZoomIn } from 'lucide-react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import React from 'react'
+import { toast } from 'sonner'
 import type { RenderThumbnailProps } from 'yet-another-react-lightbox'
 import Thumbnails from 'yet-another-react-lightbox/plugins/thumbnails'
+import 'yet-another-react-lightbox/plugins/thumbnails.css'
 import Zoom from 'yet-another-react-lightbox/plugins/zoom'
 import 'yet-another-react-lightbox/styles.css'
-import 'yet-another-react-lightbox/plugins/thumbnails.css'
-import { useAddToCart } from '@/features/cart/hooks/use-cart'
-import { useCartSelectionStore } from '@/features/cart/store/cart-selection-store'
-import { toast } from 'sonner'
-import { useRouter } from 'next/navigation'
 
 const Lightbox = dynamic(() => import('yet-another-react-lightbox'), {
   ssr: false
@@ -104,7 +103,6 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
     return Array.from(attributeMap.values())
   }, [variants])
 
-  const toggleItem = useCartSelectionStore((s) => s.toggleItem)
   const [selectedAttributes, setSelectedAttributes] = React.useState<Record<string, string>>({})
   const [buyCount, setBuyCount] = React.useState<number>(1)
   const [galleryApi, setGalleryApi] = React.useState<CarouselApi | null>(null)
@@ -294,10 +292,9 @@ export default function ProductDetailPage({ slug }: ProductDetailPageProps) {
       await addToCartMutation.mutateAsync({ productVariantId: variantId, quantity: buyCount })
 
       if (buyNow) {
-        toggleItem(variantId)
         toast.success('Thêm vào giỏ hàng thành công! Chuyển đến giỏ hàng...')
         setTimeout(() => {
-          router.push(ROUTES.CART)
+          router.push(`${ROUTES.CART}?selectedProductVariantId=${variantId}`)
         }, 1500)
       } else {
         toast.success('Thêm vào giỏ hàng thành công!')
